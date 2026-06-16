@@ -1,0 +1,111 @@
+.position_relitive{
+    position: relative;
+}
+
+.varified-badge{
+    padding: 0;
+    border: none;
+    background: none;
+    /* position: absolute;
+    right: -20px !important;
+    top: 0px; */
+}
+.varified-badge.detail-varified-badge{
+    padding: 0;
+    border: none;
+    background: none;
+    position: absolute;
+    right: -28px;
+    top: 10px;
+}
+.varified-badge span{
+    margin: 0;
+    color: #00bf8c;
+    background: none;
+    display: inline;
+    padding:0 ;
+}
+.varified-badge svg{
+    width: 24px;
+    height: 24px;
+}
+
+.detail-varified-badge-custom{
+    padding: 0;
+    border: none;
+    background: none;
+    position: absolute;
+    right: 213px;
+    top: 2px;
+}
+.detail-varified-badge-custom.detail-varified-badge{
+    padding: 0;
+    border: none;
+    background: none;
+    position: absolute;
+    right: -28px;
+    top: 10px;
+}
+.detail-varified-badge-custom span{
+    margin: 0;
+    color: #00bf8c;
+    background: none;
+    display: inline;
+    padding:0 ;
+}
+.detail-varified-badge-custom svg{
+    width: 24px;
+    height: 24px;
+}
+
+.kyc{
+    color: rgb(4, 204, 4);
+    width: 24px !important;
+    height: 24px !important;
+}
+
+.homec-agent__title span{
+    color: #7e8ba0;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: initial;
+ }
+.homec-agent__title a{
+   display: flex !important;
+ align-items: center !important;
+ gap: 5px !important;
+}
+
+.verifies_df{
+    display: flex !important;
+    gap: 5px !important;
+}
+
+.verifies_df.verifies_df svg{
+    fill: currentColor;
+    color: #00bf8c !important;
+}
+
+
+
+
+
+
+.homec-agent__title a .varified-badge svg{
+
+    fill: currentColor !important;
+    color: #00bf8c !important;
+
+}
+
+
+
+
+
+
+.homec-agent.homec-agent__v2 .homec-agent__title a{
+    display: flex !important;
+    align-items: center !important;
+}
+
+

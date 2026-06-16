@@ -1,0 +1,401 @@
+.homec-btn::before {
+    z-index: -1;
+}
+
+.agent_agency_btn {
+    margin-bottom: 10px;
+}
+
+.agent_agency_btn .nav {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+}
+
+.agent_agency_btn .nav-link {
+    line-height: 60px;
+    height: 60px;
+    padding: 0 30px;
+    background-color: #fff;
+    color: #7166f0;
+    border: 1px solid #7166f0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.agent_agency_btn .nav-link.active {
+    background-color: #7166f0;
+    color: #fff;
+}
+
+.homec-btn_border {
+    background-color: #fff;
+    color: #7166f0;
+    border: 1px solid #7166f0;
+}
+
+.homec-btn_border::before {
+    background-color: #7166f0;
+}
+
+.homec-btn_border:hover {
+    color: #fff;
+}
+
+.agency-details .homec-agent-detail__inside {
+    margin-top: 24px;
+}
+
+.agency-details .homec-agent-detail__list {
+    gap: 20px;
+}
+
+.agency-details .homec-agent-detail__img {
+    height: 317px;
+}
+
+.agency-details .homec-agent-detail__img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.agency-details .homec-agent__social.homec-agent__social--inline {
+    margin-top: 40px;
+}
+
+.agency-details .agent_agency_btn {
+    margin-top: 40px;
+    margin-bottom: 30px;
+}
+
+.agency-details .homec-agent__list {
+    display: flex;
+}
+
+.add_agents_thumb_main,
+.add_agents_btn {
+    display: flex;
+    justify-content: center;
+}
+
+.add_agents_thumb_thumb {
+    width: 260px;
+    height: 241px;
+}
+
+.add_agents_text {
+    text-align: center;
+    margin-top: 35px;
+}
+
+.add_agents_text h3 {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: normal;
+    color: #111;
+}
+
+.add_agents_btn {
+    margin-top: 20px;
+}
+
+.admin-item_text span {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 180%;
+    color: #7166f0;
+}
+
+.admin-item_text p,
+.remove_agent_item_text p {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 180%;
+    color: #111;
+}
+
+
+/* Switch Button */
+
+.switch-btn span {
+    display: flex;
+    align-items: center;
+    width: 69px;
+    height: 30px;
+    border-radius: 99px;
+    background-color: #34c759;
+    transition: 0.3s;
+    position: relative;
+}
+
+.switch-btn span::before {
+    content: "";
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: #fff;
+    position: absolute;
+    left: 1px;
+    transition: 0.6s;
+}
+
+.switch-btn input {
+    display: none;
+}
+
+.switch-btn input:checked~span {
+    background-color: #34c759;
+}
+
+.switch-btn input:checked~span::before {
+    left: 43px;
+}
+
+.admin-item {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.remove_agent_item {
+    margin-top: 20px;
+}
+
+.remove_agent_item_text h6 {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 175%;
+    color: #7e8ba0;
+}
+
+.remove_agent_btn .homec-btn {
+    background-color: #eb5757;
+}
+
+.remove_agent_btn .homec-btn:hover {
+    color: #eb5757;
+}
+
+.h-b-t {
+    border-top: 1px solid #d9d9d9;
+    margin-top: 30px;
+}
+
+.h-b-t .homec-btn {
+    margin-top: 18px;
+}
+
+.homec-dashboard__inner_df {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.homec-dashboard__inner .homec-agent.homec-agent__v2 .homec-agent__body {
+    display: flex;
+    gap: 8px;
+    height: unset;
+    min-height: unset;
+    justify-content: end;
+    margin-top: 42px;
+}
+
+.homec-agent .homec-agent__v2 {
+    position: relative;
+}
+
+.homec-agent__body_btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.homec-agent__body_btn .edit_btn,
+.delet_btn {
+    width: 28px;
+    height: 28px;
+    background-color: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+}
+
+.homec-agent__body_btn .delet_btn span svg {
+    stroke: currentColor;
+    color: #fff;
+}
+
+.homec-agent__body_btn .delet_btn:hover {
+    background-color: #eb5757;
+}
+
+.homec-property-bar__single {
+    justify-content: space-between;
+}
+
+.homec-dashboard-property {
+    display: block;
+    padding: 0;
+}
+
+.homec-dashboard-property_df {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.homec-dashboard-property_inner {
+    border-top: 1px solid #eceaff;
+}
+
+.homec-dashboard-property_inner_box {
+    padding: 20px;
+}
+
+.homec-dashboard-property_inner_prof_thumb {
+    width: 60px;
+    height: 60px;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 1px solid #eceaff;
+}
+
+.homec-dashboard-property_inner_prof_text a {
+    color: #111;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 148%;
+}
+
+.homec-dashboard-property_inner_prof_text p {
+    color: #7e8ba0;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 26px;
+}
+
+.homec-dashboard-property_inner_prof {
+    display: flex;
+    gap: 15px;
+}
+
+.homec-dashboard-property_inner_status_text h4 {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 148%;
+    color: #111;
+    margin-bottom: 0;
+}
+
+.homec-dashboard-property_inner_status .homeco__item-switch input:checked+.homeco__item-switch--slide {
+    background-color: #34c759;
+}
+
+.homec-dashboard-property_inner_status .homeco__item-switch--slide::before {
+    height: 20px;
+    width: 20px;
+    background-color: #fff;
+    top: 1px;
+}
+
+.homec-dashboard-property_inner_status .homeco__item-switch input:checked+.homeco__item-switch--slide::before {
+    background: #fff;
+}
+
+.homec-dashboard-property_inner_status .homeco__item-switch {
+    width: 52px;
+}
+
+.homec-dashboard-property_inner_status {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.homec-dashboard-property_inner_box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.homec-property__asticky.homec-property__asticky_two img {
+    width: 36px !important;
+    height: 36px !important;
+    min-height: 100% !important;
+}
+
+.admin-language-switcer {
+    margin-bottom: 10px !important;
+}
+
+
+/* responsive  */
+
+@media (max-width: 1536px) {}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .select2-container {
+        width: 100% !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .homec-property.homec-property__list-style {
+        flex-direction: row;
+    }
+    .select2-container {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .homec-btn {
+        padding: 0 12px;
+        height: 46px;
+        font-size: 16px;
+        line-height: 46px;
+    }
+    .add_agents_text h3 {
+        font-size: 24px;
+    }
+    .select2-container {
+        width: 100% !important;
+    }
+    .homec-dashboard-property_df {
+        flex-direction: column;
+        align-items: start;
+    }
+    .homec-dashboard-property__rating {
+        align-items: start;
+        gap: 5px;
+        flex-direction: column;
+    }
+    .homec-dashboard-property_inner_box {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .homec-dashboard-property__img img {
+        max-width: 100%;
+    }
+    .agent_agency_btn .nav-link {
+        line-height: 50px;
+        height: 50px;
+        padding: 0 20px;
+    }
+    .homec-property-bar__single {
+        align-items: start;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {}
+
+@media (max-width: 575.96px) {}

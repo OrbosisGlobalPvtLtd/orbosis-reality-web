@@ -1,0 +1,77 @@
+/vendor/
+/node_modules/
+/.env
+/.env.*
+!/.env.example
+/storage/*.key
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+/bootstrap/cache/*
+/public/storage
+/public/hot
+/public/build
+/public_html_old/
+/public_html_infected*/
+/restore_backup/
+/infected-site-backup-*.zip
+/backup-*.zip
+*.quarantine
+*.bak
+*.old
+*.zip
+*.tar
+*.tar.gz
+*.sql
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Ignore rules for suspicious cleanup artifacts:
+public/ss.php*
+public/backend/qlex1.php*
+public/toastr/admin-functions.php*
+bless25*.php*
+monarx-analyzer.php*
+wp-section.zip
+
+# Laravel
+/storage/debugbar
+/public/storage
+Homestead.json
+Homestead.yaml
+auth.json
+
+# Composer
+/vendor/
+
+# NPM
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+/.fleet/
+.phpunit.result.cache
+
+# OS Files
+Desktop.ini
+
+# Logs
+*.log
+
+# Cache
+/storage/framework/cache/data/*
+/storage/framework/testing/*
+/storage/framework/livewire-tmp/*
+
+# Uploaded backups
+*.rar
+*.7z
+
+# Temporary files
+*.tmp
+*.temp
