@@ -221,15 +221,8 @@ class UserProfileController extends Controller
             'password.confirmed' => trans('user_validation.Confirm password does not match'),
         ];
         $this->validate($request, $rules,$customMessages);
+
         $user = Auth::guard('web')->user();
-
-        if(Hash::check($request->password, $user->password)){
-            return redirect()->back()->with([
-                'messege' => 'It is the same password as previous',
-                'alert-type' => 'error'
-            ]);
-        }
-
         if(Hash::check($request->current_password, $user->password)){
             $user->password = Hash::make($request->password);
             $user->save();

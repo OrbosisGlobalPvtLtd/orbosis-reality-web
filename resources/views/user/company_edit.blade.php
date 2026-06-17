@@ -39,10 +39,7 @@
                     <form action="{{ route('user.update-agency-information', ['id' => $user?->profile?->id]) }}" method="post" enctype="multipart/form-data">
                         @csrf
                         <div class="row">
-                            <div class="col-lg-3 col-md-4 col-12 mg-top-30">
-                                @include('user.sidebar')
-                            </div>
-                            <div class="col-lg-9 col-md-8 col-12 mg-top-30">
+                            <div class="col-lg-6">
                                 <div class="homec-submit-form">
                                     <h4 class="homec-submit-form__title">{{ __('user.Company Information') }}</h4>
                                     <div class="homec-submit-form__inner">
@@ -80,7 +77,8 @@
                                         </div>
                                     </div>
                                 </div>
-
+                            </div>
+                            <div class="col-lg-6">
                                 <div class="homec-submit-form">
                                     <h4 class="homec-submit-form__title">{{ __('user.Company Logo') }}</h4>
                                     <div class="homec-submit-form__inner">
@@ -106,6 +104,10 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+
 
                         <div class="homec-submit-form mg-top-40">
                             <h4 class="homec-submit-form__title">{{ __('user.Contact Info') }}</h4>
@@ -249,9 +251,6 @@
                                     class="homec-btn homec-btn__second"><span>{{ __('user.Update') }}</span></button>
                             </div>
                         </div>
-                            </div>
-                        </div>
-
                     </form>
                 </div>
             </div>

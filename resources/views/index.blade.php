@@ -450,7 +450,6 @@
 					<div class="hero-overlay"></div>
 				</div>
 			</div>
-            
 
 			<!-- Navigation Controls -->
 			<button class="carousel-control-prev" type="button" data-bs-target="#hero-carousel" data-bs-slide="prev">
@@ -818,15 +817,13 @@
                                     </div>
                                     <!-- Property Body-->
                                     <div class="homec-property__body">
-<div class="homec-property__topbar">
-    <div class="homec-property__price">
-    	{{ $setting->currency_icon }}{{ number_format($featured_property->total_price, 2) }}
-    	<!-- {{ html_decode(num_format($featured_property->price)) }}
-        @if ($featured_property->purpose == 'rent')
-        <span>/{{ $featured_property->rent_period }}</span>
-        @endif -->
-    </div>
-</div>
+                                        <div class="homec-property__topbar">
+                                            <div class="homec-property__price">{{ html_decode(num_format($featured_property->price)) }}
+                                                @if ($featured_property->purpose == 'rent')
+                                                <span>/{{ $featured_property->rent_period }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
                                         <h3 class="homec-property__title"><a href="{{ route('property', html_decode($featured_property->slug)) }}">{{ html_decode($featured_property->title) }}</a></h3>
                                         <div class="homec-property__text">
                                             <img src="{{ asset('frontend/img/location-icon.svg') }}" alt="address"><p>{{ html_decode($featured_property->address) }}</p>
@@ -1113,7 +1110,6 @@
                 @endif
             @endif
         @endif
-
         @if ($faq->visibility)
 		<!-- Faq Area -->
 		<section class="homec-bg-cover pd-top-90 pd-btm-120 homec-faq-bg">

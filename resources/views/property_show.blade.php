@@ -46,15 +46,13 @@
 											<div class="homec-image-gallery">
 												<!-- Amount Card -->
 												<div class="homec-amount-card homec-amount-card__sticky">
-<h4 class="homec-amount-card__amount">
-{{ $setting->currency_icon }}{{ number_format($property->total_price, 2) }}
-<!-- {{ html_decode(num_format($property->price)) }} -->
-@if ($property->purpose == 'rent')
-<span>{{ $property->rent_period }}</span>
-@endif
-</h4>
-					
-                    							</div>
+													<h4 class="homec-amount-card__amount">{{ html_decode(num_format($property->price)) }}
+													@if ($property->purpose == 'rent')
+                                                    <span>{{ $property->rent_period }}</span>
+                                                    @endif
+
+													</h4>
+												</div>
 												<!-- End Amount Card -->
 												<div class="homec-overlay"></div>
 												<img src="{{ ($slider->image)? asset($slider->image) : asset($setting->default_placeholder)}}" alt="#">

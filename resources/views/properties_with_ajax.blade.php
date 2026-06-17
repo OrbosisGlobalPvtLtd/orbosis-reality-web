@@ -1,30 +1,13 @@
-<style>
-.img-box {
-    width: 100%;
-    height: 250px;       /* FIX HEIGHT */
-    overflow: hidden;    /* IMPORTANT */
-    border-radius: 10px;
-}
-
-.img-box img {
-    width: 100%;
-    height: auto !important;
-    object-fit: cover;   /* MAIN FIX */
-}
-</style>
 <!-- Grid Tab -->
 <div class="tab-pane fade show active grid_body" id="homec-grid" role="tabpanel">
     <div class="row">
         @forelse ($properties as $property_item)
             <div class="col-md-6 col-12 mg-top-30">
                 <!-- Single property-->
-<a href="{{ route('property', html_decode($property_item->slug)) }}">
                 <div class="homec-property">
                     <!-- Property Head-->
                     <div class="homec-property__head">
-                    <div class="img-box">
                         <img src="{{ ($property_item->thumbnail_image)? asset($property_item->thumbnail_image) : asset($setting->default_placeholder)}}">
-                    </div>
                         <!-- Top Sticky -->
                         <div class="homec-property__hsticky">
 
@@ -60,17 +43,16 @@
                     <!-- Property Body-->
                     <div class="homec-property__body">
                         <div class="homec-property__topbar">
-<div class="homec-property__price">
-    {{ $setting->currency_icon }}{{ number_format(($property_item->total_price),2) }}
-    <!-- <span>/Sf</span> -->
-    <!-- @if ($property_item->purpose == 'rent')
-    <span>/{{ $property_item->rent_period }}</span>
-    @endif -->
-</div>
+                            <div class="homec-property__price">
+                                {{ html_decode(num_format($property_item->price)) }}
+                                @if ($property_item->purpose == 'rent')
+                                    <span>/{{ $property_item->rent_period }}</span>
+                                @endif
+                            </div>
                         </div>
 
-                        <h3 class="homec-property__title">
-                            <a href="{{ route('property', html_decode($property_item->slug)) }}">{{ html_decode($property_item->title) }}</a>
+                        <h3 class="homec-property__title"><a
+                                href="{{ route('property', html_decode($property_item->slug)) }}">{{ html_decode($property_item->title) }}</a>
                         </h3>
                         <div class="homec-property__text">
                             <img src="{{ asset('frontend/img/location-icon.svg') }}" alt="address">
@@ -83,12 +65,12 @@
                             <li><img src="{{ asset('frontend/img/bath-icon2.svg') }}"
                                     alt="total_bathroom">{{ $property_item->total_bathroom }} {{ __('user.Bath') }}
                             </li>
-                            <li><img src="{{ asset('frontend/img/size-icon2.svg') }}" alt="total_area">{{ html_decode($property_item->total_area) }} {{ __('user.m2') }}
+                            <li><img src="{{ asset('frontend/img/size-icon2.svg') }}"
+                                    alt="total_area">{{ html_decode($property_item->total_area) }} {{ __('user.m2') }}
                             </li>
                         </ul>
                     </div>
                 </div>
-</a>
                 <!-- End Single property-->
             </div>
             @empty
@@ -138,14 +120,10 @@
                     <div class="homec-property__body">
                         <div class="homec-property__topbar">
                             <div class="homec-property__price">
-                                {{ $setting->currency_icon }}{{ number_format(($property_item->total_price),2) }}
+                                {{ html_decode(num_format($property_item->price)) }}
                                 @if ($property_item->purpose == 'rent')
                                     <span>/{{ $property_item->rent_period }}</span>
                                 @endif
-                               <!-- bb {{ $property_item->price }}
-                                @if ($property_item->purpose == 'rent')
-                                    <span>/{{ $property_item->rent_period }}</span>
-                                @endif -->
                             </div>
                         </div>
 

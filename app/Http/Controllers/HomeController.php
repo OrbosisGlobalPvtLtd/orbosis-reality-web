@@ -65,29 +65,9 @@ use App\Models\CountryStateModal;
 class HomeController extends Controller
 {
 
-
-public function companyProfile()
-    {
-        return view('builder.company-profile');
-    }
     public function myTeam()
     {
-        return view('builder.team');
-    }
-
-      public function wishlist()
-    {
-        return view('builder.wishlist');
-    }
-
-    public function compare()
-    {
-        return view('builder.compare');
-    }
-
-    public function myReviews()
-    {
-        return view('builder.review');
+        return view('dashboard.my-team');
     }
 
     public function myProperties()
@@ -145,7 +125,7 @@ public function companyProfile()
     $property->lat = $request->lat ?? '';
     $property->lon = $request->lng ?? '';
     $property->status = 'enable';
-    $property->total_price = $request->total_area*$request->price;
+
     // ==========================
     // THUMBNAIL IMAGE UPLOAD
     // ==========================
@@ -313,6 +293,21 @@ public function updateApprovalStatus(Request $request, $id)
         return view('builder.my-booking.purchase-history');
     }
 
+    public function wishlist()
+    {
+        return view('builder.my-booking.wishlist');
+    }
+
+    public function compare()
+    {
+        return view('builder.my-booking.compare');
+    }
+
+    public function myReviews()
+    {
+        return view('builder.my-booking.my-reviews');
+    }
+
     public function myBooking()
     {
         $bookings = Booking::where('user_id', Auth::id())->latest()->paginate(10);
@@ -323,6 +318,7 @@ public function updateApprovalStatus(Request $request, $id)
     {
         return view('builder.kyc-verification');
     }
+
 
     public function showRegisterForm()
     {
@@ -413,19 +409,17 @@ public function updateApprovalStatus(Request $request, $id)
     /**
      * Show builder dashboard
      */
-     public function dashboard()
+    public function dashboard()
     {
         $user = Auth::user();
-
-        // Get builder record
         $builder = $user->builder;
 
         if (!$builder) {
-            return redirect()->route('builder.profile-setup')
-                ->with('error', 'Please complete your builder profile first.');
+            return redirect()->route('builder.profile-setup');
         }
 
-         $stats = [
+        // Get builder statistics
+        $stats = [
             'total_projects' => 0,
             'active_projects' => 0,
             'completed_projects' => 0,
@@ -437,8 +431,6 @@ public function updateApprovalStatus(Request $request, $id)
             'stats' => $stats,
             'user' => $user
         ]);
-
-        return view('builder.dashboard', compact('user', 'builder', 'stats'));
     }
 
     /**
@@ -735,7 +727,7 @@ public function updateApprovalStatus(Request $request, $id)
         $property_item = $homepage->property_item;
 
         $featured_properties = Property::with('agent')
-            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'total_price')
+            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured')
             ->where('status', 'enable')
             ->where('is_featured', 'enable')
             ->where(function ($query) {
@@ -959,6 +951,7 @@ public function updateApprovalStatus(Request $request, $id)
 
         $minimum_price = Property::selectRaw('MIN(CAST(price AS UNSIGNED)) as price')->value('price');
         $max_price = Property::selectRaw('MAX(CAST(price AS UNSIGNED)) as price')->value('price');
+
         $price_range = $max_price - $minimum_price;
         $mod_price = $price_range / 10;
 
@@ -1040,9 +1033,8 @@ public function updateApprovalStatus(Request $request, $id)
                 'pricing_plan' => $pricing_plan,
                 'filter_prices' => $filter_prices,
             ]);
-            
         } else {
-            return view(view: 'index')->with([
+            return view('index')->with([
                 'selected_theme' => $selected_theme,
                 'seo_setting' => $seo_setting,
                 'intro_content' => $intro_content,
@@ -1063,6 +1055,7 @@ public function updateApprovalStatus(Request $request, $id)
             ]);
         }
     }
+
 
     public function about_us()
     {
@@ -1610,10 +1603,6 @@ public function updateApprovalStatus(Request $request, $id)
             })
             ->latest('id');
 
-        $property_type_from_slug = '';    
-        if(request()->filled('property_type')){
-            $property_type_from_slug = $request->property_type;
-        }
 
         if ($request->purpose) {
             if ($request->purpose == 'rent') {
@@ -1715,8 +1704,7 @@ public function updateApprovalStatus(Request $request, $id)
             'max_bath_room' => $max_bath_room,
             'max_area' => $max_area,
             'max_price' => $max_price,
-            'countries' => $countries,
-            "property_type"=>$property_type_from_slug
+            'countries' => $countries
         ]);
     }
 
@@ -1726,7 +1714,7 @@ public function updateApprovalStatus(Request $request, $id)
         $paginate_qty = CustomPagination::find(2);
 
         $properties = Property::with('agent')
-            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'city_id', 'property_type_id', 'lat', 'lon','total_price')
+            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'city_id', 'property_type_id', 'lat', 'lon')
             ->where('status', 'enable')
             ->where('approve_by_admin', 'approved')
             ->where(function ($query) {

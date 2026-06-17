@@ -236,7 +236,6 @@ class PropertyController extends Controller
 
         $property->video_id = $request->video_id;
         $property->video_description = $request->video_description;
-        $property->total_price = ($request->total_area)*($request->price);
 
         if($request->thumbnail_image){
             $extention = $request->thumbnail_image->getClientOriginalExtension();
@@ -541,7 +540,6 @@ class PropertyController extends Controller
         $property->lon = $request->has('lng') ? $request->lng : $property->lon;
 
         $property->video_id = $request->video_id;
-        $property->total_price = ($request->total_area)*($request->price);
 
         if($request->thumbnail_image && $request->lang_code === 'en'){
             $old_thumbnail_image = $property->thumbnail_image;
@@ -775,8 +773,7 @@ class PropertyController extends Controller
         if($property->agent_id != 0){
             $notification = trans('admin_validation.Update succssfully');
             $notification = array('messege'=>$notification,'alert-type'=>'success');
-            //return redirect()->back('admin.agent-property')->with($notification);
-            return redirect()->route('admin.agent-property')->with($notification);
+            return redirect()->back('admin.agent-property')->with($notification);
         }else{
             $notification = trans('admin_validation.Update succssfully');
             $notification = array('messege'=>$notification,'alert-type'=>'success');

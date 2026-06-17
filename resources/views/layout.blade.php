@@ -53,6 +53,7 @@
     <link rel="stylesheet" href="{{ asset('backend/leaflet/MarkerCluster.css') }}">
     <link rel="stylesheet" href="{{ asset('backend/leaflet/MarkerCluster.Default.css') }}">
 
+
     @if (Session::get('lang_dir') == 'right_to_left')
         <link rel="stylesheet" href="{{ asset('frontend/css/rtl.css') }}">
     @endif
@@ -117,6 +118,8 @@
             font-weight: 600;
             /* content: "\f107"; */
         }
+        
+      
 
         .fade.in {
             opacity: 1 !important;
@@ -204,12 +207,6 @@
                     </li>
 
                     <li><a href="{{ route('contact-us') }}">{{ __('user.Contact') }}</a></li>
-
-    <li>
-        <a href="{{ route('builder.login') }}">
-          Builder Login
-        </a>
-    </li>
                     <li><a href="{{ route('user.dashboard') }}">{{ __('user.Dashboard') }}</a></li>
 
                     @if ($setting->agent_can_add_property)
@@ -361,7 +358,7 @@
                                                     </ul>
                                                 </li> --}}
 
-                                                <li><a href="{{ route('agencies') }}">{{ __('user.Our Agency') }}</a>
+                                                <li><a href="{{ route('agencies') }}">{{ __('Channel-Partner') }}</a>
                                                 </li>
 
                                                 {{-- <li class="menu-item-has-children"><a
@@ -548,7 +545,15 @@
                                         <div class="single-widget footer-need-helps">
                                             <h3 class="widget-title">{{ __('user.Important Link') }}</h3>
                                             <ul class="f-need-helps-inner list-none">
-                                               
+                                                <!--<li><a href="{{ route('user.dashboard') }}"><i-->
+                                                <!--            class="fa-solid fa-minus"></i>{{ __('user.Dashboard') }}</a>-->
+                                                <!--</li>-->
+                                                <!--<li><a href="{{ route('user.wishlist') }}"><i-->
+                                                <!--            class="fa-solid fa-minus"></i>{{ __('user.Wishlist') }}</a>-->
+                                                <!--</li>-->
+                                                <!--<li><a href="{{ route('user.change-password') }}"><i-->
+                                                <!--            class="fa-solid fa-minus"></i>{{ __('user.Change Password') }}</a>-->
+                                                <!--</li>-->
                                                 <li><a href="{{ route('about-us') }}"><i
                                                             class="fa-solid fa-minus"></i>{{ __('user.About Us') }}</a>
                                                 </li>

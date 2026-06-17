@@ -436,7 +436,7 @@
                                     @foreach ($aminities as $aminity)
                                         <div class="form-group homec-form-checkbox mg-top-15">
                                             <input type="checkbox" id="item1-{{ $aminity->id }}" name="aminities[]" value="{{ $aminity->id }}">
-                                            <label style="color:#000;" class="homec-form-label" for="item1-{{ $aminity->id }}">{{ $aminity->aminity }}</label>
+                                            <label class="homec-form-label" for="item1-{{ $aminity->id }}">{{ $aminity->aminity }}</label>
                                         </div>
                                     @endforeach
 

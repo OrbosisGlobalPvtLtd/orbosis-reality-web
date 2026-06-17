@@ -36,10 +36,7 @@
     <section class="compare-tabel">
         <div class="container">
             <div class="row">
-                            <div class="col-lg-3 col-md-4 col-12 mg-top-30">
-                                @include('user.sidebar')
-                            </div>
-                            <div class="col-lg-9 col-md-8 col-12 mg-top-30">
+                <div class="col-lg-12">
                     <div class="tabel-main">
                         <table class="homec-invoice-table">
                             <thead class="homec-invoice-table__head homec-invoice-table__head-two ">
