@@ -16,8 +16,12 @@ class Captcha implements Rule
     public function passes($attribute, $value)
     {
         $recaptchaSetting = GoogleRecaptcha::first();
+        if ($recaptchaSetting->status == 0) {
+            return true;
+        }
         $recaptcha=new ReCaptcha($recaptchaSetting->secret_key);
-        $response=$recaptcha->verify($value, $_SERVER['REMOTE_ADDR']);
+        $remoteAddr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.1';
+        $response=$recaptcha->verify($value, $remoteAddr);
         return $response->isSuccess();
     }
 

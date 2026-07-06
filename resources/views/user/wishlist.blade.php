@@ -76,6 +76,20 @@
                                                                         {{__('user.For Sale')}}
                                                                     @endif
                                                                 </span>
+                                                                <span class="homec-property__salebadge" style="
+                                                                    @if(($property_item->availability_status ?? 'available') == 'available')
+                                                                        background-color: #d4edda; color: #155724;
+                                                                    @elseif($property_item->availability_status == 'booked')
+                                                                        background-color: #fff3cd; color: #856404;
+                                                                    @elseif($property_item->availability_status == 'sold')
+                                                                        background-color: #f8d7da; color: #721c24;
+                                                                    @elseif($property_item->availability_status == 'rented')
+                                                                        background-color: #cce5ff; color: #004085;
+                                                                    @endif
+                                                                    margin-left: 5px; font-weight: 600;
+                                                                ">
+                                                                    {{ ucfirst($property_item->availability_status ?? 'available') }}
+                                                                </span>
                                                                 <form class="d-none" action="{{ route('user.remove-wishlist', $property_item->id) }}" method="POST" id="remove_wishlist-{{ $property_item->id }}">
                                                                     @csrf
                                                                     @method('DELETE')

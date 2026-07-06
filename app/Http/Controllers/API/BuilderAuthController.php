@@ -12,10 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class BuilderAuthController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('guest:api')->except(['profile', 'logout']);
-    }
+
 
     /**
      * Builder Registration
@@ -65,7 +62,7 @@ class BuilderAuthController extends Controller
                 'country_id'   => $request->country_id,
                 'state_id'     => $request->state_id,
                 'city_id'      => $request->city_id,
-                'status'       => 0,
+                'status'       => Builder::STATUS_PENDING,
             ]);
 
             $token = $user->createToken('builder_token')->plainTextToken;
@@ -76,6 +73,10 @@ class BuilderAuthController extends Controller
                 'status'  => true,
                 'message' => 'Registration successful',
                 'token'   => $token,
+                'login_type' => $user->login_type,
+                'dashboard_type' => $user->dashboard_type,
+                'can_add_property' => $user->can_add_property,
+                'can_book_property' => $user->can_book_property,
                 'user'    => $user->load('builder')
             ], 201);
         } catch (\Exception $e) {
@@ -141,10 +142,31 @@ class BuilderAuthController extends Controller
                 ], 404);
             }
 
-            if ($builder->status != 1) {
+            if ($builder->status == Builder::STATUS_PENDING) {
                 return response()->json([
                     'status'  => false,
                     'message' => 'Your builder account is pending admin approval'
+                ], 403);
+            }
+
+            if ($builder->status == Builder::STATUS_REJECTED) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Your builder account application has been rejected'
+                ], 403);
+            }
+
+            if ($builder->status == Builder::STATUS_SUSPENDED) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Your builder account has been suspended'
+                ], 403);
+            }
+
+            if ($builder->status != Builder::STATUS_APPROVED) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Your builder account is not approved'
                 ], 403);
             }
 
@@ -154,6 +176,10 @@ class BuilderAuthController extends Controller
                 'status'  => true,
                 'message' => 'Login successful',
                 'token'   => $token,
+                'login_type' => $user->login_type,
+                'dashboard_type' => $user->dashboard_type,
+                'can_add_property' => $user->can_add_property,
+                'can_book_property' => $user->can_book_property,
                 'user'    => $user->load('builder')
             ]);
         } catch (\Exception $e) {

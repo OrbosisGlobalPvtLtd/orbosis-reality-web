@@ -33,30 +33,45 @@ class UserProfileController extends Controller
 
         $user = Auth::guard('web')->user();
 
-        $publish_property = Property::where('agent_id', $user->id)
-                                    ->where('status', 'enable')
-                                    ->where('approve_by_admin', 'approved')
-                                    ->where(function ($query) {
-                                        $query->where('expired_date', null)
-                                            ->orWhere('expired_date', '>=', date('Y-m-d'));
-                                    })
-                                    ->count();
+        if ($user->login_type === 'user') {
+            $publish_property = 0;
+            $awaiting_property = 0;
+            $reject_property = 0;
+            $total_purchase = 0;
+            $total_wishlist = Wishlist::where('user_id', $user->id)->count();
+            $total_review = Review::where('user_id', $user->id)->count();
+            $recent_bookings = \App\Models\Booking::with('property')->where('user_id', $user->id)->orderBy('id', 'desc')->take(5)->get();
+            $recently_viewed = [];
+            $recommendations = Property::where('status', 'enable')->where('approve_by_admin', 'approved')->where('is_featured', 'enable')->take(5)->get();
+        } else {
+            $publish_property = Property::where('agent_id', $user->id)
+                                        ->where('status', 'enable')
+                                        ->where('approve_by_admin', 'approved')
+                                        ->where(function ($query) {
+                                            $query->where('expired_date', null)
+                                                ->orWhere('expired_date', '>=', date('Y-m-d'));
+                                        })
+                                        ->count();
 
-        $awaiting_property = Property::where('agent_id', $user->id)
-                                    ->where('approve_by_admin', 'pending')
-                                    ->count();
+            $awaiting_property = Property::where('agent_id', $user->id)
+                                        ->where('approve_by_admin', 'pending')
+                                        ->count();
 
-        $reject_property = Property::where('agent_id', $user->id)
-                                    ->where('approve_by_admin', 'reject')
-                                    ->count();
+            $reject_property = Property::where('agent_id', $user->id)
+                                        ->where('approve_by_admin', 'reject')
+                                        ->count();
 
-        $total_purchase = Order::where('agent_id', $user->id)->count();
-        $total_wishlist = Wishlist::where('user_id', $user->id)->count();
-        $total_review = Review::where('user_id', $user->id)->count();
+            $total_purchase = Order::where('agent_id', $user->id)->count();
+            $total_wishlist = Wishlist::where('user_id', $user->id)->count();
+            $total_review = Review::where('user_id', $user->id)->count();
+            $recent_bookings = collect([]);
+            $recently_viewed = [];
+            $recommendations = collect([]);
+        }
 
         $setting = Setting::first();
 
-        $user = User::select('id','name','email','image','phone','address','status')->where('id', $user->id)->first();
+        $user_select = User::select('id','name','email','image','phone','address','status')->where('id', $user->id)->first();
 
         // mobile app
         $app_visibility = false;
@@ -85,6 +100,9 @@ class UserProfileController extends Controller
             'total_wishlist' => $total_wishlist,
             'total_review' => $total_review,
             'mobile_app' => $mobile_app,
+            'recent_bookings' => $recent_bookings,
+            'recently_viewed' => $recently_viewed,
+            'recommendations' => $recommendations,
         ]);
 
 

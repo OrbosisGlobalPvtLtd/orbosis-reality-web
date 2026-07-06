@@ -78,8 +78,18 @@ class LoginController extends Controller
             'email'=> $request->email,
             'password'=> $request->password
         ];
-        $user = User::where('email',$request->email)->select('id','name','email','phone','user_name','status','password','image','address','designation','about_me','facebook','twitter','linkedin','instagram', 'kyc_status', 'is_agency', 'owner_id')->first();
+        $user = User::where('email',$request->email)->select('id','name','email','phone','user_name','status','password','image','address','designation','about_me','facebook','twitter','linkedin','instagram', 'kyc_status', 'is_agency', 'owner_id', 'login_type', 'email_verified')->first();
         if($user){
+            if(!in_array($user->login_type, ['user', 'agent'])){
+                return response()->json(['message' => 'Unauthorized role'], 403);
+            }
+            if($user->email_verified == 0 || $user->status == 0){
+                return response()->json([
+                    'status' => false,
+                    'email_verification_required' => true,
+                    'message' => 'Please verify your email before login.'
+                ], 403);
+            }
             if($user->status==1){
                 if(Hash::check($request->password,$user->password)){
                     if($token = Auth::guard('api')->attempt($credential)){
@@ -108,6 +118,13 @@ class LoginController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'login_type' => $user->login_type,
+            'is_agency' => $user->is_agency,
+            'dashboard_type' => $user->dashboard_type,
+            'can_add_property' => $user->can_add_property,
+            'can_book_property' => $user->can_book_property,
+            'agent_request_status' => $user->agent_request_status,
+            'agent_request_label' => $user->agent_request_label,
             'user' => $user
         ]);
     }

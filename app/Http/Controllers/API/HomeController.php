@@ -141,7 +141,8 @@ class HomeController extends Controller
         $intro_visibility = true;
         $slider = Slider::first();
 
-            $slider_properties = Property::select('id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'show_slider', 'serial')
+            $slider_properties = Property::with(['agent', 'city', 'property_type'])
+            ->select('id', 'agent_id', 'city_id', 'property_type_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'show_slider', 'serial', 'availability_status')
             ->where('status', 'enable')
             ->where('show_slider', 'enable')
             ->where('approve_by_admin', 'approved')
@@ -266,8 +267,8 @@ class HomeController extends Controller
         $property_description = $homepage->property_description;
         $property_item = $homepage->property_item;
 
-        $featured_properties = Property::with('agent')
-                                        ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured')
+        $featured_properties = Property::with(['agent', 'city', 'property_type'])
+                                        ->select('id', 'agent_id', 'city_id', 'property_type_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'availability_status')
                                         ->where('status', 'enable')
                                         ->where('is_featured', 'enable')
                                         ->where(function ($query) {
@@ -287,7 +288,7 @@ class HomeController extends Controller
         );
 
         $latest_property = Property::with('agent')
-        ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured')
+        ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'availability_status')
         ->where('status', 'enable')
         ->where(function ($query) {
         $query->where('expired_date', null)
@@ -330,7 +331,7 @@ class HomeController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::select('id','name','user_name','email','status','image','designation','facebook','twitter','linkedin','instagram', 'kyc_status')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id','desc')->get()->take($agent_item);
+        $agents = User::select('id','name','user_name','email','status','image','designation','facebook','twitter','linkedin','instagram', 'kyc_status')->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id','desc')->get()->take($agent_item);
 
         $agent = (object) array(
             'visibility' => $agent_visibility,
@@ -466,8 +467,8 @@ class HomeController extends Controller
         $property_title = $homepage->urgent_property_title;
         $property_description = $homepage->urgent_property_description;
         $property_item = $homepage->urgent_property_item;
-        $urgent_properties = Property::with('agent')
-                                    ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'is_urgent', 'video_id')
+        $urgent_properties = Property::with(['agent', 'city', 'property_type'])
+                                    ->select('id', 'agent_id', 'city_id', 'property_type_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'is_urgent', 'video_id', 'availability_status')
                                     ->where('status', 'enable')
                                     ->where('is_urgent', 'enable')
                                     ->where(function ($query) {
@@ -627,7 +628,7 @@ class HomeController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::select('id','name','user_name','email','status','image','designation','facebook','twitter','linkedin','instagram','kyc_status')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id','desc')->get()->take($agent_item);
+        $agents = User::select('id','name','user_name','email','status','image','designation','facebook','twitter','linkedin','instagram','kyc_status')->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id','desc')->get()->take($agent_item);
 
         $agent = (object) array(
             'visibility' => $agent_visibility,
@@ -937,8 +938,8 @@ class HomeController extends Controller
 
         $paginate_qty = CustomPagination::find(2);
 
-        $properties = Property::with('agent')
-                            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured','city_id','property_type_id')
+        $properties = Property::with(['agent', 'city', 'property_type'])
+                            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured','city_id','property_type_id', 'availability_status')
                             ->where('status', 'enable')
                             ->where('approve_by_admin', 'approved')
                             ->where(function ($query) {
@@ -1018,7 +1019,10 @@ class HomeController extends Controller
         }
 
         if($request->search){
-            $properties = $properties->where('title','LIKE','%'.$request->search.'%')->orWhere('description','LIKE','%'.$request->search.'%');
+            $properties = $properties->where(function ($query) use ($request) {
+                $query->where('title','LIKE','%'.$request->search.'%')
+                      ->orWhere('description','LIKE','%'.$request->search.'%');
+            });
         }
 
 
@@ -1036,7 +1040,7 @@ class HomeController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::select('id','name','user_name','email','status','image','designation','facebook','twitter','linkedin','instagram', 'kyc_status')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id','desc')->get()->take(6);
+        $agents = User::select('id','name','user_name','email','status','image','designation','facebook','twitter','linkedin','instagram', 'kyc_status')->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id','desc')->get()->take(6);
 
         // agent section
 
@@ -1065,8 +1069,8 @@ class HomeController extends Controller
 
         $paginate_qty = CustomPagination::find(2);
 
-        $properties = Property::with('agent')
-                            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured','city_id','property_type_id')
+        $properties = Property::with(['agent', 'city', 'property_type'])
+                            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured','city_id','property_type_id', 'availability_status')
                             ->where('status', 'enable')
                             ->where('approve_by_admin', 'approved')
                             ->where(function ($query) {
@@ -1145,7 +1149,10 @@ class HomeController extends Controller
         }
 
         if($request->search){
-            $properties = $properties->where('title','LIKE','%'.$request->search.'%')->orWhere('description','LIKE','%'.$request->search.'%');
+            $properties = $properties->where(function ($query) use ($request) {
+                $query->where('title','LIKE','%'.$request->search.'%')
+                      ->orWhere('description','LIKE','%'.$request->search.'%');
+            });
         }
 
 
@@ -1157,7 +1164,15 @@ class HomeController extends Controller
 
     public function property($slug){
 
-        $property = Property::where('slug', $slug)
+        $property = Property::with([
+                                'sliders',
+                                'aminities.aminity',
+                                'nearest_locations.location',
+                                'additional_informations',
+                                'property_plans',
+                                'reviews.user'
+                            ])
+                            ->where('slug', $slug)
                             ->where([
                                 'status' => 'enable',
                                 'approve_by_admin' => 'approved'
@@ -1172,12 +1187,12 @@ class HomeController extends Controller
             return response()->json(['message' => trans('user.Property not found!')],403);
         }
 
-        $sliders = PropertySlider::where('property_id', $property->id)->get();
-        $aminities = PropertyAminity::with('aminity')->where('property_id', $property->id)->get();
-        $nearest_locations = PropertyNearestLocation::with('location')->where('property_id', $property->id)->get();
-        $additional_informations = AdditionalInformation::where('property_id', $property->id)->get();
-        $property_plans = PropertyPlan::where('property_id', $property->id)->get();
-        $reviews = Review::with('user')->where('property_id', $property->id)->paginate(10);
+        $sliders = $property->sliders;
+        $aminities = $property->aminities;
+        $nearest_locations = $property->nearest_locations;
+        $additional_informations = $property->additional_informations;
+        $property_plans = $property->property_plans;
+        $reviews = $property->reviews()->with('user')->paginate(10);
 
         if($property->agent_id == 0){
             $admin = Admin::find(1);
@@ -1233,11 +1248,15 @@ class HomeController extends Controller
         $paginate_qty = CustomPagination::find(3);
 
         $agents = User::select('id','name','user_name','email','status','image','designation','facebook','twitter','linkedin','instagram', 'kyc_status', 'about_me')
-        ->whereIn('id', $agent_arr)
-        ->when($request->has('search'), function($query) use ($request) {
-            $query->where('name','LIKE','%'.$request->search.'%');
+        ->where('login_type', 'agent')
+        ->where(function($query) use ($agent_arr, $request) {
+            $query->whereIn('id', $agent_arr)
+                  ->when($request->has('search'), function($q) use ($request) {
+                      $q->where('name','LIKE','%'.$request->search.'%');
+                  })
+                  ->orWhere('owner_id', '!=', 0);
         })
-        ->orWhere('owner_id', '!=', 0)->where('status', 1)
+        ->where('status', 1)
         ->orderBy('id','desc')->paginate($paginate_qty->qty);
 
         $homepage = Homepage::first();
@@ -1316,11 +1335,14 @@ class HomeController extends Controller
                             })
                             ->where('status', 'enable')
                             ->where('approve_by_admin', 'approved')
-                            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured')
+                            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'availability_status')
                             ->orderBy('id', 'desc');
 
             if($request->search){
-                $properties = $properties->where('title','LIKE','%'.$request->search.'%')->orWhere('description','LIKE','%'.$request->search.'%');
+                $properties = $properties->where(function ($query) use ($request) {
+                    $query->where('title','LIKE','%'.$request->search.'%')
+                          ->orWhere('description','LIKE','%'.$request->search.'%');
+                });
             }
 
             $properties = $properties->paginate($paginate_qty->qty);
@@ -1364,7 +1386,7 @@ class HomeController extends Controller
 
             $paginate_qty = CustomPagination::find(2);
 
-            $properties = Property::with('agent')->select('id','agent_id','title','slug','purpose','rent_period','price','thumbnail_image','address','total_bedroom','total_bathroom','total_area','status','is_featured')->where('status', 'enable')->where('agent_id', 0)->orderBy('id','desc');
+            $properties = Property::with('agent')->select('id','agent_id','title','slug','purpose','rent_period','price','thumbnail_image','address','total_bedroom','total_bathroom','total_area','status','is_featured', 'availability_status')->where('status', 'enable')->where('agent_id', 0)->orderBy('id','desc');
 
             if($request->search){
                 $properties = $properties->where('title','LIKE','%'.$request->search.'%')->orWhere('description','LIKE','%'.$request->search.'%');
@@ -1429,7 +1451,7 @@ class HomeController extends Controller
             'review.required' => trans('user_validation.Review is required'),
         ];
         $this->validate($request, $rules,$customMessages);
-        $user = Auth::guard('web')->user();
+        $user = Auth::guard('api')->user();
 
         $review = new Review();
         $review->user_id = $user->id;
@@ -1525,11 +1547,14 @@ class HomeController extends Controller
                             })
                             ->where('status', 'enable')
                             ->where('approve_by_admin', 'approved')
-                            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured')
+                            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'availability_status')
                             ->orderBy('id', 'desc');
 
             if($request->search){
-                $properties = $properties->where('title','LIKE','%'.$request->search.'%')->orWhere('description','LIKE','%'.$request->search.'%');
+                $properties = $properties->where(function ($query) use ($request) {
+                    $query->where('title','LIKE','%'.$request->search.'%')
+                          ->orWhere('description','LIKE','%'.$request->search.'%');
+                });
             }
 
             $properties = $properties->paginate($paginate_qty->qty);
@@ -1566,6 +1591,34 @@ class HomeController extends Controller
             'cities' => $cities
         ], 200);
 
+    }
+
+    public function states()
+    {
+        $states = \App\Models\CountryStateModal::select('id', 'name')->orderBy('name', 'asc')->get();
+        return response()->json([
+            'status' => true,
+            'data' => $states
+        ]);
+    }
+
+    public function cities(Request $request)
+    {
+        $state_id = $request->state_id;
+        $table = (new City())->getTable();
+        $stateColumn = \Illuminate\Support\Facades\Schema::hasColumn($table, 'country_state_id')
+            ? 'country_state_id'
+            : 'state_id';
+
+        $cities = City::select('id', 'name')
+            ->where($stateColumn, $state_id)
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'data' => $cities
+        ]);
     }
 
 }

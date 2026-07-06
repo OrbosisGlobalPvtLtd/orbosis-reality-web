@@ -74,7 +74,7 @@
                 <div class="col-lg-4 col-md-6 col-12 mg-top-30" data-aos="fade-up" data-aos-delay="800">
                     <div class="homec-add-property homec-bg-third-color homec-border">
                         <div class="homec-add-property__img homec-add-property__img--sale">
-                            <img src="https://orbosisreality.com/uploads/website-images/property-buy-sell-concept-18674444.webp">
+                            <img src="{{ asset('uploads/website-images/property-buy-sell-concept-18674444.webp') }}">
                         </div>
                         <div class="homec-add-property__content">
                             <h3 class="homec-add-property__title">

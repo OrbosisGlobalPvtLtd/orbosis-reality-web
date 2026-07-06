@@ -8,10 +8,18 @@ use App\Models\User;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\CountryStateModal;
+use App\Models\Property;
+use App\Models\Booking;
+use App\Models\Review;
+use App\Models\Wishlist;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Image;
+
 
 class BuilderController extends Controller
 {
@@ -20,16 +28,17 @@ class BuilderController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:web');
+        $this->middleware('auth:web')->except(['showRegisterForm', 'register', 'showLoginForm', 'login', 'getStates', 'getCities']);
         $this->middleware(function ($request, $next) {
             if (auth()->user()->login_type !== 'builder') {
-                return redirect()->route('login')->with([
+                Auth::logout();
+                return redirect()->route('builder.login')->with([
                     'messege' => 'Unauthorized access',
                     'alert-type' => 'error'
                 ]);
             }
             return $next($request);
-        });
+        })->except(['showRegisterForm', 'register', 'showLoginForm', 'login', 'getStates', 'getCities']);
     }
 
        public function showRegisterForm()
@@ -74,8 +83,8 @@ class BuilderController extends Controller
             'login_type' => 'builder',
         ]);
 
-            // Create Builder Profile
-            Builder::create([
+        // Create Builder Profile
+        Builder::create([
             'user_id' => $user->id,
             'company_name' => $request->company_name,
             'phone_number' => $request->phone_number,
@@ -83,13 +92,11 @@ class BuilderController extends Controller
             'state_id' => $request->state_id,
             'city_id' => $request->city_id,
             'address' => $request->address,
-            'status' => 0
+            'status' => Builder::STATUS_PENDING
         ]);
 
-        Auth::login($user);
-
-        return redirect()->route('builder.dashboard')
-            ->with(['messege' => 'Registration Successful', 'alert-type' => 'success']);
+        return redirect()->route('builder.login')
+            ->with(['messege' => 'Your builder account is pending admin approval.', 'alert-type' => 'info']);
     }
 
     /*
@@ -114,6 +121,53 @@ class BuilderController extends Controller
             'email' => 'required|email',
             'password' => 'required'
         ]);
+
+        $user = User::where('email', $request->email)
+                    ->where('login_type', 'builder')
+                    ->first();
+
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Invalid credentials'
+            ]);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'email' => 'Invalid credentials'
+            ]);
+        }
+
+        if ($user->status == 0) {
+            return back()->withErrors([
+                'email' => 'Disabled Account'
+            ]);
+        }
+
+        $builder = $user->builder;
+        if (!$builder) {
+            return back()->withErrors([
+                'email' => 'Builder profile not found'
+            ]);
+        }
+
+        if ($builder->status == Builder::STATUS_PENDING) {
+            return back()->withErrors([
+                'email' => 'Your builder account is pending admin approval.'
+            ]);
+        }
+
+        if ($builder->status == Builder::STATUS_REJECTED) {
+            return back()->withErrors([
+                'email' => 'Your builder account has been rejected by admin.'
+            ]);
+        }
+
+        if ($builder->status == Builder::STATUS_SUSPENDED) {
+            return back()->withErrors([
+                'email' => 'Your builder account is suspended.'
+            ]);
+        }
 
         if (Auth::attempt([
             'email' => $request->email,
@@ -390,4 +444,277 @@ class BuilderController extends Controller
             'message' => 'Logged out successfully'
         ]);
     }
+
+    public function myTeam()
+    {
+        return view('dashboard.my-team');
+    }
+
+    public function myProperties()
+    {
+        $properties = Property::where('agent_id', Auth::id())->latest()->paginate(10);
+        return view('builder.my-properties', compact('properties'));
+    }
+
+    public function create()
+    {
+        $propertyTypes = Setting::all();
+        $cities = City::all();
+        $countries = Country::all();
+        $properties = Property::where('agent_id', Auth::id())->latest()->get();
+
+        return view('builder.create', compact(
+            'propertyTypes',
+            'cities',
+            'countries',
+            'properties'
+        ));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|unique:properties,title',
+            'slug' => 'required|unique:properties,slug',
+            'description' => 'required',
+            'price' => 'required|numeric',
+            'property_type_id' => 'required',
+            'city_id' => 'required',
+            'country_id' => 'required',
+            'thumbnail_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $property = new Property();
+        $property->agent_id = Auth::id();
+        $property->title = $request->title;
+        $property->slug = Str::slug($request->slug);
+        $property->property_type_id = $request->property_type_id;
+        $property->purpose = $request->purpose ?? 'sale';
+        $property->rent_period = $request->rent_period ?? '';
+        $property->price = $request->price;
+        $property->description = $request->description;
+        $property->total_area = $request->total_area ?? 0;
+        $property->total_bedroom = $request->total_bedroom ?? 0;
+        $property->total_bathroom = $request->total_bathroom ?? 0;
+        $property->city_id = $request->city_id;
+        $property->country_id = $request->country_id;
+        $property->address = $request->address ?? '';
+        $property->google_map = $request->google_map ?? '';
+        $property->lat = $request->lat ?? '';
+        $property->lon = $request->lng ?? '';
+        $property->status = 'enable';
+
+        if ($request->hasFile('thumbnail_image')) {
+            $folder = public_path('uploads/property');
+            if (!file_exists($folder)) {
+                mkdir($folder, 0777, true);
+            }
+            $image = $request->file('thumbnail_image');
+            $fileName = 'property-' . time() . '.webp';
+            $filePath = 'uploads/property/' . $fileName;
+
+            Image::make($image)
+                ->encode('webp', 80)
+                ->save(public_path($filePath));
+
+            $property->thumbnail_image = $filePath;
+        }
+
+        $property->save();
+
+        return redirect()->route('builder.my-properties')
+            ->with('success', 'Property Added Successfully');
+    }
+
+    public function edit($id)
+    {
+        $property = Property::where('agent_id', auth()->id())
+                        ->findOrFail($id);
+
+        $cities = City::all();
+        $countries = Country::all();
+        $propertyTypes = Setting::all();
+
+        return view('builder.edit', compact(
+            'property',
+            'cities',
+            'countries',
+            'propertyTypes'
+        ));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $property = Property::where('agent_id', auth()->id())
+                    ->findOrFail($id);
+
+        $request->validate([
+            'title' => 'required|unique:properties,title,' . $id,
+            'slug' => 'required|unique:properties,slug,' . $id,
+            'price' => 'required|numeric',
+            'thumbnail_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+        ]);
+
+        $property->title = $request->title;
+        $property->slug = Str::slug($request->slug);
+        $property->price = $request->price;
+        $property->description = $request->description;
+        $property->purpose = $request->purpose;
+        $property->status = $request->status ?? 'enable';
+
+        if ($request->hasFile('thumbnail_image')) {
+            if ($property->thumbnail_image &&
+                file_exists(public_path($property->thumbnail_image))) {
+                unlink(public_path($property->thumbnail_image));
+            }
+
+            $folder = public_path('uploads/property');
+            if (!file_exists($folder)) {
+                mkdir($folder, 0777, true);
+            }
+            $image = $request->file('thumbnail_image');
+            $fileName = 'property-' . time() . '.webp';
+            $filePath = 'uploads/property/' . $fileName;
+
+            Image::make($image)
+                ->encode('webp', 80)
+                ->save(public_path($filePath));
+
+            $property->thumbnail_image = $filePath;
+        }
+
+        $property->save();
+
+        return redirect()->route('builder.my-properties')
+            ->with('success', 'Property update Successfully');
+    }
+
+    public function bookingRequest()
+    {
+        $bookings = Booking::with(['property', 'user'])
+            ->whereHas('property', function ($q) {
+                $q->where('agent_id', Auth::id());
+            })
+            ->latest()
+            ->paginate(10);
+
+        return view('builder.my-booking', compact('bookings'));
+    }
+
+    public function delete($id)
+    {
+        $property = Property::where('agent_id', auth()->id())
+                    ->findOrFail($id);
+
+        if (!empty($property->thumbnail_image)) {
+            $imagePath = public_path($property->thumbnail_image);
+            if (file_exists($imagePath) && is_file($imagePath)) {
+                @unlink($imagePath);
+            }
+        }
+
+        $property->delete();
+
+        return redirect()->route('builder.my-properties')
+            ->with('success', 'Property deleted successfully');
+    }
+
+    public function updateApprovalStatus(Request $request, $id)
+    {
+        $request->validate([
+            'approve_by_admin' => 'required|in:pending,approved'
+        ]);
+
+        $property = Property::findOrFail($id);
+        $property->approve_by_admin = $request->approve_by_admin;
+        $property->save();
+
+        return back()->with('success','Approval Status Updated Successfully');
+    }
+
+    public function updateBookingStatus(Request $request, $id)
+    {
+        $booking = Booking::findOrFail($id);
+        $booking->status = $request->status;
+        $booking->save();
+
+        $property = $booking->property;
+        if ($property) {
+            if ($booking->status == 1) {
+                if ($property->purpose === 'sale') {
+                    $property->availability_status = 'sold';
+                } elseif ($property->purpose === 'rent') {
+                    $property->availability_status = 'rented';
+                } else {
+                    $property->availability_status = 'booked';
+                }
+            } else {
+                $property->availability_status = 'available';
+            }
+            $property->save();
+        }
+
+        return back()->with('success', 'Booking status updated successfully');
+    }
+
+    public function deleteBooking($id)
+    {
+        $booking = Booking::findOrFail($id);
+        $property = $booking->property;
+        $booking->delete();
+
+        if ($property) {
+            $hasOtherConfirmed = Booking::where('property_id', $property->id)
+                ->where('status', 1)
+                ->exists();
+            if (!$hasOtherConfirmed) {
+                $property->availability_status = 'available';
+                $property->save();
+            }
+        }
+
+        return back()->with('success', 'Booking deleted successfully');
+    }
+
+    public function purchaseHistory()
+    {
+        return view('builder.my-booking.purchase-history');
+    }
+
+    public function wishlist()
+    {
+        return view('builder.my-booking.wishlist');
+    }
+
+    public function compare()
+    {
+        return view('builder.my-booking.compare');
+    }
+
+    public function myReviews()
+    {
+        return view('builder.my-booking.my-reviews');
+    }
+
+    public function myBooking()
+    {
+        $bookings = Booking::where('user_id', Auth::id())->latest()->paginate(10);
+        return view('builder.my-booking', compact('bookings'));
+    }
+
+    public function kycVerification()
+    {
+        return view('builder.kyc-verification');
+    }
+
+    public function getStates($country_id)
+    {
+        return CountryStateModal::where('country_id', $country_id)->get();
+    }
+
+    public function getCities($state_id)
+    {
+        return City::where('state_id', $state_id)->get();
+    }
 }
+

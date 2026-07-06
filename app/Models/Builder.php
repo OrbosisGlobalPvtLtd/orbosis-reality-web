@@ -13,6 +13,11 @@ class Builder extends Model
 {
     use HasFactory;
 
+    public const STATUS_PENDING = 0;
+    public const STATUS_APPROVED = 1;
+    public const STATUS_REJECTED = 2;
+    public const STATUS_SUSPENDED = 3;
+
     protected $fillable = [
         'user_id',
         'company_name',

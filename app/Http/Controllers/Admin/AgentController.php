@@ -36,7 +36,11 @@ class AgentController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::whereIn('id', $agent_arr)->where('status', 1)->orWhere('owner_id', '!=', 0)->orderBy('id','desc')->get();
+        $agents = User::where('login_type', 'agent')
+            ->where(function($query) use ($agent_arr) {
+                $query->whereIn('id', $agent_arr)->where('status', 1)->orWhere('owner_id', '!=', 0);
+            })
+            ->orderBy('id','desc')->get();
 
         return view('admin.agent', compact('agents'));
     }
@@ -86,6 +90,7 @@ class AgentController extends Controller
         $agent->twitter = $request->twitter;
         $agent->linkedin = $request->linkedin;
         $agent->instagram = $request->instagram;
+        $agent->login_type = 'agent';
         $agent->status = 1;
         $agent->save();
 
@@ -150,7 +155,7 @@ class AgentController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::whereIn('id', $agent_arr)->where('status', 1)->orderBy('id','desc')->get();
+        $agents = User::where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id','desc')->get();
 
         MailHelper::setMailConfig();
         foreach($agents as $agent){
@@ -169,7 +174,7 @@ class AgentController extends Controller
     }
 
     public function send_email_to_agent($id){
-        $user = User::find($id);
+        $user = User::where('login_type', 'agent')->findOrFail($id);
         return view('admin.send_agent_email', compact('user'));
     }
 
@@ -185,7 +190,7 @@ class AgentController extends Controller
         $this->validate($request, $rules,$customMessages);
 
         try{
-            $user = User::find($id);
+            $user = User::where('login_type', 'agent')->findOrFail($id);
             MailHelper::setMailConfig();
             Mail::to($user->email)->send(new SendSingleAgentMail($request->subject,$request->message));
 
@@ -202,7 +207,7 @@ class AgentController extends Controller
 
     public function show($id){
 
-        $agent = User::where('id', $id)->first();
+        $agent = User::where('id', $id)->where('login_type', 'agent')->first();
 
         $total_property = Property::where('agent_id', $agent->id)->count();
         $total_pending_property = Property::where('agent_id', $agent->id)->where('status','disable')->count();

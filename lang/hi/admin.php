@@ -620,4 +620,11 @@ return array(
   'Language Direction' => 'Language Direction',
   'Left to Right' => 'Left to Right',
   'Right to left' => 'Right to left',
+  'Builders' => 'बिल्डर्स',
+  'Builder List' => 'बिल्डर सूची',
+  'Pending Builders' => 'लंबित बिल्डर्स',
+  'Pending Builder List' => 'लंबित बिल्डर सूची',
+  'Company Name' => 'कंपनी का नाम',
+  'Pending Agent Requests' => 'लंबित एजेंट अनुरोध',
+  'Pending Agencies' => 'लंबित एजेंसियां',
 );

@@ -25,7 +25,7 @@ body{
     margin:0;
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)),
-    url('https://orbosisreality.com/public/frontend/img/WhatsApp Image 2026-03-20 at 3.39.20 PM (3).jpeg');
+    url('{{ asset("frontend/img/WhatsApp Image 2026-03-20 at 3.39.20 PM (3).jpeg") }}');
     background-size:cover;
     background-position:center;
     background-attachment:fixed;

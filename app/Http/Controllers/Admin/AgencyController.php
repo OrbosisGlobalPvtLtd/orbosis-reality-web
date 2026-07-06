@@ -30,15 +30,11 @@ class AgencyController extends Controller
     }
 
     public function index(Request $request){
-
-        $agencies = User::
-            when($request->type == 'pending', function($query){
-                $query->where('is_agency', 2);
-            })
-            ->when(!$request->has('type') == 'pending', function($query){
-                $query->where('is_agency', 1);
-            })
-            ->orderBy('id','desc')->get();
+        if ($request->type == 'pending') {
+            $agencies = User::where('is_agency', 2)->orderBy('id','desc')->get();
+        } else {
+            $agencies = User::where('login_type', 'agent')->where('is_agency', 1)->orderBy('id','desc')->get();
+        }
 
         return view('admin.agency', compact('agencies'));
     }
@@ -58,8 +54,8 @@ class AgencyController extends Controller
 
             }elseif($agent->is_agency == 1){
 
-                $agent_ids = User::where('owner_id', $agent->id)->where('status', 1)->pluck('id')->toArray();
-                $agents = User::where('owner_id', $agent->id)->get();
+                $agent_ids = User::where('login_type', 'agent')->where('owner_id', $agent->id)->where('status', 1)->pluck('id')->toArray();
+                $agents = User::where('login_type', 'agent')->where('owner_id', $agent->id)->get();
                 $agent_ids[] = $agent->id;
 
                 $total_property = Property::whereIn('agent_id', $agent_ids)->count();
@@ -86,6 +82,7 @@ class AgencyController extends Controller
         if($agency){
 
             $agency->is_agency = 1;
+            $agency->login_type = 'agent';
             $agency->save();
 
             $notification = trans('admin_validation.Agency Approved Successfully');
@@ -152,7 +149,7 @@ class AgencyController extends Controller
 
     $property_count = Property::where('agent_id', $id)->count();
 
-    $agents = User::where('owner_id', $id)->count();
+    $agents = User::where('login_type', 'agent')->where('owner_id', $id)->count();
 
     if($agents > 0){
         $notification = trans('admin_validation.In this item multiple agents exist, so you can not delete this item');
@@ -189,11 +186,117 @@ class AgencyController extends Controller
         $notification = array('messege'=>$notification,'alert-type'=>'success');
         return redirect()->back()->with($notification);
 
-    }else{
-        $notification = trans('admin_validation.In this item multiple property exist, so you can not delete this item');
-        $notification = array('messege'=>$notification,'alert-type'=>'error');
-        return redirect()->back()->with($notification);
+        }else{
+            $notification = trans('admin_validation.In this item multiple property exist, so you can not delete this item');
+            $notification = array('messege'=>$notification,'alert-type'=>'error');
+            return redirect()->back()->with($notification);
+        }
+    }
+
+    public function pendingAgentRequests(Request $request)
+    {
+        $requests = User::where('is_agency', 2)->orderBy('id', 'desc')->get();
+        return view('admin.pending_agent_requests', compact('requests'));
+    }
+
+    public function showPendingAgentRequest($id)
+    {
+        $user = User::where('id', $id)->where('is_agency', 2)->firstOrFail();
+        $setting = Setting::first();
+        $default_avatar = $setting->default_avatar ?? '';
+        return view('admin.show_pending_agent_request', compact('user', 'default_avatar'));
+    }
+
+    public function approveAgentRequest($id)
+    {
+        $user = User::where('id', $id)->where('is_agency', 2)->firstOrFail();
+
+        $profile = CompanyProfile::where('user_id', $user->id)->first();
+        if ($profile) {
+            $profile->is_approved = 1;
+            $profile->save();
+        }
+
+        $user->is_agency = 1;
+        $user->login_type = 'agent';
+        $user->save();
+
+        $notification = array(
+            'messege' => 'Agent Request Approved Successfully',
+            'alert-type' => 'success'
+        );
+        return redirect()->route('admin.pending-agent-requests')->with($notification);
+    }
+
+    public function rejectAgentRequest($id)
+    {
+        $user = User::where('id', $id)->where('is_agency', 2)->firstOrFail();
+
+        $profile = CompanyProfile::where('user_id', $user->id)->first();
+        if ($profile) {
+            $profile->is_approved = 0;
+            $profile->save();
+        }
+
+        $user->is_agency = 0;
+        $user->login_type = 'user';
+        $user->save();
+
+        $notification = array(
+            'messege' => 'Agent Request Rejected Successfully',
+            'alert-type' => 'success'
+        );
+        return redirect()->route('admin.pending-agent-requests')->with($notification);
+    }
+
+    public function viewDocument($id, $type)
+    {
+        $profile = CompanyProfile::where('user_id', $id)->firstOrFail();
+        
+        $filePath = null;
+        if ($type === 'id_proof') {
+            $filePath = $profile->id_proof;
+        } elseif ($type === 'business_document') {
+            $filePath = $profile->file;
+        } elseif ($type === 'logo') {
+            $filePath = $profile->image;
+        }
+
+        if (!$filePath) {
+            abort(404, 'Document not uploaded');
+        }
+
+        $path = public_path($filePath);
+        if (!file_exists($path)) {
+            abort(404, 'File not found');
+        }
+
+        return response()->file($path);
+    }
+
+    public function downloadDocument($id, $type)
+    {
+        $profile = CompanyProfile::where('user_id', $id)->firstOrFail();
+        
+        $filePath = null;
+        if ($type === 'id_proof') {
+            $filePath = $profile->id_proof;
+        } elseif ($type === 'business_document') {
+            $filePath = $profile->file;
+        } elseif ($type === 'logo') {
+            $filePath = $profile->image;
+        }
+
+        if (!$filePath) {
+            abort(404, 'Document not uploaded');
+        }
+
+        $path = public_path($filePath);
+        if (!file_exists($path)) {
+            abort(404, 'File not found');
+        }
+
+        return response()->download($path);
     }
 }
 
-}

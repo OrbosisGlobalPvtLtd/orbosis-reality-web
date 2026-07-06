@@ -45,7 +45,7 @@
     <link rel="stylesheet" href="{{ asset('frontend/css/theme-default.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/agency.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/css/hero-slider.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('frontend/css/hero-slider.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('frontend/css/kyc.css') }}">
 
     <link rel="stylesheet" href="{{ asset('toastr/toastr.min.css') }}">
@@ -203,7 +203,7 @@
 
                     <li><a href="{{ route('agencies') }}">{{ __('user.Our Agency') }}</a></li>
                     <li class="menu-item-has-children"><a
-                            href="https://orbosisreality.com/blogs">{{ __('user.Blogs') }}</a>
+                            href="{{ route('blogs') }}">{{ __('user.Blogs') }}</a>
                     </li>
 
                     <li><a href="{{ route('contact-us') }}">{{ __('user.Contact') }}</a></li>
@@ -485,7 +485,7 @@
                     <div class="homec-form mg-top-100">
                         <div class="homec-form__content">
                             <span class="homec-form__label">{{ __('user.For Rent house offer') }}</span>
-                            {{-- <h3 class="homec-form__title">{{ __('user.Join Homeco  Community') }}</h3> --}}
+                            {{-- <h3 class="homec-form__title">{{ __('user.Join Orbosis Reality  Community') }}</h3> --}}
                         </div>
                         <form id="subscriberForm" class="homec-form__form">
                             @csrf

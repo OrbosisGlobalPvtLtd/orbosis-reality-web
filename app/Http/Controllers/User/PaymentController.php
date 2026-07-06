@@ -64,7 +64,7 @@ class PaymentController extends Controller
 
             $notification = trans('user_validation.You have successfully enrolled this package');
             $notification = array('messege' => $notification, 'alert-type' => 'success');
-            return redirect()->route('user.dashboard')->with($notification);
+            return redirect()->intended(route('user.dashboard'))->with($notification);
         } else {
             $notification = trans('user_validation.You have already enrolled trail version');
             $notification = array('messege' => $notification, 'alert-type' => 'error');
@@ -166,7 +166,7 @@ class PaymentController extends Controller
 
         $notification = trans('user_validation.Your order has been placed. please wait for admin payment approval');
         $notification = array('messege' => $notification, 'alert-type' => 'success');
-        return redirect()->route('user.dashboard')->with($notification);
+        return redirect()->intended(route('user.dashboard'))->with($notification);
     }
 
     public function payWithStripe(Request $request, $slug)
@@ -203,7 +203,7 @@ class PaymentController extends Controller
 
         $notification = trans('user_validation.You have successfully enrolled this package');
         $notification = array('messege' => $notification, 'alert-type' => 'success');
-        return redirect()->route('user.dashboard')->with($notification);
+        return redirect()->intended(route('user.dashboard'))->with($notification);
     }
 
     public function payWithRazorpay(Request $request, $slug)
@@ -232,7 +232,7 @@ class PaymentController extends Controller
 
                 $notification = trans('user_validation.You have successfully enrolled this package');
                 $notification = array('messege' => $notification, 'alert-type' => 'success');
-                return redirect()->route('user.dashboard')->with($notification);
+                return redirect()->intended(route('user.dashboard'))->with($notification);
             } catch (Exception $e) {
                 $pricing_plan = PricingPlan::where(['plan_slug' => $slug])->first();
                 $notification = trans('user_validation.Payment Faild');
@@ -344,7 +344,7 @@ class PaymentController extends Controller
 
             $notification = trans('user_validation.You have successfully enrolled this package');
             $notification = array('messege' => $notification, 'alert-type' => 'success');
-            return redirect()->route('user.dashboard')->with($notification);
+            return redirect()->intended(route('user.dashboard'))->with($notification);
         } else {
             $notification = trans('user_validation.Payment Faild');
             $notification = array('messege' => $notification, 'alert-type' => 'error');
@@ -513,7 +513,7 @@ class PaymentController extends Controller
 
                 $notification = trans('user_validation.You have successfully enrolled this package');
                 $notification = array('messege' => $notification, 'alert-type' => 'success');
-                return redirect()->route('user.dashboard')->with($notification);
+                return redirect()->intended(route('user.dashboard'))->with($notification);
             }
         } else {
             $notification = trans('user_validation.Payment Faild');

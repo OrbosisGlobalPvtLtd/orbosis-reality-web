@@ -10,6 +10,8 @@ use App\Models\Property;
 use App\Models\Wishlist;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\City;
+use App\Models\CountryStateModal;
 use App\Models\CompanyProfile;
 use Modules\Kyc\Entities\KycType;
 use App\Http\Controllers\Controller;
@@ -481,6 +483,116 @@ class CompanyController extends Controller
             $notification = array('messege'=>$notification,'alert-type'=>'error');
             return redirect()->back()->with($notification);
         }
+    }
+
+    public function becomeAgentForm()
+    {
+        $user = Auth::guard('web')->user();
+        if ($user->login_type !== 'user' || ($user->is_agency != 0 && $user->is_agency != 2)) {
+            return redirect()->route('user.dashboard');
+        }
+        $cities = City::all();
+        $states = CountryStateModal::all();
+
+        // Get setting for breadcrumb
+        $setting = \App\Models\Setting::first();
+        $breadcrumb = $setting->breadcrumb ?? '';
+
+        return view('user.become_agent', compact('user', 'cities', 'states', 'breadcrumb'));
+    }
+
+    public function becomeAgentSubmit(Request $request)
+    {
+        $rules = [
+            'company_name'=>'required|string|max:255',
+            'agency_name'=>'required|string|max:255',
+            'phone'=>'required|string|max:20',
+            'address'=>'required|string|max:500',
+            'city_id'=>'required|exists:cities,id',
+            'state_id'=>'required|exists:country_states,id',
+            'about_agency'=>'required|string',
+            'logo'=>'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'rera_number'=>'nullable|string|max:100',
+            'gst_number'=>'nullable|string|max:100',
+            'id_proof'=>'required|file|mimes:pdf,jpeg,png,jpg|max:5120',
+            'business_documents'=>'required|file|mimes:pdf,jpeg,png,jpg,doc,docx,zip|max:10240',
+        ];
+
+        $request->validate($rules);
+
+        $user = Auth::guard('web')->user();
+
+        if ($user->login_type !== 'user' || $user->is_agency != 0) {
+            $notification = array('messege' => 'You are not eligible to apply.', 'alert-type' => 'error');
+            return redirect()->route('user.dashboard')->with($notification);
+        }
+
+        $companyProfile = CompanyProfile::where('user_id', $user->id)->first() ?: new CompanyProfile();
+
+        // Upload Logo
+        if($request->hasFile('logo')){
+            $old_logo = $companyProfile->image;
+            if($old_logo && File::exists(public_path($old_logo))){
+                File::delete(public_path($old_logo));
+            }
+            $ext = $request->file('logo')->getClientOriginalExtension();
+            $logo_name = 'company-logo-'.date('YmdHis').'-'.rand(100,999).'.webp';
+            $logo_path = 'uploads/custom-images/'.$logo_name;
+            Image::make($request->file('logo'))
+                ->encode('webp', 80)
+                ->save(public_path($logo_path));
+            $companyProfile->image = $logo_path;
+        }
+
+        // Upload ID Proof
+        if($request->hasFile('id_proof')){
+            $old_id = $companyProfile->id_proof;
+            if($old_id && File::exists(public_path($old_id))){
+                File::delete(public_path($old_id));
+            }
+            $ext = $request->file('id_proof')->getClientOriginalExtension();
+            $id_name = 'id-proof-'.date('YmdHis').'-'.rand(100,999).'.'.$ext;
+            $id_path = 'uploads/custom-images/'.$id_name;
+            $request->file('id_proof')->move(public_path('uploads/custom-images'), $id_name);
+            $companyProfile->id_proof = $id_path;
+        }
+
+        // Upload Business Documents
+        if($request->hasFile('business_documents')){
+            $old_doc = $companyProfile->file;
+            if($old_doc && File::exists(public_path($old_doc))){
+                File::delete(public_path($old_doc));
+            }
+            $ext = $request->file('business_documents')->getClientOriginalExtension();
+            $doc_name = 'business-doc-'.date('YmdHis').'-'.rand(100,999).'.'.$ext;
+            $doc_path = 'uploads/custom-images/'.$doc_name;
+            $request->file('business_documents')->move(public_path('uploads/custom-images'), $doc_name);
+            $companyProfile->file = $doc_path;
+        }
+
+        $companyProfile->user_id = $user->id;
+        $companyProfile->company_name = $request->company_name;
+        $companyProfile->tag_line = $request->agency_name;
+        $companyProfile->phone = $request->phone;
+        $companyProfile->address = $request->address;
+        $companyProfile->city_id = $request->city_id;
+        $companyProfile->state_id = $request->state_id;
+        $companyProfile->about_us = $request->about_agency;
+        $companyProfile->rera_number = $request->rera_number;
+        $companyProfile->gst_number = $request->gst_number;
+        $companyProfile->email = $user->email;
+        $companyProfile->is_approved = 2; // pending
+        $companyProfile->save();
+
+        $user->is_agency = 2;
+        $user->save();
+
+        $notification = array(
+            'messege' => 'Your agent request has been submitted and is pending admin approval.',
+            'alert-type' => 'success'
+        );
+
+        return redirect()->route('user.dashboard')->with($notification);
     }
 
 }

@@ -48,6 +48,20 @@ class MyBookingController extends Controller
         $this->validate($request, $rules,$customMessages);
 
         $property = Property::find($request->property_id);
+        if (!$property) {
+            return response()->json(['message' => trans('user_validation.Property not found')], 404);
+        }
+        if ($property->availability_status !== 'available') {
+            return response()->json(['message' => trans('This property is already ' . $property->availability_status)], 403);
+        }
+
+        $duplicate = Booking::where('property_id', $request->property_id)
+            ->where('booking_date', $request->booking_date)
+            ->where('booking_time', $request->booking_time)
+            ->exists();
+        if ($duplicate) {
+            return response()->json(['message' => trans('This slot is already booked for this property.')], 403);
+        }
 
         $booking = new Booking();
         $booking->property_id = $request->property_id;
@@ -111,19 +125,58 @@ class MyBookingController extends Controller
         $booking->status = $request->status;
         $booking->save();
 
+        $property = $booking->property;
+        if ($property) {
+            if ($booking->status == 1) {
+                if ($property->purpose === 'sale') {
+                    $property->availability_status = 'sold';
+                } elseif ($property->purpose === 'rent') {
+                    $property->availability_status = 'rented';
+                } else {
+                    $property->availability_status = 'booked';
+                }
+            } else {
+                $hasOtherConfirmed = Booking::where('property_id', $property->id)
+                    ->where('id', '!=', $booking->id)
+                    ->where('status', 1)
+                    ->exists();
+                if (!$hasOtherConfirmed) {
+                    $property->availability_status = 'available';
+                }
+            }
+            $property->save();
+        }
+
         $notification = trans('user_validation.Updated successfully');
         return response()->json(['message' => $notification]);
     }
 
     public function remove($id)
     {
+        $user = Auth::guard('api')->user();
         $Booking = Booking::find($id);
+        if (!$Booking) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+        if ($Booking->agent_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $property = $Booking->property;
         $Booking->delete();
 
-        $notification = trans('user_validation.Deleted successfully');
-        $notification = array('messege'=>$notification,'alert-type'=>'success');
-        return redirect()->back()->with($notification);
+        if ($property) {
+            $hasOtherConfirmed = Booking::where('property_id', $property->id)
+                ->where('status', 1)
+                ->exists();
+            if (!$hasOtherConfirmed) {
+                $property->availability_status = 'available';
+                $property->save();
+            }
+        }
 
+        $notification = trans('user_validation.Deleted successfully');
+        return response()->json(['message' => $notification]);
     }
 
     public function myBooking()
@@ -138,12 +191,18 @@ class MyBookingController extends Controller
 
     public function myBookingRemove($id)
     {
+        $user = Auth::guard('api')->user();
         $Booking = Booking::find($id);
+        if (!$Booking) {
+            return response()->json(['message' => 'Not Found'], 404);
+        }
+        if ($Booking->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $Booking->delete();
 
         $notification = trans('user_validation.Deleted successfully');
-        $notification = array('messege'=>$notification,'alert-type'=>'success');
-        return redirect()->back()->with($notification);
-
+        return response()->json(['message' => $notification]);
     }
 }

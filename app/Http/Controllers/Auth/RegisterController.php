@@ -83,6 +83,10 @@ class RegisterController extends Controller
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->verify_token = Str::random(100);
+        $user->login_type = 'user';
+        $user->status = 0;
+        $user->email_verified = 0;
+        $user->email_verified_at = null;
         $user->save();
 
         MailHelper::setMailConfig();
@@ -90,29 +94,34 @@ class RegisterController extends Controller
 
         try{
             $template=EmailTemplate::where('id',4)->first();
-            $subject=$template->subject;
+            $subject='Verify your Orbosis Reality account';
             $message=$template->description;
             $message = str_replace('{{user_name}}',$request->name,$message);
             Mail::to($user->email)->send(new UserRegistration($message,$subject,$user));
-        }catch(Exception $ex){}
+        }catch(\Exception $ex){}
 
-        $notification = trans('user_validation.Register Successfully. Please Verify your email');
+        $notification = "Registration successful. Please check your email and verify your account before login.";
         $notification=array('messege'=>$notification,'alert-type'=>'success');
-        return redirect()->back()->with($notification);
+        return redirect()->route('login')->with($notification);
     }
 
     public function userVerification($token){
+        return $this->verifyEmail($token);
+    }
+
+    public function verifyEmail($token){
         $user = User::where('verify_token',$token)->first();
         if($user){
             $user->verify_token = null;
             $user->status = 1;
             $user->email_verified = 1;
+            $user->email_verified_at = now();
             $user->save();
-            $notification = trans('user_validation.Verification Successfully');
+            $notification = "Your email has been verified. You can login now.";
             $notification = array('messege'=>$notification,'alert-type'=>'success');
             return redirect()->route('login')->with($notification);
         }else{
-            $notification = trans('user_validation.Invalid token');
+            $notification = "Invalid token";
             $notification = array('messege'=>$notification,'alert-type'=>'error');
             return redirect()->route('login')->with($notification);
         }

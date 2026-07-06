@@ -24,7 +24,7 @@ body{
     margin:0;
     font-family:'Segoe UI',sans-serif;
     background: linear-gradient(rgba(0,0,0,0.65),rgba(0,0,0,0.65)),
-    url('https://orbosisreality.com/public/uploads/website-images/login-logo-2026-01-15-07-25-02-8753.jpg');
+    url('{{ asset("uploads/website-images/login-logo-2026-01-15-07-25-02-8753.jpg") }}');
     background-size:cover;
     background-position:center;
     background-attachment:fixed;

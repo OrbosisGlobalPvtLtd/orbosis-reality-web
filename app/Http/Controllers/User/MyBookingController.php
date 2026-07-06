@@ -53,6 +53,22 @@ class MyBookingController extends Controller
         $Booking->status = $request->status;
         $Booking->save();
 
+        $property = $Booking->property;
+        if ($property) {
+            if ($Booking->status == 1) {
+                if ($property->purpose === 'sale') {
+                    $property->availability_status = 'sold';
+                } elseif ($property->purpose === 'rent') {
+                    $property->availability_status = 'rented';
+                } else {
+                    $property->availability_status = 'booked';
+                }
+            } else {
+                $property->availability_status = 'available';
+            }
+            $property->save();
+        }
+
         // MailHelper::setMailConfig();
 
         // $template=EmailTemplate::where('id',13)->first();
@@ -69,7 +85,20 @@ class MyBookingController extends Controller
     public function remove($id)
     {
         $Booking = Booking::find($id);
-        $Booking->delete();
+        if ($Booking) {
+            $property = $Booking->property;
+            $Booking->delete();
+
+            if ($property) {
+                $hasOtherConfirmed = Booking::where('property_id', $property->id)
+                    ->where('status', 1)
+                    ->exists();
+                if (!$hasOtherConfirmed) {
+                    $property->availability_status = 'available';
+                    $property->save();
+                }
+            }
+        }
 
         $notification = trans('user_validation.Deleted successfully');
         $notification = array('messege'=>$notification,'alert-type'=>'success');

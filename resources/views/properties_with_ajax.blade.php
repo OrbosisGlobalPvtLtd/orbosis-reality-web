@@ -1,80 +1,95 @@
 <!-- Grid Tab -->
+<span class="d-none" id="ajax_results_count_meta">Showing {{ $properties->firstItem() ?? 0 }}-{{ $properties->lastItem() ?? 0 }} of {{ $properties->total() ?? 0 }} properties</span>
 <div class="tab-pane fade show active grid_body" id="homec-grid" role="tabpanel">
     <div class="row">
         @forelse ($properties as $property_item)
-            <div class="col-md-6 col-12 mg-top-30">
-                <!-- Single property-->
-                <div class="homec-property">
-                    <!-- Property Head-->
-                    <div class="homec-property__head">
-                        <img src="{{ ($property_item->thumbnail_image)? asset($property_item->thumbnail_image) : asset($setting->default_placeholder)}}">
-                        <!-- Top Sticky -->
-                        <div class="homec-property__hsticky">
+        <div class="col-lg-4 col-md-6 col-12 mg-top-30">
+            <!-- Single property-->
+            <div class="homec-property">
+                <!-- Property Head-->
+                <div class="homec-property__head">
+                    <img src="{{ ($property_item->thumbnail_image)? asset($property_item->thumbnail_image) : asset($setting->default_placeholder)}}">
+                    <!-- Top Sticky -->
+                    <div class="homec-property__hsticky">
 
-                            <div class="homec-heart-df">
-                                <a href="javascript:;" class="homec-heart add-to-wishlist"
-                                    data-property-id="{{ $property_item->id }}">
-                                    <svg width="23" height="20" viewBox="0 0 23 20" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M10.5745 3.73257L11.1008 4.69447L11.6272 3.73258C11.9704 3.10535 12.5438 2.26267 13.3886 1.60933C14.2595 0.935774 15.2355 0.6 16.3044 0.6C19.29 0.6 21.6017 3.03446 21.6017 6.3966C21.6017 8.18186 20.8932 9.70959 19.5597 11.3187C18.211 12.9462 16.2694 14.6033 13.8617 16.6552L14.2508 17.1119L13.8617 16.6552L13.8611 16.6557C13.0479 17.3487 12.1237 18.1363 11.1625 18.9769L11.1623 18.977C11.1457 18.9916 11.1241 18.9999 11.1008 18.9999C11.0776 18.9999 11.056 18.9916 11.0394 18.9771L11.0391 18.9768C10.0784 18.1367 9.15452 17.3493 8.34203 16.6569L8.34054 16.6556L8.34053 16.6556C5.93251 14.6035 3.99081 12.9463 2.64202 11.3188C1.30844 9.70958 0.6 8.18186 0.6 6.3966C0.6 3.03446 2.91167 0.6 5.89732 0.6C6.96614 0.6 7.94219 0.935773 8.81311 1.60933C9.6579 2.26267 10.2313 3.10532 10.5745 3.73257Z"
-                                            stroke-width="1.2" />
-                                    </svg>
-                                </a>
-                                <a href="javascript:;" class="homec-heart add-to-compare"
-                                    data-property-id="{{ $property_item->id }}">
-                                    <span>
-                                        <i class="fa-solid fa-shuffle"></i>
-                                    </span>
-                                </a>
-                            </div>
-                            <span class="homec-property__salebadge">
+                        <div class="homec-heart-df">
+                            <a href="javascript:;" class="homec-heart add-to-wishlist"
+                                data-property-id="{{ $property_item->id }}">
+                                <svg width="23" height="20" viewBox="0 0 23 20" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M10.5745 3.73257L11.1008 4.69447L11.6272 3.73258C11.9704 3.10535 12.5438 2.26267 13.3886 1.60933C14.2595 0.935774 15.2355 0.6 16.3044 0.6C19.29 0.6 21.6017 3.03446 21.6017 6.3966C21.6017 8.18186 20.8932 9.70959 19.5597 11.3187C18.211 12.9462 16.2694 14.6033 13.8617 16.6552L14.2508 17.1119L13.8617 16.6552L13.8611 16.6557C13.0479 17.3487 12.1237 18.1363 11.1625 18.9769L11.1623 18.977C11.1457 18.9916 11.1241 18.9999 11.1008 18.9999C11.0776 18.9999 11.056 18.9916 11.0394 18.9771L11.0391 18.9768C10.0784 18.1367 9.15452 17.3493 8.34203 16.6569L8.34054 16.6556L8.34053 16.6556C5.93251 14.6035 3.99081 12.9463 2.64202 11.3188C1.30844 9.70958 0.6 8.18186 0.6 6.3966C0.6 3.03446 2.91167 0.6 5.89732 0.6C6.96614 0.6 7.94219 0.935773 8.81311 1.60933C9.6579 2.26267 10.2313 3.10532 10.5745 3.73257Z"
+                                        stroke-width="1.2" />
+                                </svg>
+                            </a>
+                            <a href="javascript:;" class="homec-heart add-to-compare"
+                                data-property-id="{{ $property_item->id }}">
+                                <span>
+                                    <i class="fa-solid fa-shuffle"></i>
+                                </span>
+                            </a>
+                        </div>
+                        <span class="homec-property__salebadge">
 
-                                @if ($property_item->purpose == 'rent')
-                                    {{ __('user.For Rent') }}
-                                @else
-                                    {{ __('user.For Sale') }}
+                            @if ($property_item->purpose == 'rent')
+                            {{ __('user.For Rent') }}
+                            @else
+                            {{ __('user.For Sale') }}
+                            @endif
+                        </span>
+                        <span class="homec-property__salebadge" style="
+                                @if(($property_item->availability_status ?? 'available') == 'available')
+                                    background-color: #d4edda; color: #155724;
+                                @elseif($property_item->availability_status == 'booked')
+                                    background-color: #fff3cd; color: #856404;
+                                @elseif($property_item->availability_status == 'sold')
+                                    background-color: #f8d7da; color: #721c24;
+                                @elseif($property_item->availability_status == 'rented')
+                                    background-color: #cce5ff; color: #004085;
                                 @endif
-                            </span>
+                                margin-left: 5px; font-weight: 600;
+                            ">
+                            {{ ucfirst($property_item->availability_status ?? 'available') }}
+                        </span>
 
-                        </div>
-                        <!-- End Top Sticky -->
                     </div>
-                    <!-- Property Body-->
-                    <div class="homec-property__body">
-                        <div class="homec-property__topbar">
-                            <div class="homec-property__price">
-                                {{ html_decode(num_format($property_item->price)) }}
-                                @if ($property_item->purpose == 'rent')
-                                    <span>/{{ $property_item->rent_period }}</span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <h3 class="homec-property__title"><a
-                                href="{{ route('property', html_decode($property_item->slug)) }}">{{ html_decode($property_item->title) }}</a>
-                        </h3>
-                        <div class="homec-property__text">
-                            <img src="{{ asset('frontend/img/location-icon.svg') }}" alt="address">
-                            <p>{{ html_decode($property_item->address) }}</p>
-                        </div>
-                        <!-- Property List-->
-                        <ul class="homec-property__list homec-border-top list-none">
-                            <li><img src="{{ asset('frontend/img/room-icon2.svg') }}"
-                                    alt="total_bedroom">{{ $property_item->total_bedroom }} {{ __('user.Bed') }}</li>
-                            <li><img src="{{ asset('frontend/img/bath-icon2.svg') }}"
-                                    alt="total_bathroom">{{ $property_item->total_bathroom }} {{ __('user.Bath') }}
-                            </li>
-                            <li><img src="{{ asset('frontend/img/size-icon2.svg') }}"
-                                    alt="total_area">{{ html_decode($property_item->total_area) }} {{ __('user.m2') }}
-                            </li>
-                        </ul>
-                    </div>
+                    <!-- End Top Sticky -->
                 </div>
-                <!-- End Single property-->
+                <!-- Property Body-->
+                <div class="homec-property__body">
+                    <div class="homec-property__topbar">
+                        <div class="homec-property__price">
+                            {{ html_decode(num_format($property_item->price)) }}
+                            @if ($property_item->purpose == 'rent')
+                            <span>/{{ $property_item->rent_period }}</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <h3 class="homec-property__title"><a
+                            href="{{ route('property', html_decode($property_item->slug)) }}">{{ html_decode($property_item->title) }}</a>
+                    </h3>
+                    <div class="homec-property__text">
+                        <img src="{{ asset('frontend/img/location-icon.svg') }}" alt="address">
+                        <p>{{ html_decode($property_item->address) }}</p>
+                    </div>
+                    <!-- Property List-->
+                    <ul class="homec-property__list homec-border-top list-none">
+                        <li><img src="{{ asset('frontend/img/room-icon2.svg') }}"
+                                alt="total_bedroom">{{ $property_item->total_bedroom }} {{ __('user.Bed') }}</li>
+                        <li><img src="{{ asset('frontend/img/bath-icon2.svg') }}"
+                                alt="total_bathroom">{{ $property_item->total_bathroom }} {{ __('user.Bath') }}
+                        </li>
+                        <li><img src="{{ asset('frontend/img/size-icon2.svg') }}"
+                                alt="total_area">{{ html_decode($property_item->total_area) }} {{ __('user.m2') }}
+                        </li>
+                    </ul>
+                </div>
             </div>
-            @empty
-                <h4 class="text-danger text-center mt-5">{{ __('user.Property not found!') }}</h4>
+            <!-- End Single property-->
+        </div>
+        @empty
+        <h4 class="text-danger text-center mt-5">{{ __('user.Property not found!') }}</h4>
         @endforelse
     </div>
     <div class="row mg-top-40">
@@ -87,69 +102,83 @@
 
     <div class="row">
         @foreach ($properties as $property_item)
-            <div class="col-12 mg-top-30">
-                <!-- Single property-->
-                <div class="homec-property homec-property__list-style">
-                    <!-- Property Head-->
-                    <div class="homec-property__head">
-                        <img src="{{ ($property_item->thumbnail_image)? asset($property_item->thumbnail_image) : asset($setting->default_placeholder)}}">
-                        <!-- Top Sticky -->
-                        <div class="homec-property__hsticky">
-                            <a href="javascript:;" class="homec-heart add-to-wishlist"
-                                data-property-id="{{ $property_item->id }}">
-                                <svg width="23" height="20" viewBox="0 0 23 20" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M10.5745 3.73257L11.1008 4.69447L11.6272 3.73258C11.9704 3.10535 12.5438 2.26267 13.3886 1.60933C14.2595 0.935774 15.2355 0.6 16.3044 0.6C19.29 0.6 21.6017 3.03446 21.6017 6.3966C21.6017 8.18186 20.8932 9.70959 19.5597 11.3187C18.211 12.9462 16.2694 14.6033 13.8617 16.6552L14.2508 17.1119L13.8617 16.6552L13.8611 16.6557C13.0479 17.3487 12.1237 18.1363 11.1625 18.9769L11.1623 18.977C11.1457 18.9916 11.1241 18.9999 11.1008 18.9999C11.0776 18.9999 11.056 18.9916 11.0394 18.9771L11.0391 18.9768C10.0784 18.1367 9.15452 17.3493 8.34203 16.6569L8.34054 16.6556L8.34053 16.6556C5.93251 14.6035 3.99081 12.9463 2.64202 11.3188C1.30844 9.70958 0.6 8.18186 0.6 6.3966C0.6 3.03446 2.91167 0.6 5.89732 0.6C6.96614 0.6 7.94219 0.935773 8.81311 1.60933C9.6579 2.26267 10.2313 3.10532 10.5745 3.73257Z"
-                                        stroke-width="1.2" />
-                                </svg>
-                            </a>
-                            <span class="homec-property__salebadge">
+        <div class="col-12 mg-top-30">
+            <!-- Single property-->
+            <div class="homec-property homec-property__list-style">
+                <!-- Property Head-->
+                <div class="homec-property__head">
+                    <img src="{{ ($property_item->thumbnail_image)? asset($property_item->thumbnail_image) : asset($setting->default_placeholder)}}">
+                    <!-- Top Sticky -->
+                    <div class="homec-property__hsticky">
+                        <a href="javascript:;" class="homec-heart add-to-wishlist"
+                            data-property-id="{{ $property_item->id }}">
+                            <svg width="23" height="20" viewBox="0 0 23 20" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10.5745 3.73257L11.1008 4.69447L11.6272 3.73258C11.9704 3.10535 12.5438 2.26267 13.3886 1.60933C14.2595 0.935774 15.2355 0.6 16.3044 0.6C19.29 0.6 21.6017 3.03446 21.6017 6.3966C21.6017 8.18186 20.8932 9.70959 19.5597 11.3187C18.211 12.9462 16.2694 14.6033 13.8617 16.6552L14.2508 17.1119L13.8617 16.6552L13.8611 16.6557C13.0479 17.3487 12.1237 18.1363 11.1625 18.9769L11.1623 18.977C11.1457 18.9916 11.1241 18.9999 11.1008 18.9999C11.0776 18.9999 11.056 18.9916 11.0394 18.9771L11.0391 18.9768C10.0784 18.1367 9.15452 17.3493 8.34203 16.6569L8.34054 16.6556L8.34053 16.6556C5.93251 14.6035 3.99081 12.9463 2.64202 11.3188C1.30844 9.70958 0.6 8.18186 0.6 6.3966C0.6 3.03446 2.91167 0.6 5.89732 0.6C6.96614 0.6 7.94219 0.935773 8.81311 1.60933C9.6579 2.26267 10.2313 3.10532 10.5745 3.73257Z"
+                                    stroke-width="1.2" />
+                            </svg>
+                        </a>
+                        <span class="homec-property__salebadge">
 
-                                @if ($property_item->purpose == 'rent')
-                                    {{ __('user.For Rent') }}
-                                @else
-                                    {{ __('user.For Sale') }}
+                            @if ($property_item->purpose == 'rent')
+                            {{ __('user.For Rent') }}
+                            @else
+                            {{ __('user.For Sale') }}
+                            @endif
+                        </span>
+                        <span class="homec-property__salebadge" style="
+                                @if(($property_item->availability_status ?? 'available') == 'available')
+                                    background-color: #d4edda; color: #155724;
+                                @elseif($property_item->availability_status == 'booked')
+                                    background-color: #fff3cd; color: #856404;
+                                @elseif($property_item->availability_status == 'sold')
+                                    background-color: #f8d7da; color: #721c24;
+                                @elseif($property_item->availability_status == 'rented')
+                                    background-color: #cce5ff; color: #004085;
                                 @endif
-                            </span>
+                                margin-left: 5px; font-weight: 600;
+                            ">
+                            {{ ucfirst($property_item->availability_status ?? 'available') }}
+                        </span>
 
-                        </div>
-                        <!-- End Top Sticky -->
                     </div>
-                    <!-- Property Body-->
-                    <div class="homec-property__body">
-                        <div class="homec-property__topbar">
-                            <div class="homec-property__price">
-                                {{ html_decode(num_format($property_item->price)) }}
-                                @if ($property_item->purpose == 'rent')
-                                    <span>/{{ $property_item->rent_period }}</span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <h3 class="homec-property__title"><a
-                                href="{{ route('property', html_decode($property_item->slug)) }}">{{ html_decode($property_item->title) }}</a>
-                        </h3>
-                        <div class="homec-property__text">
-                            <img src="{{ asset('frontend/img/location-icon.svg') }}" alt="address">
-                            <p>{{ html_decode($property_item->address) }}</p>
-                        </div>
-
-                        <!-- Property List-->
-                        <ul class="homec-property__list homec-border-top list-none">
-                            <li><img src="{{ asset('frontend/img/room-icon2.svg') }}"
-                                    alt="total_bedroom">{{ $property_item->total_bedroom }} {{ __('user.Bed') }}</li>
-                            <li><img src="{{ asset('frontend/img/bath-icon2.svg') }}"
-                                    alt="total_bathroom">{{ $property_item->total_bathroom }} {{ __('user.Bath') }}
-                            </li>
-                            <li><img src="{{ asset('frontend/img/size-icon2.svg') }}"
-                                    alt="total_area">{{ html_decode($property_item->total_area) }} {{ __('user.m2') }}
-                            </li>
-                        </ul>
-                    </div>
+                    <!-- End Top Sticky -->
                 </div>
-                <!-- End Single property-->
+                <!-- Property Body-->
+                <div class="homec-property__body">
+                    <div class="homec-property__topbar">
+                        <div class="homec-property__price">
+                            {{ html_decode(num_format($property_item->price)) }}
+                            @if ($property_item->purpose == 'rent')
+                            <span>/{{ $property_item->rent_period }}</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <h3 class="homec-property__title"><a
+                            href="{{ route('property', html_decode($property_item->slug)) }}">{{ html_decode($property_item->title) }}</a>
+                    </h3>
+                    <div class="homec-property__text">
+                        <img src="{{ asset('frontend/img/location-icon.svg') }}" alt="address">
+                        <p>{{ html_decode($property_item->address) }}</p>
+                    </div>
+
+                    <!-- Property List-->
+                    <ul class="homec-property__list homec-border-top list-none">
+                        <li><img src="{{ asset('frontend/img/room-icon2.svg') }}"
+                                alt="total_bedroom">{{ $property_item->total_bedroom }} {{ __('user.Bed') }}</li>
+                        <li><img src="{{ asset('frontend/img/bath-icon2.svg') }}"
+                                alt="total_bathroom">{{ $property_item->total_bathroom }} {{ __('user.Bath') }}
+                        </li>
+                        <li><img src="{{ asset('frontend/img/size-icon2.svg') }}"
+                                alt="total_area">{{ html_decode($property_item->total_area) }} {{ __('user.m2') }}
+                        </li>
+                    </ul>
+                </div>
             </div>
+            <!-- End Single property-->
+        </div>
         @endforeach
     </div>
     <div class="row mg-top-40">
@@ -161,20 +190,20 @@
 <!-- List Tab -->
 <div class="tab-pane fade map_body" id="map-grid" role="tabpanel">
     @php
-        $initialMarkers = [];
+    $initialMarkers = [];
 
-        // Loop through each property and add to the array if lat and lon are not null
-        foreach ($properties as $property_item) {
-            if (!is_null($property_item->lat) && !is_null($property_item->lon)) {
-                $initialMarkers[] = [
-                    'position' => [
-                        'lat' => $property_item->lat,
-                        'lng' => $property_item->lon,
-                    ],
-                    'draggable' => false,
-                ];
-            }
-        }
+    // Loop through each property and add to the array if lat and lon are not null
+    foreach ($properties as $property_item) {
+    if (!is_null($property_item->lat) && !is_null($property_item->lon)) {
+    $initialMarkers[] = [
+    'position' => [
+    'lat' => $property_item->lat,
+    'lng' => $property_item->lon,
+    ],
+    'draggable' => false,
+    ];
+    }
+    }
     @endphp
 
     <div class="row">
@@ -259,7 +288,10 @@
                         `;
 
                         // Bind the popup to the marker
-                        marker.bindPopup(popupContent, { minWidth: 150, closeButton: true });
+                        marker.bindPopup(popupContent, {
+                            minWidth: 150,
+                            closeButton: true
+                        });
 
                         // Add marker to the cluster group
                         markerClusterGroup.addLayer(marker);

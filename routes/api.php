@@ -18,7 +18,8 @@ use App\Http\Controllers\API\Auth\RegisterController;
 use App\Http\Controllers\API\User\MyBookingController;
 use App\Http\Controllers\API\User\UserProfileController;
 use App\Http\Controllers\API\User\PropertyController as UserPropertyController;
-
+use App\Http\Controllers\API\BuilderController;
+    
 Route::prefix('builder')->group(function () {
 
     Route::post('/register', [BuilderAuthController::class, 'register']);
@@ -27,6 +28,24 @@ Route::prefix('builder')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [BuilderAuthController::class, 'profile']);
         Route::post('/logout', [BuilderAuthController::class, 'logout']);
+
+        // New Builder endpoints
+        Route::get('/dashboard', [BuilderController::class, 'dashboard']);
+        Route::post('/profile/update', [BuilderController::class, 'updateProfile']);
+        Route::get('/properties', [BuilderController::class, 'myProperties']);
+        Route::post('/property/store', [BuilderController::class, 'storeProperty']);
+        Route::get('/property/{id}/edit', [BuilderController::class, 'editProperty']);
+        Route::post('/property/{id}/update', [BuilderController::class, 'updateProperty']);
+        Route::delete('/property/{id}', [BuilderController::class, 'deleteProperty']);
+
+        Route::get('/bookings', [BuilderController::class, 'bookings']);
+        Route::post('/booking/{id}/status', [BuilderController::class, 'updateBookingStatus']);
+        Route::delete('/booking/{id}', [BuilderController::class, 'deleteBooking']);
+
+        Route::get('/reviews', [BuilderController::class, 'reviews']);
+        Route::get('/orders', [BuilderController::class, 'orders']);
+        Route::get('/settings', [BuilderController::class, 'settings']);
+        Route::get('/notifications', [BuilderController::class, 'notifications']);
     });
 
 });
@@ -57,6 +76,8 @@ Route::group(['middleware' => ['maintainance']], function () {
 
 
     Route::get('city-by-country/{country_id}', [HomeController::class, 'city_by_country'])->name('city-by-country');
+    Route::get('location/states', [HomeController::class, 'states'])->name('location.states');
+    Route::get('location/cities', [HomeController::class, 'cities'])->name('location.cities');
 
     Route::get('/agents', [HomeController::class, 'agents'])->name('agents');
     Route::get('/agent', [HomeController::class, 'agent'])->name('agent');
@@ -163,6 +184,11 @@ Route::group(['middleware' => ['maintainance']], function () {
         Route::DELETE('agency-agent-delete/{id}',[CompanyController::class, 'destroy'])->name('agency-agent-destroy');
         Route::get('agency-agent-edit/{id}',[CompanyController::class, 'agency_agent_edit'])->name('agency-agent-edit');
         Route::post('agency-agent-update/{id}',[CompanyController::class, 'agency_agent_update'])->name('agency-agent-update');
+
+        // Become Agent Mobile APIs
+        Route::get('agent-request/status', [\App\Http\Controllers\API\User\AgentRequestController::class, 'status'])->name('agent-request.status');
+        Route::post('agent-request', [\App\Http\Controllers\API\User\AgentRequestController::class, 'store'])->name('agent-request.store');
+        Route::post('agent-request/update', [\App\Http\Controllers\API\User\AgentRequestController::class, 'update'])->name('agent-request.update');
 
     });
 

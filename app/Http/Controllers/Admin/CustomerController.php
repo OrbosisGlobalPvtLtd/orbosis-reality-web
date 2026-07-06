@@ -28,18 +28,18 @@ class CustomerController extends Controller
     }
 
     public function index(){
-        $customers = User::orderBy('id','desc')->where('status',1)->get();
+        $customers = User::where('login_type', 'user')->orderBy('id','desc')->where('status',1)->get();
 
         return view('admin.customer', compact('customers'));
     }
 
     public function pending_customer_list(){
-        $customers = User::orderBy('id','desc')->where('status',0)->get();
+        $customers = User::where('login_type', 'user')->orderBy('id','desc')->where('status',0)->get();
         return view('admin.customer', compact('customers'));
     }
 
     public function show($id){
-        $customer = User::find($id);
+        $customer = User::where('login_type', 'user')->find($id);
         if($customer){
             return view('admin.show_customer',compact('customer'));
         }else{
@@ -90,6 +90,7 @@ class CustomerController extends Controller
         $agent->twitter = $request->twitter;
         $agent->linkedin = $request->linkedin;
         $agent->instagram = $request->instagram;
+        $agent->login_type = 'user';
         $agent->status = 1;
         $agent->save();
 
@@ -185,7 +186,7 @@ class CustomerController extends Controller
         ];
         $this->validate($request, $rules,$customMessages);
 
-        $users = User::where('status',1)->get();
+        $users = User::where('login_type', 'user')->where('status',1)->get();
         MailHelper::setMailConfig();
         foreach($users as $user){
             try{

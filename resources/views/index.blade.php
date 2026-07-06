@@ -812,6 +812,20 @@
                                                     {{__('user.For Sale')}}
                                                 @endif
                                             </span>
+                                            <span class="homec-property__salebadge" style="
+                                                @if(($featured_property->availability_status ?? 'available') == 'available')
+                                                    background-color: #d4edda; color: #155724;
+                                                @elseif($featured_property->availability_status == 'booked')
+                                                    background-color: #fff3cd; color: #856404;
+                                                @elseif($featured_property->availability_status == 'sold')
+                                                    background-color: #f8d7da; color: #721c24;
+                                                @elseif($featured_property->availability_status == 'rented')
+                                                    background-color: #cce5ff; color: #004085;
+                                                @endif
+                                                margin-left: 5px; font-weight: 600;
+                                            ">
+                                                {{ ucfirst($featured_property->availability_status ?? 'available') }}
+                                            </span>
                                         </div>
                                         <!-- End Top Sticky -->
                                     </div>

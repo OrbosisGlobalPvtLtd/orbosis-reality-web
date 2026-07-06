@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models;
-use App\Models\Agent;
 use App\Models\CompanyProfile;
 use App\Models\CountryStateModal;
 use Laravel\Sanctum\HasApiTokens;
@@ -57,12 +56,64 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
     ];
 
-    public function seller(){
-        return $this->hasOne(Vendor::class);
+    protected $appends = ['image_url', 'dashboard_type', 'can_add_property', 'can_book_property', 'agent_request_status', 'agent_request_label'];
+
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) {
+            $setting = \App\Models\Setting::first();
+            return $setting->default_avatar ? url($setting->default_avatar) : null;
+        }
+        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
+            return $this->image;
+        }
+        return url($this->image);
     }
 
-    public function agent(){
-        return $this->hasOne(Agent::class);
+    public function getDashboardTypeAttribute(): string
+    {
+        return match($this->login_type) {
+            'builder' => 'builder',
+            'agent' => 'agent',
+            default => 'customer'
+        };
+    }
+
+    public function getCanAddPropertyAttribute(): bool
+    {
+        return in_array($this->login_type, ['agent', 'builder']);
+    }
+
+    public function getCanBookPropertyAttribute(): bool
+    {
+        return $this->login_type === 'user';
+    }
+
+    public function getAgentRequestStatusAttribute(): string
+    {
+        if ($this->is_agency == 1 && $this->login_type === 'agent') {
+            return 'approved';
+        }
+        if ($this->is_agency == 2 && $this->login_type === 'user') {
+            return 'pending';
+        }
+        if ($this->is_agency == 0 && $this->login_type === 'user') {
+            $profile = $this->profile()->first();
+            if ($profile && $profile->is_approved == 0) {
+                return 'rejected';
+            }
+        }
+        return 'not_applied';
+    }
+
+    public function getAgentRequestLabelAttribute(): string
+    {
+        return match ($this->agent_request_status) {
+            'approved' => 'Approved',
+            'pending' => 'Pending Admin Approval',
+            'rejected' => 'Rejected',
+            default => 'Not Applied',
+        };
     }
 
     public function builder(){

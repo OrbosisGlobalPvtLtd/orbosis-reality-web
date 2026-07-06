@@ -1074,13 +1074,43 @@ class PropertyController extends Controller
             $Booking->save();
             $message= trans('admin_validation.Confirmed Successfully');
         }
+
+        $property = $Booking->property;
+        if ($property) {
+            if ($Booking->status == 1) {
+                if ($property->purpose === 'sale') {
+                    $property->availability_status = 'sold';
+                } elseif ($property->purpose === 'rent') {
+                    $property->availability_status = 'rented';
+                } else {
+                    $property->availability_status = 'booked';
+                }
+            } else {
+                $property->availability_status = 'available';
+            }
+            $property->save();
+        }
+
         return response()->json($message);
     }
 
     public function remove($id)
     {
         $Booking = Booking::find($id);
-        $Booking->delete();
+        if ($Booking) {
+            $property = $Booking->property;
+            $Booking->delete();
+
+            if ($property) {
+                $hasOtherConfirmed = Booking::where('property_id', $property->id)
+                    ->where('status', 1)
+                    ->exists();
+                if (!$hasOtherConfirmed) {
+                    $property->availability_status = 'available';
+                    $property->save();
+                }
+            }
+        }
 
         $notification = trans('admin_validation.Deleted successfully');
         $notification = array('messege'=>$notification,'alert-type'=>'success');

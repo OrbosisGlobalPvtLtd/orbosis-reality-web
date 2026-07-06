@@ -76,23 +76,33 @@
             </ul>
           </li>
 
-          <li class="nav-item dropdown {{  Route::is('admin.agency') || Route::is('admin.agency-show') ? 'active' : ''}}">
-            <a href="#" class="nav-link has-dropdown"><i class="fas fa-users"></i><span>{{__('admin.Agencies')}}</span></a>
+          <!-- Users Menu -->
+          <li class="nav-item dropdown {{  Route::is('admin.customer-list') || Route::is('admin.customer-show') || Route::is('admin.pending-customer-list') || Route::is('admin.send-email-to-all-customer') || Route::is('admin.create-customer') ? 'active' : '' }}">
+            <a href="#" class="nav-link has-dropdown"><i class="fas fa-users"></i><span>{{__('admin.Users')}}</span></a>
             <ul class="dropdown-menu">
-                <li class="{{ Route::is('admin.agency') && ! request()->get('type') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.agency') }}">{{__('admin.Agency List')}}</a></li>
-                <li class="{{ Route::is('admin.agency') && request()->get('type') === 'pending' ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('admin.agency', ['type' => 'pending']) }}">{{ __('admin.Pending Agency') }}</a>
-                </li>
+                <li class="{{ Route::is('admin.create-customer') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.create-customer') }}">{{__('admin.Create Customer')}}</a></li>
+                <li class="{{ Route::is('admin.customer-list') || Route::is('admin.customer-show') || Route::is('admin.send-email-to-all-customer') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.customer-list') }}">{{__('admin.User List')}}</a></li>
+                <li class="{{ Route::is('admin.pending-customer-list') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.pending-customer-list') }}">{{__('admin.Pending User')}}</a></li>
             </ul>
           </li>
 
-          <li class="nav-item dropdown {{  Route::is('admin.agent') || Route::is('admin.send-email-to-all-agent') || Route::is('admin.send-email-to-agent') || Route::is('admin.agent-show') || Route::is('admin.create-agent') ? 'active' : '' }}">
+          <!-- Associates Menu -->
+          <li class="nav-item dropdown {{  Route::is('admin.agent') || Route::is('admin.send-email-to-all-agent') || Route::is('admin.send-email-to-agent') || Route::is('admin.agent-show') || Route::is('admin.create-agent') || Route::is('admin.agency') || Route::is('admin.agency-show') || Route::is('admin.pending-agent-requests') || Route::is('admin.pending-agent-requests.*') ? 'active' : '' }}">
             <a href="#" class="nav-link has-dropdown"><i class="fas fa-users"></i><span>{{__('Associates')}}</span></a>
             <ul class="dropdown-menu">
+                <li class="{{ Route::is('admin.agent') || Route::is('admin.agent-show') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.agent') }}">{{__('admin.Agent List')}}</a></li>
+                <li class="{{ Route::is('admin.agency') && ! request()->get('type') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.agency') }}">{{__('admin.Agency List')}}</a></li>
+                <li class="{{ Route::is('admin.pending-agent-requests') || Route::is('admin.pending-agent-requests.*') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.pending-agent-requests') }}">{{__('admin.Pending Agent Requests')}}</a></li>
+                <li class="{{ Route::is('admin.agency') && request()->get('type') === 'pending' ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.agency', ['type' => 'pending']) }}">{{__('admin.Pending Agencies')}}</a></li>
+            </ul>
+          </li>
 
-                <li class="{{ Route::is('admin.create-agent') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.create-agent') }}">{{__('Create Associates')}}</a></li>
-
-                <li class="{{ Route::is('admin.agent') || Route::is('admin.agent-show') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.agent') }}">{{__('Associates List')}}</a></li>
+          <!-- Builders Menu -->
+          <li class="nav-item dropdown {{  Route::is('admin.builder') || Route::is('admin.builder-show') ? 'active' : ''}}">
+            <a href="#" class="nav-link has-dropdown"><i class="fas fa-users"></i><span>{{__('admin.Builders')}}</span></a>
+            <ul class="dropdown-menu">
+                <li class="{{ Route::is('admin.builder') && ! request()->get('type') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.builder') }}">{{__('admin.Builder List')}}</a></li>
+                <li class="{{ Route::is('admin.builder') && request()->get('type') === 'pending' ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.builder', ['type' => 'pending']) }}">{{__('admin.Pending Builders')}}</a></li>
             </ul>
           </li>
 
@@ -103,18 +113,6 @@
           @if (Module::isEnabled('Kyc'))
             @include('kyc::Admin.sideber')
           @endif
-
-          <li class="nav-item dropdown {{  Route::is('admin.customer-list') || Route::is('admin.customer-show') || Route::is('admin.pending-customer-list') || Route::is('admin.send-email-to-all-customer') || Route::is('admin.create-customer') ? 'active' : '' }}">
-            <a href="#" class="nav-link has-dropdown"><i class="fas fa-users"></i><span>{{__('admin.Users')}}</span></a>
-            <ul class="dropdown-menu">
-
-                <li class="{{ Route::is('admin.create-customer') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.create-customer') }}">{{__('admin.Create Customer')}}</a></li>
-
-                <li class="{{ Route::is('admin.customer-list') || Route::is('admin.customer-show') || Route::is('admin.send-email-to-all-customer') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.customer-list') }}">{{__('admin.User List')}}</a></li>
-
-                <li class="{{ Route::is('admin.pending-customer-list') ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.pending-customer-list') }}">{{__('admin.Pending User')}}</a></li>
-            </ul>
-          </li>
 
           <li class="nav-item dropdown {{ Route::is('admin.maintainance-mode') || Route::is('admin.banner-image.index') || Route::is('admin.seo-setup') ||  Route::is('admin.default-avatar') || Route::is('admin.default-placeholder') ? 'active' : '' }}">
             <a href="#" class="nav-link has-dropdown"><i class="fas fa-globe"></i><span>{{__('admin.Manage Website')}}</span></a>

@@ -147,7 +147,7 @@ class PaypalController extends Controller
 
             $notification = trans('user_validation.You have successfully enrolled this package');
             $notification = array('messege'=>$notification,'alert-type'=>'success');
-            return redirect()->route('user.dashboard')->with($notification);
+            return redirect()->intended(route('user.dashboard'))->with($notification);
 
         }else{
             $notification = trans('user_validation.Payment Faild');

@@ -43,7 +43,7 @@ class PropertyController extends Controller
 
         $user = User::select('id','name','email','image','phone','address','status')->where('id', $user->id)->first();
 
-        $properties = Property::where('agent_id', $user->id)->orderBy('id','desc')->paginate(10);
+        $properties = Property::with(['agent', 'city', 'property_type'])->where('agent_id', $user->id)->orderBy('id','desc')->paginate(10);
 
         return response()->json(['properties' => $properties]);
     }
@@ -54,6 +54,36 @@ class PropertyController extends Controller
         $setting = Setting::first();
 
         $user = Auth::guard('api')->user();
+        $agent_id = $user->id;
+
+        if(($user->owner_id == 0 && $user->is_agency ==1) || ($user->owner_id == 0 && $user->is_agency ==0)){
+            $agent_order = Order::where('agent_id', $agent_id)->where('order_status','active')->orderBy('id','desc')->first();
+        }else{
+            $owner_id = $user->owner_id;
+            $agent_order = Order::where('agent_id', $owner_id)->where('order_status','active')->orderBy('id','desc')->first();
+        }
+
+        if(!$agent_order){
+            return response()->json([
+                'success' => false,
+                'code' => 'NO_ACTIVE_PLAN',
+                'message' => "You don't have an active property listing plan.",
+                'redirect_to' => '/pricing-plan'
+            ], 403);
+        }
+
+        $expiration_date = $agent_order->expiration_date;
+
+        if($expiration_date != 'lifetime'){
+            if(date('Y-m-d') > $expiration_date){
+                return response()->json([
+                    'success' => false,
+                    'code' => 'NO_ACTIVE_PLAN',
+                    'message' => "You don't have an active property listing plan.",
+                    'redirect_to' => '/pricing-plan'
+                ], 403);
+            }
+        }
 
         $user = User::select('id','name','email','image','phone','address','status')->where('id', $user->id)->first();
 
@@ -113,8 +143,12 @@ class PropertyController extends Controller
             }
 
         }else{
-            $notification = trans('user_validation.Agent does not have any pricing plan');
-            return response()->json(['message' => $notification],403);
+            return response()->json([
+                'success' => false,
+                'code' => 'NO_ACTIVE_PLAN',
+                'message' => "You don't have an active property listing plan.",
+                'redirect_to' => '/pricing-plan'
+            ], 403);
         }
 
         if(!$request->purpose){
@@ -154,6 +188,9 @@ class PropertyController extends Controller
     public function store(Request $request){
 
         $user = Auth::guard('api')->user();
+        if (!$user->can_add_property) {
+            return response()->json(['message' => 'Unauthorized role'], 403);
+        }
         $agent_id = $user->id;
 
         if(($user->owner_id == 0 && $user->is_agency ==1) || ($user->owner_id == 0 && $user->is_agency ==0)){
@@ -193,24 +230,28 @@ class PropertyController extends Controller
             }
 
         }else{
-            $notification = trans('user_validation.Agent does not have any pricing plan');
-            return response()->json(['message' => $notification],403);
+            return response()->json([
+                'success' => false,
+                'code' => 'NO_ACTIVE_PLAN',
+                'message' => "You don't have an active property listing plan.",
+                'redirect_to' => '/pricing-plan'
+            ], 403);
         }
 
 
         $live_map = Setting::first()->live_map;
 
         $rules = [
-            'title'=>'nullable|unique:properties',
-            'slug'=>'nullable|unique:properties',
-            'property_type_id'=>'nullable',
-            'purpose'=> 'nullable',
-            'rent_period'=> $request->purpose == 'rent' ? 'nullable' : '',
-            'price'=>'nullable',
-            'description'=>'nullable',
-            'city_id'=>'nullable',
+            'title'=>'required|unique:properties',
+            'slug'=>'required|unique:properties',
+            'property_type_id'=>'required',
+            'purpose'=> 'required',
+            'rent_period'=> $request->purpose == 'rent' ? 'required' : '',
+            'price'=>'required',
+            'description'=>'required',
+            'city_id'=>'required',
             'country_id'=>'nullable',
-            'address'=>'nullable',
+            'address'=>'required',
             'address_description'=>'nullable',
             'google_map'=> $live_map == 'no' ? 'nullable' : '',
             'lat' => $live_map == 'yes' ? 'nullable' : '',
@@ -221,29 +262,29 @@ class PropertyController extends Controller
             'total_bathroom'=>'nullable',
             'total_garage'=>'nullable',
             'total_kitchen'=>'nullable',
-            'thumbnail_image'=>'nullable',
+            'thumbnail_image'=>'required',
         ];
         $customMessages = [
-            'title.nullable' => trans('user_validation.Title is nullable'),
+            'title.required' => trans('user_validation.Title is required'),
             'title.unique' => trans('user_validation.Title already exist'),
-            'slug.nullable' => trans('user_validation.Slug is nullable'),
+            'slug.required' => trans('user_validation.Slug is required'),
             'slug.unique' => trans('user_validation.Slug already exist'),
-            'property_type_id.nullable' => trans('user_validation.Property type is nullable'),
-            'purpose.nullable' => trans('user_validation.Purpose is nullable'),
-            'rent_period.nullable' => trans('user_validation.Rent period is nullable'),
-            'price.nullable' => trans('user_validation.Price is nullable'),
-            'description.nullable' => trans('user_validation.Description is nullable'),
-            'city_id.nullable' => trans('user_validation.City is nullable'),
-            'address.nullable' => trans('user_validation.Address is nullable'),
-            'address_description.nullable' => trans('user_validation.Address details is nullable'),
-            'google_map.nullable' => trans('user_validation.Google map is nullable'),
-            'total_area.nullable' => trans('user_validation.Total area is nullable'),
-            'total_unit.nullable' => trans('user_validation.Total unit is nullable'),
-            'total_bedroom.nullable' => trans('user_validation.Total bedroom is nullable'),
-            'total_bathroom.nullable' => trans('user_validation.Total bathroom is nullable'),
-            'total_garage.nullable' => trans('user_validation.Total garage is nullable'),
-            'total_kitchen.nullable' => trans('user_validation.Total kitchen is nullable'),
-            'thumbnail_image.nullable' => trans('user_validation.Thumbnail image is nullable'),
+            'property_type_id.required' => trans('user_validation.Property type is required'),
+            'purpose.required' => trans('user_validation.Purpose is required'),
+            'rent_period.required' => trans('user_validation.Rent period is required'),
+            'price.required' => trans('user_validation.Price is required'),
+            'description.required' => trans('user_validation.Description is required'),
+            'city_id.required' => trans('user_validation.City is required'),
+            'address.required' => trans('user_validation.Address is required'),
+            'address_description.required' => trans('user_validation.Address details is required'),
+            'google_map.required' => trans('user_validation.Google map is required'),
+            'total_area.required' => trans('user_validation.Total area is required'),
+            'total_unit.required' => trans('user_validation.Total unit is required'),
+            'total_bedroom.required' => trans('user_validation.Total bedroom is required'),
+            'total_bathroom.required' => trans('user_validation.Total bathroom is required'),
+            'total_garage.required' => trans('user_validation.Total garage is required'),
+            'total_kitchen.required' => trans('user_validation.Total kitchen is required'),
+            'thumbnail_image.required' => trans('user_validation.Thumbnail image is required'),
         ];
 
         $this->validate($request, $rules,$customMessages);
@@ -392,13 +433,19 @@ class PropertyController extends Controller
         $setting = Setting::first();
 
         $user = Auth::guard('api')->user();
+        if (!$user->can_add_property) {
+            return response()->json(['message' => 'Unauthorized role'], 403);
+        }
 
         $types = Category::where('status', 1)->get();
         $cities = City::all();
         $aminities = Aminity::all();
         $nearest_locations = NearestLocation::orderBy('id', 'desc')->where('status', 1)->get();
 
-        $property = Property::find($id);
+        $property = Property::where('id', $id)->where('agent_id', $user->id)->first();
+        if (!$property) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
         $existing_sliders = PropertySlider::where('property_id', $id)->get();
         $existing_properties = PropertyAminity::where('property_id', $id)->get();
@@ -451,8 +498,12 @@ class PropertyController extends Controller
                 }
             }
         }else{
-            $notification = trans('user_validation.Agent does not have any pricing plan');
-            return response()->json(['message' => $notification],403);
+            return response()->json([
+                'success' => false,
+                'code' => 'NO_ACTIVE_PLAN',
+                'message' => "You don't have an active property listing plan.",
+                'redirect_to' => '/pricing-plan'
+            ], 403);
         }
 
         $countries = Country::orderBy('id', 'desc')->get();
@@ -479,21 +530,28 @@ class PropertyController extends Controller
 
     public function update(Request $request, $id){
 
-        $property = Property::find($id);
+        $user = Auth::guard('api')->user();
+        if (!$user->can_add_property) {
+            return response()->json(['message' => 'Unauthorized role'], 403);
+        }
+        $property = Property::where('id', $id)->where('agent_id', $user->id)->first();
+        if (!$property) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
         $live_map = Setting::first()->live_map;
 
         $rules = [
-            'title'=>'nullable|unique:properties,title,'.$id,
-            'slug'=>'nullable|unique:properties,slug,'.$id,
-            'property_type_id'=>'nullable',
-            'purpose'=> 'nullable',
-            'rent_period'=> $request->purpose == 'rent' ? 'nullable' : '',
-            'price'=>'nullable',
-            'description'=>'nullable',
-            'city_id'=>'nullable',
+            'title'=>'required|unique:properties,title,'.$id,
+            'slug'=>'required|unique:properties,slug,'.$id,
+            'property_type_id'=>'required',
+            'purpose'=> 'required',
+            'rent_period'=> $request->purpose == 'rent' ? 'required' : '',
+            'price'=>'required',
+            'description'=>'required',
+            'city_id'=>'required',
             'country_id'=>'nullable',
-            'address'=>'nullable',
+            'address'=>'required',
             'address_description'=>'nullable',
             'google_map'=> $live_map == 'no' ? 'nullable' : '',
             'lat' => $live_map == 'yes' ? 'nullable' : '',
@@ -509,34 +567,34 @@ class PropertyController extends Controller
 
         if ($request->lang_code !== 'en') {
             $rules = [
-                'title' => 'nullable|unique:properties,title,' . $id,
-                'description' => 'nullable',
-                'address' => 'nullable',
-                'address_description' => 'nullable',
+                'title' => 'required|unique:properties,title,' . $id,
+                'description' => 'required',
+                'address' => 'required',
+                'address_description' => 'required',
                 'lang_code'=>'nullable',
             ];
         }
 
         $customMessages = [
-            'title.nullable' => trans('user_validation.Title is nullable'),
+            'title.required' => trans('user_validation.Title is required'),
             'title.unique' => trans('user_validation.Title already exist'),
-            'slug.nullable' => trans('user_validation.Slug is nullable'),
+            'slug.required' => trans('user_validation.Slug is required'),
             'slug.unique' => trans('user_validation.Slug already exist'),
-            'property_type_id.nullable' => trans('user_validation.Property type is nullable'),
-            'purpose.nullable' => trans('user_validation.Purpose is nullable'),
-            'rent_period.nullable' => trans('user_validation.Rent period is nullable'),
-            'price.nullable' => trans('user_validation.Price is nullable'),
-            'description.nullable' => trans('user_validation.Description is nullable'),
-            'city_id.nullable' => trans('user_validation.City is nullable'),
-            'address.nullable' => trans('user_validation.Address is nullable'),
-            'address_description.nullable' => trans('user_validation.Address details is nullable'),
-            'google_map.nullable' => trans('user_validation.Google map is nullable'),
-            'total_area.nullable' => trans('user_validation.Total area is nullable'),
-            'total_unit.nullable' => trans('user_validation.Total unit is nullable'),
-            'total_bedroom.nullable' => trans('user_validation.Total bedroom is nullable'),
-            'total_bathroom.nullable' => trans('user_validation.Total bathroom is nullable'),
-            'total_garage.nullable' => trans('user_validation.Total garage is nullable'),
-            'total_kitchen.nullable' => trans('user_validation.Total kitchen is nullable')
+            'property_type_id.required' => trans('user_validation.Property type is required'),
+            'purpose.required' => trans('user_validation.Purpose is required'),
+            'rent_period.required' => trans('user_validation.Rent period is required'),
+            'price.required' => trans('user_validation.Price is required'),
+            'description.required' => trans('user_validation.Description is required'),
+            'city_id.required' => trans('user_validation.City is required'),
+            'address.required' => trans('user_validation.Address is required'),
+            'address_description.required' => trans('user_validation.Address details is required'),
+            'google_map.required' => trans('user_validation.Google map is required'),
+            'total_area.required' => trans('user_validation.Total area is required'),
+            'total_unit.required' => trans('user_validation.Total unit is required'),
+            'total_bedroom.required' => trans('user_validation.Total bedroom is required'),
+            'total_bathroom.required' => trans('user_validation.Total bathroom is required'),
+            'total_garage.required' => trans('user_validation.Total garage is required'),
+            'total_kitchen.required' => trans('user_validation.Total kitchen is required')
         ];
 
         $this->validate($request, $rules,$customMessages);
@@ -784,7 +842,14 @@ class PropertyController extends Controller
 
     public function destroy($id){
 
-        $property = Property::find($id);
+        $user = Auth::guard('api')->user();
+        if (!$user->can_add_property) {
+            return response()->json(['message' => 'Unauthorized role'], 403);
+        }
+        $property = Property::where('id', $id)->where('agent_id', $user->id)->first();
+        if (!$property) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
         PropertyAminity::where('property_id', $id)->delete();
         PropertyNearestLocation::where('property_id', $id)->delete();
@@ -830,43 +895,79 @@ class PropertyController extends Controller
     }
 
     public function remove_nearest_location($id){
-        PropertyNearestLocation::where('id', $id)->delete();
+        $user = Auth::guard('api')->user();
+        if (!$user->can_add_property) {
+            return response()->json(['message' => 'Unauthorized role'], 403);
+        }
+        $item = PropertyNearestLocation::find($id);
+        if ($item) {
+            $property = Property::where('id', $item->property_id)->where('agent_id', $user->id)->first();
+            if (!$property) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            $item->delete();
+        }
 
         return response()->json(['message' => 'success']);
     }
 
     public function remove_add_info($id){
-        AdditionalInformation::where('id', $id)->delete();
+        $user = Auth::guard('api')->user();
+        if (!$user->can_add_property) {
+            return response()->json(['message' => 'Unauthorized role'], 403);
+        }
+        $item = AdditionalInformation::find($id);
+        if ($item) {
+            $property = Property::where('id', $item->property_id)->where('agent_id', $user->id)->first();
+            if (!$property) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            $item->delete();
+        }
 
         return response()->json(['message' => 'success']);
     }
 
     public function remove_plan($id){
-        $plan = PropertyPlan::where('id', $id)->first();
-
-        $old_image = $plan->image;
-        if($old_image){
-            if(File::exists(public_path().'/'.$old_image))unlink(public_path().'/'.$old_image);
+        $user = Auth::guard('api')->user();
+        if (!$user->can_add_property) {
+            return response()->json(['message' => 'Unauthorized role'], 403);
+        }
+        $plan = PropertyPlan::find($id);
+        if ($plan) {
+            $property = Property::where('id', $plan->property_id)->where('agent_id', $user->id)->first();
+            if (!$property) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            $old_image = $plan->image;
+            if($old_image){
+                if(File::exists(public_path().'/'.$old_image))unlink(public_path().'/'.$old_image);
+            }
+            $plan->delete();
         }
 
-        $plan->delete();
-
         return response()->json(['message' => 'success']);
-
     }
 
     public function remove_property_slider($id){
-        $slider = PropertySlider::where('id', $id)->first();
-
-        $old_slider = $slider->image;
-        if($old_slider){
-            if(File::exists(public_path().'/'.$old_slider))unlink(public_path().'/'.$old_slider);
+        $user = Auth::guard('api')->user();
+        if (!$user->can_add_property) {
+            return response()->json(['message' => 'Unauthorized role'], 403);
+        }
+        $slider = PropertySlider::find($id);
+        if ($slider) {
+            $property = Property::where('id', $slider->property_id)->where('agent_id', $user->id)->first();
+            if (!$property) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+            $old_slider = $slider->image;
+            if($old_slider){
+                if(File::exists(public_path().'/'.$old_slider))unlink(public_path().'/'.$old_slider);
+            }
+            $slider->delete();
         }
 
-        $slider->delete();
-
         return response()->json(['message' => 'success']);
-
     }
 
 

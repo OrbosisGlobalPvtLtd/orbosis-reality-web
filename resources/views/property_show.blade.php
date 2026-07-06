@@ -399,7 +399,13 @@
                 </div>
                 <div class="col-lg-4 col-12">
                     <div class="my-4">
-                        <button id="run" class="homec-btn homec-btn__second homec-property-ag__button"><span>{{ __('user.Book Now') }}</span></button>
+                        @if(($property->availability_status ?? 'available') == 'available')
+                            <button id="run" class="homec-btn homec-btn__second homec-property-ag__button"><span>{{ __('user.Book Now') }}</span></button>
+                        @else
+                            <button class="homec-btn homec-btn__second homec-property-ag__button" disabled style="background-color: #ccc; cursor: not-allowed; border-color: #ccc; box-shadow: none;">
+                                <span>{{ __('This property is already ' . $property->availability_status) }}</span>
+                            </button>
+                        @endif
                     </div>
                     <!-- Property Agent Card -->
                     <div class="homec-property-ag homec-property-ag--side homec-bg-cover homec-agent-side-cover">

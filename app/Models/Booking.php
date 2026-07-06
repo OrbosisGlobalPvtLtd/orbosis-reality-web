@@ -20,4 +20,5 @@ class Booking extends Model
     public function user(){
         return $this->belongsTo(User::class,'user_id')->select('id','name','email','image','phone','designation','status','address','created_at');
     }
+
 }

@@ -63,16 +63,16 @@ class RegisterController extends Controller
 
     public function storeRegister(Request $request){
         $rules = [
-            'name'=>'nullable',
-            'email'=>'nullable|unique:users',
-            'password'=>'nullable|min:4|confirmed',
+            'name'=>'required',
+            'email'=>'required|unique:users',
+            'password'=>'required|min:4|confirmed',
             'g-recaptcha-response'=>new Captcha()
         ];
         $customMessages = [
-            'name.nullable' => trans('user_validation.Name is nullable'),
-            'email.nullable' => trans('user_validation.Email is nullable'),
+            'name.required' => trans('user_validation.Name is required'),
+            'email.required' => trans('user_validation.Email is required'),
             'email.unique' => trans('user_validation.Email already exist'),
-            'password.nullable' => trans('user_validation.Password is nullable'),
+            'password.required' => trans('user_validation.Password is required'),
             'password.min' => trans('user_validation.Password must be 4 characters'),
             'password.confirmed' => trans('user_validation.Confirm password does not match'),
         ];
@@ -83,29 +83,35 @@ class RegisterController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
-        $user->otp_mail_verify_token = random_int(100000, 999999);
+        $user->verify_token = Str::random(100);
+        $user->login_type = 'user';
+        $user->status = 0;
+        $user->email_verified = 0;
+        $user->email_verified_at = null;
         $user->save();
 
         try{
             MailHelper::setMailConfig();
-
-            $template=EmailTemplate::where('id',10)->first();
-            $subject=$template->subject;
+            $template=EmailTemplate::where('id',4)->first();
+            $subject='Verify your Orbosis Reality account';
             $message=$template->description;
             $message = str_replace('{{user_name}}',$request->name,$message);
-            Mail::to($user->email)->send(new UserRegistrationForOTP($message,$subject,$user));
+            Mail::to($user->email)->send(new UserRegistration($message,$subject,$user));
         }catch(Exception $ex){}
 
-        $notification = trans('user_validation.Register Successfully. Please Verify your email');
-        return response()->json(['message' => $notification]);
+        return response()->json([
+            'registration_success' => true,
+            'email_verification_required' => true,
+            'message' => 'Registration successful. Please verify your email before login.'
+        ]);
     }
 
     public function resend_register_code(Request $request){
         $rules = [
-            'email'=>'nullable',
+            'email'=>'required',
         ];
         $customMessages = [
-            'email.nullable' => trans('user_validation.Email is nullable'),
+            'email.required' => trans('user_validation.Email is required'),
         ];
         $this->validate($request, $rules,$customMessages);
 
@@ -138,12 +144,12 @@ class RegisterController extends Controller
     public function userVerification(Request $request){
 
         $rules = [
-            'email'=>'nullable',
-            'token'=>'nullable',
+            'email'=>'required',
+            'token'=>'required',
         ];
         $customMessages = [
-            'email.nullable' => trans('user_validation.Email is nullable'),
-            'token.nullable' => trans('user_validation.Token is nullable'),
+            'email.required' => trans('user_validation.Email is required'),
+            'token.required' => trans('user_validation.Token is required'),
         ];
         $this->validate($request, $rules,$customMessages);
 

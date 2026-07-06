@@ -38,9 +38,14 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-public function boot()
-{
-    Sanctum::usePersonalAccessTokenModel(PersonalAccessTokenModal::class);
+    public function boot()
+    {
+        if (request()->is('api/*')) {
+            ini_set('display_errors', '0');
+            ini_set('display_startup_errors', '0');
+        }
+
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessTokenModal::class);
 
 
 

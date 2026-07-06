@@ -624,5 +624,12 @@
   'Language Direction' => 'Language Direction',
   'Left to Right' => 'Left to Right',
   'Right to left' => 'Right to left',
+  'Builders' => 'ビルダー',
+  'Builder List' => 'ビルダーリスト',
+  'Pending Builders' => '保留中のビルダー',
+  'Pending Builder List' => '保留中のビルダーリスト',
+  'Company Name' => '会社名',
+  'Pending Agent Requests' => '保留中のエージェントリクエスト',
+  'Pending Agencies' => '保留中のエージェンシー',
 );
  ?>

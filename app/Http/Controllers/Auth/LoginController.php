@@ -78,22 +78,27 @@ class LoginController extends Controller
         ];
         $user = User::where('email',$request->email)->first();
         if($user){
-            if($user->status==1){
-                if(Hash::check($request->password,$user->password)){
-                    if(Auth::guard('web')->attempt($credential,$request->remember)){
-                        $notification = trans('user_validation.Login Successfully');
-                        $notification=array('messege'=>$notification,'alert-type'=>'success');
-                        return redirect()->route('user.dashboard')->with($notification);
+            if(!in_array($user->login_type, ['user', 'agent'])){
+                $notification = trans('user_validation.Credentials does not exist');
+                $notification=array('messege'=>$notification,'alert-type'=>'error');
+                return redirect()->back()->with($notification);
+            }
+            if($user->email_verified == 0 || $user->status == 0){
+                $notification = "Please verify your email before login.";
+                $notification=array('messege'=>$notification,'alert-type'=>'error');
+                return redirect()->back()->with($notification);
+            }
+            if(Hash::check($request->password,$user->password)){
+                if(Auth::guard('web')->attempt($credential,$request->remember)){
+                    $notification = trans('user_validation.Login Successfully');
+                    $notification=array('messege'=>$notification,'alert-type'=>'success');
+                    
+                    $dashboardRoute = $user->login_type === 'agent' ? 'agent.dashboard' : 'user.dashboard';
+                    return redirect()->route($dashboardRoute)->with($notification);
 
-                    }
-                }else{
-                    $notification = trans('user_validation.Credentials does not exist');
-                    $notification=array('messege'=>$notification,'alert-type'=>'error');
-                    return redirect()->back()->with($notification);
                 }
-
             }else{
-                $notification = trans('user_validation.Disabled Account');
+                $notification = trans('user_validation.Credentials does not exist');
                 $notification=array('messege'=>$notification,'alert-type'=>'error');
                 return redirect()->back()->with($notification);
             }

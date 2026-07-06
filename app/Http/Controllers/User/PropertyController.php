@@ -201,9 +201,10 @@ if (!in_array($request->purpose, $validPurposes)) {
             }
 
         }else{
-            $notification = trans('user_validation.Agent does not have any pricing plan');
+            session(['url.intended' => url()->full()]);
+            $notification = "You don't have an active property listing plan. Please purchase a plan to add properties.";
             $notification = array('messege'=>$notification,'alert-type'=>'error');
-            return redirect()->back()->with($notification);
+            return redirect()->route('pricing-plan')->with($notification);
         }
 
         $setting = Setting::first();
@@ -294,9 +295,9 @@ if (!in_array($request->purpose, $validPurposes)) {
             }
 
         }else{
-            $notification = trans('user_validation.Agent does not have any pricing plan');
+            $notification = "You don't have an active property listing plan. Please purchase a plan to add properties.";
             $notification = array('messege'=>$notification,'alert-type'=>'error');
-            return redirect()->back()->with($notification);
+            return redirect()->route('pricing-plan')->with($notification);
         }
 
         $live_map = Setting::
@@ -588,9 +589,9 @@ if (!in_array($request->purpose, $validPurposes)) {
                 }
             }
         }else{
-            $notification = trans('user_validation.Agent does not have any pricing plan');
+            $notification = "You don't have an active property listing plan. Please purchase a plan to add properties.";
             $notification = array('messege'=>$notification,'alert-type'=>'error');
-            return redirect()->back()->with($notification);
+            return redirect()->route('pricing-plan')->with($notification);
         }
 
         return view('user.property_edit')->with([

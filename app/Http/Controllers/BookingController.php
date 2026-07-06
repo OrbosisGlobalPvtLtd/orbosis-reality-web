@@ -11,6 +11,17 @@ class BookingController extends Controller
     public function store(Request $request){
         $user = Auth::guard('web')->user();
         if($user){
+            $property = \App\Models\Property::find($request->property_id);
+            if (!$property) {
+                $notification = trans('user_validation.Property not found');
+                $notification = array('messege'=>$notification,'alert-type'=>'error');
+                return redirect()->back()->with($notification);
+            }
+            if ($property->availability_status !== 'available') {
+                $notification = trans('This property is already ' . $property->availability_status);
+                $notification = array('messege'=>$notification,'alert-type'=>'error');
+                return redirect()->back()->with($notification);
+            }
             $rules = [
                 'property_id'=>'required',
                 'booking_time'=>'required',

@@ -387,7 +387,7 @@
 						<div class="homec-form mg-top-100">
 							<div class="homec-form__content">
 								<span class="homec-form__label">{{__('user.For Rent house offer')}}</span>
-								<h3 class="homec-form__title">{{__('user.Join Homeco  Community')}}</h3>
+								<h3 class="homec-form__title">{{__('user.Join Orbosis Reality  Community')}}</h3>
 							</div>
 							<form id="subscriberForm" class="homec-form__form">
                                 @csrf

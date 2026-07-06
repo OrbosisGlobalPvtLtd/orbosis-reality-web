@@ -38,7 +38,6 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\LangSession::class,
-
         ],
 
         'api' => [
@@ -72,6 +71,8 @@ class Kernel extends HttpKernel
         'HtmlSpecialchars' => \App\Http\Middleware\HtmlSpecialchars::class,
         'adminLangSession' =>  \App\Http\Middleware\SetDefaultLanguage::class,
         'LangSessionForApi' =>  \App\Http\Middleware\LangSessionForApi::class,
-
+        'customer' => \App\Http\Middleware\CustomerMiddleware::class,
+        'agent' => \App\Http\Middleware\AgentMiddleware::class,
+        'builder' => \App\Http\Middleware\BuilderMiddleware::class,
     ];
 }

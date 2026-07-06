@@ -627,5 +627,12 @@
   'Default Placeholder' => 'Default Placeholder',
   'New Placeholder' => 'New Placeholder',
   'Existing Placeholder' => 'Existing Placeholder',
+  'Builders' => 'Builders',
+  'Builder List' => 'Builder List',
+  'Pending Builders' => 'Pending Builders',
+  'Pending Builder List' => 'Pending Builder List',
+  'Company Name' => 'Company Name',
+  'Pending Agent Requests' => 'Pending Agent Requests',
+  'Pending Agencies' => 'Pending Agencies',
 );
  ?>

@@ -47,6 +47,8 @@ use App\Http\Controllers\Admin\PopularBlogController;
 use App\Http\Controllers\Admin\PricingPlanController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Builder\BuilderController;
+use App\Http\Controllers\Admin\BuilderController as AdminBuilderController;
+
 
 // frontend start
 
@@ -71,87 +73,44 @@ use App\Http\Controllers\User\PropertyController as UserPropertyController;
 use App\Http\Controllers\API\User\PaymentController as APIPaymentController;
 
 
-Route::post('/builder/logout', function () {
-    Auth::guard('builder')->logout(); // if using builder guard
-    return redirect()->route('builder.login');
-})->name('builder.logout');
-Route::get('/builder/register', [HomeController::class, 'showRegisterForm'])->name('builder.register');
-Route::post('/builder/register', [HomeController::class, 'register']);
-
-Route::get('/builder/login', [HomeController::class, 'showLoginForm'])->name('builder.login');
-Route::post('/builder/login', [HomeController::class, 'login']);
-
-Route::get('/builder/register', [HomeController::class, 'showRegisterForm'])->name('builder.register');
-Route::post('/builder/register', [HomeController::class, 'register']);
-
-Route::get('/builder/login', [HomeController::class, 'showLoginForm'])->name('builder.login');
-Route::post('/builder/login', [HomeController::class, 'login']);
+// Builder Portal Guest / Public Routes
+Route::get('/builder/register', [BuilderController::class, 'showRegisterForm'])->name('builder.register');
+Route::post('/builder/register', [BuilderController::class, 'register']);
+Route::get('/builder/login', [BuilderController::class, 'showLoginForm'])->name('builder.login');
+Route::post('/builder/login', [BuilderController::class, 'login']);
 
 /* AJAX Routes */
-Route::get('/get-states/{country_id}', [HomeController::class, 'getStates']);
-Route::get('/get-cities/{state_id}', [HomeController::class, 'getCities']);
+Route::get('/get-states/{country_id}', [BuilderController::class, 'getStates']);
+Route::get('/get-cities/{state_id}', [BuilderController::class, 'getCities']);
 
-Route::middleware(['auth'])->prefix('builder')->name('builder.')->group(function () {
+// Builder Portal Authenticated Routes
+Route::middleware(['auth:web'])->prefix('builder')->name('builder.')->group(function () {
+    Route::get('/dashboard', [BuilderController::class, 'dashboard'])->name('dashboard');
+    Route::get('/profile', [BuilderController::class, 'profile'])->name('profile');
+    Route::post('/profile/update', [BuilderController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/change-password', [BuilderController::class, 'changePassword'])->name('change-password');
+    Route::post('/update-password', [BuilderController::class, 'updatePassword'])->name('update-password');
+    Route::post('/logout', [BuilderController::class, 'logout'])->name('logout');
 
-    Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
-    Route::get('/company-profile', [HomeController::class, 'companyProfile'])->name('company-profile');
-    Route::get('/my-team', [HomeController::class, 'myTeam'])->name('my-team');
-    Route::get('/my-properties', [HomeController::class, 'myProperties'])->name('my-properties');
-    Route::get('/properties', [BuilderController::class, 'index'])
-        ->name('properties');
+    Route::get('/my-team', [BuilderController::class, 'myTeam'])->name('my-team');
+    Route::get('/my-properties', [BuilderController::class, 'myProperties'])->name('my-properties');
+    Route::get('/property/create', [BuilderController::class, 'create'])->name('create');
+    Route::post('/property/store', [BuilderController::class, 'store'])->name('store');
+    Route::get('/property/edit/{id}', [BuilderController::class, 'edit'])->name('edit');
+    Route::post('/property/update/{id}', [BuilderController::class, 'update'])->name('update');
+    Route::delete('/property/delete/{id}', [BuilderController::class, 'delete'])->name('delete');
+    
+    Route::post('/property/approve/{id}', [BuilderController::class, 'updateApprovalStatus'])->name('status');
+    Route::get('/purchase-history', [BuilderController::class, 'purchaseHistory'])->name('purchase-history');
+    Route::get('/booking-request', [BuilderController::class, 'bookingRequest'])->name('booking-request');
+    Route::post('/booking-status/{id}', [BuilderController::class, 'updateBookingStatus'])->name('booking.status');
+    Route::delete('/booking/delete/{id}', [BuilderController::class, 'deleteBooking'])->name('booking.delete');
 
-    Route::get('/property/create', [HomeController::class, 'create'])
-        ->name('create');
-
-    Route::post('/property/store', [HomeController::class, 'store'])
-        ->name('store');
-
-    Route::get('/property/edit/{id}', [HomeController::class, 'edit'])
-        ->name('edit');
-
-    Route::post('/property/update/{id}', [HomeController::class, 'update'])
-        ->name('update');
-
-    Route::delete('/property/delete/{id}', [HomeController::class, 'delete'])
-        ->name('delete');
-
-    Route::post(
-        '/builder/property/approve/{id}',
-        [HomeController::class, 'updateApprovalStatus']
-    )->name('status');
-
-    Route::get('/purchase-history', [HomeController::class, 'purchaseHistory'])->name('purchase-history');
-    Route::get('/booking-request', [HomeController::class, 'bookingRequest'])
-        ->name('builder.my-booking');
-    Route::post('/booking-status/{id}', [HomeController::class, 'updateBookingStatus'])
-        ->name('booking.status');
-
-    Route::delete(
-        '/builder/property/delete/{id}',
-        [HomeController::class, 'delete']
-    )->name('builder.delete');
-
-    Route::get('/wishlist', [HomeController::class, 'wishlist'])->name('wishlist');
-    Route::get('/compare', [HomeController::class, 'compare'])->name('compare');
-    Route::get('/my-reviews', [HomeController::class, 'myReviews'])->name('my-reviews');
-    Route::get('/my-booking', [HomeController::class, 'myBooking'])->name('my-booking');
-    Route::get('/kyc-verification', [HomeController::class, 'kycVerification'])->name('kyc-verification');
-    Route::get('/profile', [HomeController::class, 'profile'])->name('profile');
-    Route::get('/change-password', [HomeController::class, 'changePassword'])->name('change-password');
-    Route::post('/logout', function () {
-        auth()->logout();
-        return redirect('/');
-    })->name('logout');
-});
-
-Route::middleware(['auth:web'])->prefix('builder')->group(function () {
-
-    Route::get('/dashboard', [BuilderController::class, 'dashboard'])->name('builder.dashboard');
-    Route::get('/profile', [BuilderController::class, 'profile'])->name('builder.profile');
-    Route::post('/profile/update', [BuilderController::class, 'updateProfile'])->name('builder.profile.update');
-    Route::get('/change-password', [BuilderController::class, 'changePassword'])->name('builder.change.password');
-    Route::post('/update-password', [BuilderController::class, 'updatePassword'])->name('builder.update.password');
-    Route::post('/logout', [BuilderController::class, 'logout'])->name('builder.logout');
+    Route::get('/wishlist', [BuilderController::class, 'wishlist'])->name('wishlist');
+    Route::get('/compare', [BuilderController::class, 'compare'])->name('compare');
+    Route::get('/my-reviews', [BuilderController::class, 'myReviews'])->name('my-reviews');
+    Route::get('/my-booking', [BuilderController::class, 'myBooking'])->name('my-booking');
+    Route::get('/kyc-verification', [BuilderController::class, 'kycVerification'])->name('kyc-verification');
 });
 Route::group(['middleware' => ['demo', 'XSS']], function () {
 
@@ -250,7 +209,8 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
             Route::post('/store-login', [LoginController::class, 'storeLogin'])->name('store-login');
             Route::get('/register', [RegisterController::class, 'loginPage'])->name('register');
             Route::post('/store-register', [RegisterController::class, 'storeRegister'])->name('store-register');
-            Route::get('/user-verification/{token}', [RegisterController::class, 'userVerification'])->name('user-verification');
+            Route::get('/user-verification/{token}', [RegisterController::class, 'verifyEmail'])->name('user-verification');
+            Route::get('/verify-email/{token}', [RegisterController::class, 'verifyEmail'])->name('verify-email');
             Route::get('/forget-password', [LoginController::class, 'forgetPage'])->name('forget-password');
             Route::post('/send-forget-password', [LoginController::class, 'sendForgetPassword'])->name('send-forget-password');
             Route::get('/reset-password/{token}', [LoginController::class, 'resetPasswordPage'])->name('reset-password');
@@ -259,15 +219,22 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
             Route::get('login/google', [LoginController::class, 'redirectToGoogle'])->name('login-google');
             Route::get('/callback/google', [LoginController::class, 'googleCallBack'])->name('callback-google');
 
+            Route::get('/dashboard', [UserProfileController::class, 'dashboard'])->middleware(['auth:web', 'customer'])->name('user.dashboard');
+            Route::get('/agent/dashboard', [UserProfileController::class, 'dashboard'])->middleware(['auth:web', 'agent'])->name('agent.dashboard');
+
             Route::group(['as' => 'user.', 'prefix' => 'user'], function () {
-                Route::get('dashboard', [UserProfileController::class, 'dashboard'])->name('dashboard');
+                Route::get('dashboard', function() {
+                    if (auth()->check()) {
+                        if (auth()->user()->login_type === 'agent') {
+                            return redirect()->route('agent.dashboard');
+                        }
+                    }
+                    return redirect()->route('user.dashboard');
+                });
 
                 Route::get('my-profile', [UserProfileController::class, 'my_profile'])->name('my-profile');
-
                 Route::post('update-profile', [UserProfileController::class, 'update_profile'])->name('update-profile');
-
                 Route::get('change-password', [UserProfileController::class, 'change_password'])->name('change-password');
-
                 Route::post('update-password', [UserProfileController::class, 'updatePassword'])->name('update-password');
 
                 Route::get('add-to-compare/{id}', [UserProfileController::class, 'add_to_compare'])->name('add-to-compare');
@@ -280,40 +247,46 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
                 Route::get('wishlist', [UserProfileController::class, 'wishlist'])->name('wishlist');
                 Route::get('my-reviews', [UserProfileController::class, 'my_reviews'])->name('my-reviews');
 
-                Route::get('orders', [UserProfileController::class, 'orders'])->name('orders');
-
                 Route::get('logout', [LoginController::class, 'userLogout'])->name('logout');
 
-                Route::resource('property', UserPropertyController::class);
-                Route::get('choose-property-type', [UserPropertyController::class, 'choose_property_type'])->name('choose-property-type');
-
-                Route::get('my-company', [CompanyController::class, 'index'])->name('my-company');
-                Route::get('my-team', [CompanyController::class, 'my_team'])->name('my-team');
-                Route::get('create-company', [CompanyController::class, 'create_company'])->name('create-company');
-                Route::get('create-agent', [CompanyController::class, 'create_agent'])->name('create-agent');
-                Route::post('apply-company', [CompanyController::class, 'apply_company'])->name('apply-company');
-                Route::post('update-agency-information/{id}', [CompanyController::class, 'update_agency_information'])->name('update-agency-information');
-                Route::get('edit-agency-information/{id}', [CompanyController::class, 'edit_agency_information'])->name('edit-agency-information');
-                Route::post('store-agent', [CompanyController::class, 'store_agent'])->name('store-agent');
-
-                Route::DELETE('agency-agent-delete/{id}', [CompanyController::class, 'destroy'])->name('agency-agent-destroy');
-                Route::get('agency-agent-edit/{id}', [CompanyController::class, 'agency_agent_edit'])->name('agency-agent-edit');
-                Route::post('agency-agent-update/{id}', [CompanyController::class, 'agency_agent_update'])->name('agency-agent-update');
-
-                Route::put('remove-property-slider/{id}', [UserPropertyController::class, 'remove_property_slider'])->name('remove-property-slider');
-                Route::put('remove-nearest-location/{id}', [UserPropertyController::class, 'remove_nearest_location'])->name('remove-nearest-location');
-                Route::put('remove-add-infor/{id}', [UserPropertyController::class, 'remove_add_info'])->name('remove-add-infor');
-                Route::put('remove-plan/{id}', [UserPropertyController::class, 'remove_plan'])->name('remove-plan');
-
-                Route::get('property/city/list/{id}', [UserPropertyController::class, 'property_city_list'])->name('property-city-list');
-
-                // Property Booking....
-                Route::get('property-booking/', [MyBookingController::class, 'index'])->name('property-booking');
-                Route::post('property-booking/edit/{id}', [MyBookingController::class, 'view'])->name('property-booking.edit');
-                Route::DELETE('property-booking/remove/{id}', [MyBookingController::class, 'remove'])->name('property-booking.remove');
-
                 Route::get('my-booking/', [MyBookingController::class, 'myBooking'])->name('my-booking');
-                Route::DELETE('my-booking/remove/{id}', [MyBookingController::class, 'myBookingRemove'])->name('my-booking.remove');
+                Route::delete('my-booking/remove/{id}', [MyBookingController::class, 'myBookingRemove'])->name('my-booking.remove');
+
+                // Accessible by user and agent to apply for agent role
+                Route::get('my-company', [CompanyController::class, 'index'])->name('my-company');
+                Route::get('create-company', [CompanyController::class, 'create_company'])->name('create-company');
+                Route::post('apply-company', [CompanyController::class, 'apply_company'])->name('apply-company');
+                Route::get('become-agent', [CompanyController::class, 'becomeAgentForm'])->name('become-agent');
+                Route::post('become-agent', [CompanyController::class, 'becomeAgentSubmit'])->name('become-agent.submit');
+
+                // Agent Only Routes
+                Route::middleware(['agent'])->group(function() {
+                    Route::get('orders', [UserProfileController::class, 'orders'])->name('orders');
+                    Route::resource('property', UserPropertyController::class);
+                    Route::get('choose-property-type', [UserPropertyController::class, 'choose_property_type'])->name('choose-property-type');
+
+                    Route::get('my-team', [CompanyController::class, 'my_team'])->name('my-team');
+                    Route::get('create-agent', [CompanyController::class, 'create_agent'])->name('create-agent');
+                    Route::post('update-agency-information/{id}', [CompanyController::class, 'update_agency_information'])->name('update-agency-information');
+                    Route::get('edit-agency-information/{id}', [CompanyController::class, 'edit_agency_information'])->name('edit-agency-information');
+                    Route::post('store-agent', [CompanyController::class, 'store_agent'])->name('store-agent');
+
+                    Route::DELETE('agency-agent-delete/{id}', [CompanyController::class, 'destroy'])->name('agency-agent-destroy');
+                    Route::get('agency-agent-edit/{id}', [CompanyController::class, 'agency_agent_edit'])->name('agency-agent-edit');
+                    Route::post('agency-agent-update/{id}', [CompanyController::class, 'agency_agent_update'])->name('agency-agent-update');
+
+                    Route::put('remove-property-slider/{id}', [UserPropertyController::class, 'remove_property_slider'])->name('remove-property-slider');
+                    Route::put('remove-nearest-location/{id}', [UserPropertyController::class, 'remove_nearest_location'])->name('remove-nearest-location');
+                    Route::put('remove-add-infor/{id}', [UserPropertyController::class, 'remove_add_info'])->name('remove-add-infor');
+                    Route::put('remove-plan/{id}', [UserPropertyController::class, 'remove_plan'])->name('remove-plan');
+
+                    Route::get('property/city/list/{id}', [UserPropertyController::class, 'property_city_list'])->name('property-city-list');
+
+                    // Property Booking....
+                    Route::get('property-booking/', [MyBookingController::class, 'index'])->name('property-booking');
+                    Route::post('property-booking/edit/{id}', [MyBookingController::class, 'view'])->name('property-booking.edit');
+                    Route::DELETE('property-booking/remove/{id}', [MyBookingController::class, 'remove'])->name('property-booking.remove');
+                });
             });
         });
     });
@@ -584,6 +557,19 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
         Route::post('send-mail-to-all-agent', [AgentController::class, 'send_mail_to_all_agent'])->name('send-mail-to-all-agent');
         Route::get('send-email-to-agent/{id}', [AgentController::class, 'send_email_to_agent'])->name('send-email-to-agent');
         Route::post('send-mail-to-single-agent/{id}', [AgentController::class, 'send_mailto_single_agent'])->name('send-mail-to-single-agent');
+
+        Route::get('builder', [AdminBuilderController::class, 'index'])->name('builder');
+        Route::get('builder-show/{id}', [AdminBuilderController::class, 'show'])->name('builder-show');
+        Route::put('builder-status/{id}', [AdminBuilderController::class, 'changeStatus'])->name('builder-status');
+        Route::delete('builder-delete/{id}', [AdminBuilderController::class, 'destroy'])->name('builder-delete');
+
+        Route::get('pending-agent-requests', [AgencyController::class, 'pendingAgentRequests'])->name('pending-agent-requests');
+        Route::get('pending-agent-requests/{id}', [AgencyController::class, 'showPendingAgentRequest'])->name('pending-agent-requests.show');
+        Route::post('pending-agent-requests/approve/{id}', [AgencyController::class, 'approveAgentRequest'])->name('pending-agent-requests.approve');
+        Route::post('pending-agent-requests/reject/{id}', [AgencyController::class, 'rejectAgentRequest'])->name('pending-agent-requests.reject');
+        Route::get('pending-agent-requests/{id}/document/{type}/view', [AgencyController::class, 'viewDocument'])->name('pending-agent-requests.document.view');
+        Route::get('pending-agent-requests/{id}/document/{type}/download', [AgencyController::class, 'downloadDocument'])->name('pending-agent-requests.document.download');
+
 
         Route::get('default-avatar', [ContentController::class, 'defaultAvatar'])->name('default-avatar');
         Route::put('update-default-avatar', [ContentController::class, 'updateDefaultAvatar'])->name('update-default-avatar');

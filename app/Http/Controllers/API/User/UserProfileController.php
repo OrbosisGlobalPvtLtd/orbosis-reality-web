@@ -39,9 +39,28 @@ class UserProfileController extends Controller
     }
     public function dashboard(){
 
-        $user = Auth::guard('api')->user();
+        $user_data = Auth::guard('api')->user();
 
-        $publish_property = Property::where('agent_id', $user->id)
+        if ($user_data->login_type === 'user') {
+            $recent_bookings = \App\Models\Booking::with('property')->where('user_id', $user_data->id)->orderBy('id', 'desc')->take(5)->get();
+            $wishlist_count = Wishlist::where('user_id', $user_data->id)->count();
+            $review_count = Review::where('user_id', $user_data->id)->count();
+            $recently_viewed = [];
+            $recommendations = Property::where('status', 'enable')->where('approve_by_admin', 'approved')->where('is_featured', 'enable')->take(5)->get();
+
+            $user = User::select('id','name','email','image','phone','address','status')->where('id', $user_data->id)->first();
+
+            return response()->json([
+                'recent_bookings' => $recent_bookings,
+                'wishlist_count' => $wishlist_count,
+                'review_count' => $review_count,
+                'recently_viewed' => $recently_viewed,
+                'recommendations' => $recommendations,
+                'user' => $user,
+            ]);
+        }
+
+        $publish_property = Property::where('agent_id', $user_data->id)
                                     ->where('status', 'enable')
                                     ->where('approve_by_admin', 'approved')
                                     ->where(function ($query) {
@@ -50,21 +69,21 @@ class UserProfileController extends Controller
                                     })
                                     ->count();
 
-        $awaiting_property = Property::where('agent_id', $user->id)
+        $awaiting_property = Property::where('agent_id', $user_data->id)
                                     ->where('approve_by_admin', 'pending')
                                     ->count();
 
-        $reject_property = Property::where('agent_id', $user->id)
+        $reject_property = Property::where('agent_id', $user_data->id)
                                     ->where('approve_by_admin', 'reject')
                                     ->count();
 
-        $total_purchase = Order::where('agent_id', $user->id)->count();
-        $total_wishlist = Wishlist::where('user_id', $user->id)->count();
-        $total_review = Review::where('user_id', $user->id)->count();
+        $total_purchase = Order::where('agent_id', $user_data->id)->count();
+        $total_wishlist = Wishlist::where('user_id', $user_data->id)->count();
+        $total_review = Review::where('user_id', $user_data->id)->count();
 
         $setting = Setting::first();
 
-        $user = User::select('id','name','email','image','phone','address','status')->where('id', $user->id)->first();
+        $user = User::select('id','name','email','image','phone','address','status')->where('id', $user_data->id)->first();
 
         $properties = Property::where('agent_id', $user->id)->orderBy('id','desc')->paginate(10);
 
@@ -79,9 +98,6 @@ class UserProfileController extends Controller
             'user' => $user,
             'properties' => $properties
         ]);
-
-
-
     }
 
     public function my_profile(){

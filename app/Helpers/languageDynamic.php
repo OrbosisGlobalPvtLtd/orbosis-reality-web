@@ -86,24 +86,47 @@ function num_format($price){
         $price = 0;
     }
 
-    $currency_icon = Session::get('currency_icon');
-    $currency_code = Session::get('currency_code');
-    $currency_rate = Session::get('currency_rate');
-    $currency_position = Session::get('currency_position');
+    $currency_icon = '';
+    $currency_code = '';
+    $currency_position = '';
 
-    $price = $price * $currency_rate;
-    $price = amount($price, 2, '.', ',');
+    if (function_exists('session') && request()->hasSession()) {
+        $currency_icon = Session::get('currency_icon');
+        $currency_code = Session::get('currency_code');
+        $currency_position = Session::get('currency_position');
+    }
+
+    if (empty($currency_icon)) {
+        $setting = \App\Models\Setting::first();
+        $currency_icon = $setting->currency_icon ?? '₹';
+        $currency_code = $setting->currency_name ?? 'INR';
+    }
+
+    $formatted_value = '';
+    if (strtoupper($currency_code) === 'INR' || $currency_icon === '₹') {
+        $num_str = (string)round($price);
+        $lastThree = substr($num_str, -3);
+        $remaining = substr($num_str, 0, -3);
+        if ($remaining != '') {
+            $remaining = preg_replace("/\B(?=(\d{2})+(?!\d))/", ",", $remaining);
+            $formatted_value = $remaining . ',' . $lastThree;
+        } else {
+            $formatted_value = $lastThree;
+        }
+    } else {
+        $formatted_value = number_format(round($price), 0, '.', ',');
+    }
 
     if($currency_position == 'before_price'){
-        $price = $currency_icon.$price;
+        $price = $currency_icon.$formatted_value;
     }elseif($currency_position == 'before_price_with_space'){
-        $price = $currency_icon.' '.$price;
+        $price = $currency_icon.' '.$formatted_value;
     }elseif($currency_position == 'after_price'){
-        $price = $price.$currency_icon;
+        $price = $formatted_value.$currency_icon;
     }elseif($currency_position == 'after_price_with_space'){
-        $price = $price.' '.$currency_icon;
+        $price = $formatted_value.' '.$currency_icon;
     }else{
-        $price = $currency_icon.$price;
+        $price = $currency_icon.$formatted_value;
     }
 
     return $price;
