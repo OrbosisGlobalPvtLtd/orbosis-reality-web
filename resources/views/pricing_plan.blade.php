@@ -33,9 +33,14 @@
     <!-- Pricing -->
     <section class="pd-top-90 pd-btm-120 homec-bg-third-color">
         <div class="container">
+            @php
+                $plan_count = count($pricing_plans);
+                $col_class = ($plan_count >= 4) ? 'col-lg-3 col-md-6 col-12' : (($plan_count == 3) ? 'col-lg-4 col-md-6 col-12' : 'col-lg-6 col-md-6 col-12');
+            @endphp
             <div class="row">
                 @foreach ($pricing_plans as $index => $pricing_plan)
-                    <div class="col-lg-4 col-md-4 col-12 mg-top-30" data-aos="fade-up" data-aos-delay="400">
+                    <div class="{{ $col_class }} mg-top-30" data-aos="fade-up" data-aos-delay="400">
+
                         <!-- Pricing Single -->
                         <div class="homec-psingle {{ ++$index % 2 == 0 ? 'homec-psingle__active' : '' }} ">
                             <div class="homec-psingle__head">

@@ -608,9 +608,14 @@
                             </div>
                         </div>
 
+                        @php
+                            $home_plan_count = count($pricing_plan->pricing_plans);
+                            $home_col_class = ($home_plan_count >= 4) ? 'col-lg-3 col-md-6 col-12' : (($home_plan_count == 3) ? 'col-lg-4 col-md-6 col-12' : 'col-lg-6 col-md-6 col-12');
+                        @endphp
                         <div class="row">
                             @foreach ($pricing_plan->pricing_plans as $index => $pricing_plan_item)
-                                <div class="col-lg-4 col-md-4 col-12 mg-top-30" data-aos="fade-up" data-aos-delay="400">
+                                <div class="{{ $home_col_class }} mg-top-30" data-aos="fade-up" data-aos-delay="400">
+
                                     <!-- Pricing Single -->
                                     <div class="homec-psingle {{ ++$index % 2 == 0 ? 'homec-psingle__active' : '' }} ">
                                         <div class="homec-psingle__head">
