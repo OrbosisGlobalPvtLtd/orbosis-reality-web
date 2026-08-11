@@ -52,10 +52,13 @@ class OrderController extends Controller
             $expiration_date = 'lifetime';
         }
 
-        Order::where('agent_id', $agent->id)->update(['order_status' => 'expired']);
+        Order::where(function($q) use ($agent) {
+            $q->where('user_id', $agent->id)->orWhere('agent_id', $agent->id);
+        })->update(['order_status' => 'expired']);
 
         $order = new Order();
-        $order->order_id = substr(rand(0,time()),0,10);
+        $order->order_id = date('YmdHis') . rand(100, 999);
+        $order->user_id = $request->agent_id;
         $order->agent_id = $request->agent_id;
         $order->pricing_plan_id = $request->plan_id;
         $order->plan_type = $item->plan_type;
@@ -70,12 +73,14 @@ class OrderController extends Controller
         $order->urgent_property = $item->urgent_property;
         $order->urgent_property_qty = $item->urgent_property_qty;
         $order->max_agent_add = $item->max_agent_add;
+        $order->purchase_date = date('Y-m-d');
         $order->order_status = 'active';
         $order->payment_status = 'success';
         $order->transaction_id = 'hand_cash';
         $order->payment_method = 'hand_cash';
         $order->expiration_date = $expiration_date;
         $order->save();
+
 
         $user_properties = Property::where('agent_id', $agent->id)->orderBy('id','desc')->get();
 

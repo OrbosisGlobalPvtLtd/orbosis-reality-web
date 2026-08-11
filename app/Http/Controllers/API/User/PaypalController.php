@@ -153,6 +153,15 @@ class PaypalController extends Controller
 
 
     public function createOrder($user, $pricing_plan, $payment_method, $payment_status, $tnx_info){
+        if (!empty($tnx_info) && !in_array($tnx_info, ['free_enroll', 'hand_cash'])) {
+            $existing_order = Order::where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)->orWhere('agent_id', $user->id);
+            })->where('transaction_id', $tnx_info)->where('payment_status', 'success')->first();
+
+            if ($existing_order) {
+                return $existing_order;
+            }
+        }
 
         if($pricing_plan->expired_time == 'monthly'){
             $expiration_date = date('Y-m-d', strtotime('30 days'));
@@ -160,33 +169,44 @@ class PaypalController extends Controller
             $expiration_date = date('Y-m-d', strtotime('365 days'));
         }elseif($pricing_plan->expired_time == 'lifetime'){
             $expiration_date = 'lifetime';
+        }else{
+            $expiration_date = date('Y-m-d', strtotime('30 days'));
         }
 
-        Order::where('agent_id', $user->id)->update(['order_status' => 'expired']);
+        return \DB::transaction(function() use ($user, $pricing_plan, $payment_method, $payment_status, $tnx_info, $expiration_date) {
+            if ($payment_status == 'success') {
+                Order::where(function ($q) use ($user) {
+                    $q->where('user_id', $user->id)->orWhere('agent_id', $user->id);
+                })->update(['order_status' => 'expired']);
+            }
 
-        $order = new Order();
-        $order->order_id = substr(rand(0,time()),0,10);
-        $order->agent_id = $user->id;
-        $order->pricing_plan_id = $pricing_plan->id;
-        $order->plan_type = $pricing_plan->plan_type;
-        $order->plan_price = $pricing_plan->plan_price;
-        $order->plan_name = $pricing_plan->plan_name;
-        $order->expired_time = $pricing_plan->expired_time;
-        $order->number_of_property = $pricing_plan->number_of_property;
-        $order->featured_property = $pricing_plan->featured_property;
-        $order->featured_property_qty = $pricing_plan->featured_property_qty;
-        $order->top_property = $pricing_plan->top_property;
-        $order->top_property_qty = $pricing_plan->top_property_qty;
-        $order->urgent_property = $pricing_plan->urgent_property;
-        $order->urgent_property_qty = $pricing_plan->urgent_property_qty;
-        $order->order_status = 'active';
-        $order->payment_status = $payment_status;
-        $order->transaction_id = $tnx_info;
-        $order->payment_method = $payment_method;
-        $order->expiration_date = $expiration_date;
-        $order->save();
+            $order = new Order();
+            $order->order_id = date('YmdHis') . rand(100, 999);
+            $order->user_id = $user->id;
+            $order->agent_id = $user->id;
+            $order->pricing_plan_id = $pricing_plan->id;
+            $order->plan_type = $pricing_plan->plan_type ?? 'premium';
+            $order->plan_price = $pricing_plan->plan_price;
+            $order->plan_name = $pricing_plan->plan_name;
+            $order->expired_time = $pricing_plan->expired_time;
+            $order->number_of_property = $pricing_plan->number_of_property;
+            $order->featured_property = $pricing_plan->featured_property;
+            $order->featured_property_qty = $pricing_plan->featured_property_qty;
+            $order->top_property = $pricing_plan->top_property;
+            $order->top_property_qty = $pricing_plan->top_property_qty;
+            $order->urgent_property = $pricing_plan->urgent_property ?? 'disable';
+            $order->urgent_property_qty = $pricing_plan->urgent_property_qty ?? 0;
+            $order->max_agent_add = $pricing_plan->max_agent_add ?? 0;
+            $order->purchase_date = date('Y-m-d');
+            $order->order_status = ($payment_status == 'success') ? 'active' : 'pending';
+            $order->payment_status = $payment_status;
+            $order->transaction_id = $tnx_info ?? '';
+            $order->payment_method = $payment_method;
+            $order->expiration_date = $expiration_date;
+            $order->save();
 
-        return $order;
+            return $order;
+        });
     }
 
 

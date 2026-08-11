@@ -545,6 +545,16 @@ class PaymentController extends Controller
 
 
     public function createOrder($user, $pricing_plan, $payment_method, $payment_status, $tnx_info){
+        // 1. Idempotency / Duplicate Check
+        if(!empty($tnx_info) && !in_array($tnx_info, ['free_enroll', 'hand_cash'])) {
+            $existing_order = Order::where(function($q) use ($user) {
+                $q->where('user_id', $user->id)->orWhere('agent_id', $user->id);
+            })->where('transaction_id', $tnx_info)->where('payment_status', 'success')->first();
+
+            if($existing_order) {
+                return $existing_order;
+            }
+        }
 
         if($pricing_plan->expired_time == 'monthly'){
             $expiration_date = date('Y-m-d', strtotime('30 days'));
@@ -552,129 +562,135 @@ class PaymentController extends Controller
             $expiration_date = date('Y-m-d', strtotime('365 days'));
         }elseif($pricing_plan->expired_time == 'lifetime'){
             $expiration_date = 'lifetime';
-        }
-
-        if($payment_status == 'success'){
-            Order::where('agent_id', $user->id)->update(['order_status' => 'expired']);
-        }
-
-        $order = new Order();
-        $order->order_id = substr(rand(0,time()),0,10);
-        $order->agent_id = $user->id;
-        $order->pricing_plan_id = $pricing_plan->id;
-        $order->plan_type = $pricing_plan->plan_type;
-        $order->plan_price = $pricing_plan->plan_price;
-        $order->plan_name = $pricing_plan->plan_name;
-        $order->expired_time = $pricing_plan->expired_time;
-        $order->number_of_property = $pricing_plan->number_of_property;
-        $order->featured_property = $pricing_plan->featured_property;
-        $order->featured_property_qty = $pricing_plan->featured_property_qty;
-        $order->top_property = $pricing_plan->top_property;
-        $order->top_property_qty = $pricing_plan->top_property_qty;
-        $order->urgent_property = $pricing_plan->urgent_property;
-        $order->urgent_property_qty = $pricing_plan->urgent_property_qty;
-        if($payment_status == 'success'){
-            $order->order_status = 'active';
         }else{
-            $order->order_status = 'pending';
+            $expiration_date = date('Y-m-d', strtotime('30 days'));
         }
-        $order->payment_status = $payment_status;
-        $order->transaction_id = $tnx_info;
-        $order->payment_method = $payment_method;
-        $order->expiration_date = $expiration_date;
-        $order->save();
 
-        $user_properties = Property::where('agent_id', $user->id)->orderBy('id','desc')->get();
+        return \DB::transaction(function() use ($user, $pricing_plan, $payment_method, $payment_status, $tnx_info, $expiration_date) {
+            if($payment_status == 'success'){
+                Order::where(function($q) use ($user) {
+                    $q->where('user_id', $user->id)->orWhere('agent_id', $user->id);
+                })->update(['order_status' => 'expired']);
+            }
 
-        if($payment_status == 'success'){
+            $order = new Order();
+            $order->order_id = date('YmdHis') . rand(100, 999);
+            $order->user_id = $user->id;
+            $order->agent_id = $user->id;
+            $order->pricing_plan_id = $pricing_plan->id;
+            $order->plan_type = $pricing_plan->plan_type ?? 'premium';
+            $order->plan_price = $pricing_plan->plan_price;
+            $order->plan_name = $pricing_plan->plan_name;
+            $order->expired_time = $pricing_plan->expired_time;
+            $order->number_of_property = $pricing_plan->number_of_property;
+            $order->featured_property = $pricing_plan->featured_property;
+            $order->featured_property_qty = $pricing_plan->featured_property_qty;
+            $order->top_property = $pricing_plan->top_property;
+            $order->top_property_qty = $pricing_plan->top_property_qty;
+            $order->urgent_property = $pricing_plan->urgent_property ?? 'disable';
+            $order->urgent_property_qty = $pricing_plan->urgent_property_qty ?? 0;
+            $order->max_agent_add = $pricing_plan->max_agent_add ?? 0;
+            $order->purchase_date = date('Y-m-d');
+            $order->expiration_date = $expiration_date;
 
-            if($expiration_date == 'lifetime'){
-                Property::where('agent_id', $user->id)->update(['expired_date' => null]);
+            if($payment_status == 'success'){
+                $order->order_status = 'active';
             }else{
-                Property::where('agent_id', $user->id)->update(['expired_date' => $expiration_date]);
+                $order->order_status = 'pending';
+            }
+            $order->payment_status = $payment_status;
+            $order->transaction_id = $tnx_info ?? '';
+            $order->payment_method = $payment_method;
+            $order->save();
+
+            $user_properties = Property::where('agent_id', $user->id)->orderBy('id','desc')->get();
+
+            if($payment_status == 'success'){
+
+                if($expiration_date == 'lifetime'){
+                    Property::where('agent_id', $user->id)->update(['expired_date' => null]);
+                }else{
+                    Property::where('agent_id', $user->id)->update(['expired_date' => $expiration_date]);
+                }
+
+                if($user_properties->count() > 0){
+                    if($order->number_of_property != -1){
+                        $i = 0;
+                        foreach($user_properties as $user_property){
+                            if($i < $order->number_of_property){
+                                $user_property->status = 'enable';
+                            }else{
+                                $user_property->status = 'disable';
+                            }
+                            $user_property->save();
+                            $i++;
+                        }
+                    }
+
+                    if($order->featured_property == 'enable'){
+                        if($order->featured_property_qty != -1){
+                            $i = 0;
+                            foreach($user_properties as $user_property){
+                                if($i < $order->featured_property_qty){
+                                    $user_property->is_featured = 'enable';
+                                }else{
+                                    $user_property->is_featured = 'disable';
+                                }
+                                $user_property->save();
+                                $i++;
+                            }
+                        }
+                    }else{
+                        foreach($user_properties as $user_property){
+                            $user_property->is_featured = 'disable';
+                            $user_property->save();
+                        }
+                    }
+
+                    if($order->top_property == 'enable'){
+                        if($order->top_property_qty != -1){
+                            $i = 0;
+                            foreach($user_properties as $user_property){
+                                if($i < $order->top_property_qty){
+                                    $user_property->is_top = 'enable';
+                                }else{
+                                    $user_property->is_top = 'disable';
+                                }
+                                $user_property->save();
+                                $i++;
+                            }
+                        }
+                    }else{
+                        foreach($user_properties as $user_property){
+                            $user_property->is_top = 'disable';
+                            $user_property->save();
+                        }
+                    }
+
+                    if($order->urgent_property == 'enable'){
+                        if($order->urgent_property_qty != -1){
+                            $i = 0;
+                            foreach($user_properties as $user_property){
+                                if($i < $order->urgent_property_qty){
+                                    $user_property->is_urgent = 'enable';
+                                }else{
+                                    $user_property->is_urgent = 'disable';
+                                }
+                                $user_property->save();
+                                $i++;
+                            }
+                        }
+                    }else{
+                        foreach($user_properties as $user_property){
+                            $user_property->is_urgent = 'disable';
+                            $user_property->save();
+                        }
+                    }
+                }
             }
 
-            if($user_properties->count() > 0){
-                if($order->number_of_property != -1){
-                    $i = 0;
-                    foreach($user_properties as $index => $user_property){
-                        if($i <= $order->number_of_property){
-                            $user_property->status = 'enable';
-                            $user_property->save();
-                        }else{
-                            $user_property->status = 'disable';
-                            $user_property->save();
-                        }
-                        $i++;
-                    }
-                }
-
-                if($order->featured_property == 'enable'){
-                    if($order->featured_property_qty != -1){
-                        $i = 0;
-                        foreach($user_properties as $index => $user_property){
-                            if($i <= $order->number_of_property){
-                                $user_property->is_featured = 'enable';
-                                $user_property->save();
-                            }else{
-                                $user_property->is_featured = 'disable';
-                                $user_property->save();
-                            }
-                            $i++;
-                        }
-                    }
-                }else{
-                    foreach($user_properties as $index => $user_property){
-                        $user_property->is_featured = 'disable';
-                        $user_property->save();
-                    }
-                }
-
-                if($order->top_property == 'enable'){
-                    if($order->top_property_qty != -1){
-                        $i = 0;
-                        foreach($user_properties as $index => $user_property){
-                            if($i <= $order->number_of_property){
-                                $user_property->is_top = 'enable';
-                                $user_property->save();
-                            }else{
-                                $user_property->is_top = 'disable';
-                                $user_property->save();
-                            }
-                            $i++;
-                        }
-                    }
-                }else{
-                    foreach($user_properties as $index => $user_property){
-                        $user_property->is_top = 'disable';
-                        $user_property->save();
-                    }
-                }
-
-                if($order->urgent_property == 'enable'){
-                    if($order->urgent_property_qty != -1){
-                        $i = 0;
-                        foreach($user_properties as $index => $user_property){
-                            if($i <= $order->number_of_property){
-                                $user_property->is_urgent = 'enable';
-                                $user_property->save();
-                            }else{
-                                $user_property->is_urgent = 'disable';
-                                $user_property->save();
-                            }
-                            $i++;
-                        }
-                    }
-                }else{
-                    foreach($user_properties as $index => $user_property){
-                        $user_property->is_urgent = 'disable';
-                        $user_property->save();
-                    }
-                }
-            }
-        }
-
-        return $order;
+            return $order;
+        });
     }
 
 

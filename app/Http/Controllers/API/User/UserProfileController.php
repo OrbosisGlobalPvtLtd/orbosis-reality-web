@@ -233,7 +233,9 @@ class UserProfileController extends Controller
 
     public function orders(){
         $user = Auth::guard('api')->user();
-        $orders = Order::orderBy('id','desc')->where('agent_id', $user->id)->paginate(10);
+        $orders = Order::orderBy('id','desc')->where(function($q) use ($user){
+            $q->where('user_id', $user->id)->orWhere('agent_id', $user->id);
+        })->paginate(10);
 
         $setting = Setting::first();
 
@@ -246,7 +248,7 @@ class UserProfileController extends Controller
     }
 
     public function order_show($id){
-        $order = Order::where('order_id',$id)->first();
+        $order = Order::where('order_id',$id)->orWhere('id', $id)->first();
 
         return response()->json([
             'order' => $order
