@@ -191,23 +191,7 @@
         }
     </style>
 
-    <!-- Breadcrumbs -->
-    <section class="breadcrumbs__content" style="background-image: url({{ asset($breadcrumb) }});">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <div class="breadcrumb-content">
-                        <ul class="breadcrumb__menu list-none">
-                            <li><a href="{{ route('home') }}">{{__('user.Home')}}</a></li>
-                            <li class="active"><a href="javascript:;">{{__('user.Payment')}}</a></li>
-                        </ul>
-                        <h2 class="breadcrumb__title m-0">{{__('user.Payment')}}</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- End breadcrumbs -->
+
 
     <section class="pd-top-60 pd-btm-80 homec-bg-third-color">
         <div class="container">
