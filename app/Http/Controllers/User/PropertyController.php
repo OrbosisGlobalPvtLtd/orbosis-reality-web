@@ -381,9 +381,10 @@ if (!in_array($request->purpose, $validPurposes)) {
 
         $property->city_id = $fallback_city;
         $property->country_id = $fallback_country;
-        $property->address = $request->address;
+        $property->address = $request->address ?? '';
         $property->address_description = $request->address_description;
-        $property->google_map = $request->google_map;
+        $property->google_map = $request->google_map ?? '';
+        $property->total_price = (float)($request->price ?? 0);
         $property->lat = $request->lat;
         $property->lon = $request->lng;
 
@@ -392,6 +393,8 @@ if (!in_array($request->purpose, $validPurposes)) {
 
         if($request->thumbnail_image){
             $property->thumbnail_image = ImageHelper::saveImageSafely($request->thumbnail_image, 'property-thumb');
+        } else {
+            $property->thumbnail_image = 'uploads/website-images/default-avatar-2026-08-11-05-20-33-2858.jpg';
         }
 
         if($request->video_thumbnail){
@@ -700,7 +703,8 @@ if (!in_array($request->purpose, $validPurposes)) {
         $property->country_id = $fallback_country;
         $property->address = $request->address;
         $property->address_description = $request->address_description;
-        $property->google_map = $request->google_map;
+        $property->google_map = $request->google_map ?? '';
+        $property->total_price = (float)($request->price ?? $property->total_price);
         $property->lat = $request->has('lat') ? $request->lat : $property->lat;
         $property->lon = $request->has('lng') ? $request->lng : $property->lon;
 
