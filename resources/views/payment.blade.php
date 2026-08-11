@@ -29,320 +29,328 @@
     </section>
     <!-- End breadcrumbs -->
 
-    <section class="pd-top-80 pd-btm-80 payment-package-bg">
+    <style>
+        .checkout-card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eef2f7;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        .checkout-header {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            color: #ffffff;
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+        .checkout-header__title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+        }
+        .checkout-header__sub {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 4px;
+        }
+        .checkout-price-pill {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 10px 22px;
+            border-radius: 30px;
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .checkout-body {
+            padding: 32px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 767px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        .feature-item:hover {
+            border-color: #cbd5e1;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+        .feature-item__icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .feature-item__icon--check {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .feature-item__icon--cross {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .feature-item__label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+            margin: 0;
+        }
+        .feature-item__value {
+            font-size: 14px;
+            color: #0f172a;
+            margin-left: auto;
+            font-weight: 700;
+        }
+        
+        /* Payment Method Card */
+        .payment-method-card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eef2f7;
+            padding: 32px;
+            text-align: center;
+        }
+        .payment-method-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .payment-method-sub {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+        .pay-razorpay-btn {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff !important;
+            width: 100%;
+            padding: 18px 24px;
+            border-radius: 14px;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.3);
+            transition: all 0.3s ease;
+        }
+        .pay-razorpay-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(2, 132, 199, 0.4);
+            background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+        }
+        .trust-badge-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+        }
+        .trust-badge-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #475569;
+            font-weight: 500;
+        }
+    </style>
 
+    <!-- Breadcrumbs -->
+    <section class="breadcrumbs__content" style="background-image: url({{ asset($breadcrumb) }});">
         <div class="container">
             <div class="row">
-                <div class="col-lg-8 col-lg-8 col-12">
-                    <h3 class="homec-package-detail__heading">{{__('user.PACKAGE DETAILS')}}</h3>
-                    <div class="homec-package-detail">
-                        <table class="homec-package-detail__table">
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Package')}}</h4></td>
-                                <td><span class="homec-package-detail__value">{{ $pricing_plan->plan_name }}</span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Price')}}</h4></td>
-                                <td><span class="homec-package-detail__value">{{ num_format($pricing_plan->plan_price) }}</span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Expired')}}</h4></td>
-                                <td><span class="homec-package-detail__value">{{ date('d M Y', strtotime($plan_expired_date)) }}</span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Agency Profile')}}</h4></td>
-                                <td><span class="homec-package-detail__value">
-                                    @if ($pricing_plan->max_agent_add > 0)
-                                    {{__('user.Available')}}
-                                    @else
-                                    {{__('user.Unavailable')}}
-                                    @endif
-                                </span></td>
-                            </tr>
-
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Agent')}}</h4></td>
-                                <td><span class="homec-package-detail__value">
-                                    {{ $pricing_plan->max_agent_add }}
-                                </span></td>
-                            </tr>
-
-
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Property')}}</h4></td>
-                                <td><span class="homec-package-detail__value">
-                                    @if ($pricing_plan->number_of_property == -1)
-                                        {{__('user.Unlimited')}}
-                                    @else
-                                        {{ $pricing_plan->number_of_property }}
-                                    @endif
-                                </span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Featured Property')}}</h4></td>
-                                <td><span class="homec-package-detail__value">
-                                    @if ($pricing_plan->featured_property == 'enable')
-                                    {{__('user.Available')}}
-                                    @else
-                                    {{__('user.Unavailable')}}
-                                    @endif
-                                </span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Featured Property')}}</h4></td>
-                                <td><span class="homec-package-detail__value">
-                                    @if ($pricing_plan->featured_property_qty == -1)
-                                        {{__('user.Unlimited')}}
-                                    @else
-                                        {{ $pricing_plan->featured_property_qty }}
-                                    @endif
-                                </span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Top Property')}}</h4></td>
-                                <td><span class="homec-package-detail__value">
-                                    @if ($pricing_plan->top_property == 'enable')
-                                    {{__('user.Available')}}
-                                    @else
-                                    {{__('user.Unavailable')}}
-                                    @endif
-                                </span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Top Property')}}</h4></td>
-                                <td><span class="homec-package-detail__value">
-                                    @if ($pricing_plan->top_property_qty == -1)
-                                        {{__('user.Unlimited')}}
-                                    @else
-                                        {{ $pricing_plan->top_property_qty }}
-                                    @endif
-                                </span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Urgent Property')}}</h4></td>
-                                <td><span class="homec-package-detail__value">
-                                    @if ($pricing_plan->urgent_property == 'enable')
-                                    {{__('user.Available')}}
-                                    @else
-                                    {{__('user.Unavailable')}}
-                                    @endif
-                                </span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Urgent Property')}}</h4></td>
-                                <td><span class="homec-package-detail__value">
-                                    @if ($pricing_plan->urgent_property_qty == -1)
-                                        {{__('user.Unlimited')}}
-                                    @else
-                                        {{ $pricing_plan->urgent_property_qty }}
-                                    @endif
-                                </span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Aminities')}}</h4></td>
-                                <td><span class="homec-package-detail__value">{{__('user.Unlimited')}}</span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Image Gallery')}}</h4></td>
-                                <td><span class="homec-package-detail__value">{{__('user.Unlimited')}}</span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Nearest Location')}}</h4></td>
-                                <td><span class="homec-package-detail__value">{{__('user.Unlimited')}}</span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Property Plan')}}</h4></td>
-                                <td><span class="homec-package-detail__value">{{__('user.Unlimited')}}</span></td>
-                            </tr>
-
-                            <tr>
-                                <td><h4 class="homec-package-detail__title">{{__('user.Additional Information')}}</h4></td>
-                                <td><span class="homec-package-detail__value">{{__('user.Unlimited')}}</span></td>
-                            </tr>
-
-                        </table>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-12">
-                    <div class="homec-payment-method">
-                        <div class="payment-popup__top payment-popup__top--digital">
-                            <!-- Payment Popup -->
-                            <div class="payment-popup">
-                                <h4 class="payment-popup__title">{{__('user.Stripe Payment')}}</h4>
-                                <div class="payment-popup__inner">
-                                    <div class="payment-popup__header">
-                                        <h4 class="payment-popup__heading">{{__('user.Total')}} <b>{{ num_format($pricing_plan->plan_price) }}</b></h4>
-                                    </div>
-                                    <!-- Sign in Form -->
-
-                                        <form role="form" action="{{ route('pay-with-stripe', $pricing_plan->plan_slug) }}" method="POST" class="require-validation ecom-wc__form-main p-0" data-cc-on-file="false" data-stripe-publishable-key="{{ $stripe->stripe_key }}" id="payment-form">
-                                            @csrf
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="form-group homec-form-input">
-                                                        <input class="ecom-wc__form-input card-number" type="text" name="card_number" placeholder="{{__('user.Card Number')}}" autocomplete="off">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-6 col-md-6 col-12">
-                                                    <div class="form-group homec-form-input">
-                                                        <input class="ecom-wc__form-input card-expiry-month" type="text" name="month" placeholder="{{__('user.Month')}}" autocomplete="off">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-6 col-md-6 col-12">
-                                                    <div class="form-group homec-form-input">
-                                                        <input class="ecom-wc__form-input card-expiry-year" type="text" name="year" placeholder="{{__('user.Year')}}" autocomplete="off">
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-12">
-                                                    <div class="form-group homec-form-input">
-                                                        <input class="ecom-wc__form-input card-cvc" type="text" name="cvc" placeholder="{{__('user.CVV')}}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-12 mg-top-20">
-                                                    <button type="submit" class="homec-btn homec-btn__second  homec-btn--payment"><span>{{__('user.Payment Now')}}</span></button>
-                                                </div>
-
-                                                <div class="col-12 error d-none">
-                                                    <div class="payment-popup__error">{{__('user.Please provide your valid card information')}}</div>
-                                                </div>
-
-                                            </div>
-                                    </form>
-                                    <!-- End Sign in Form -->
-                                </div>
-                            </div>
-                            <!-- End Payment Popup -->
-                        </div>
-                        <div class="payment-popup__top payment-popup__top--bank">
-                            <!-- Payment Popup -->
-                            <div class="payment-popup">
-                                <h4 class="payment-popup__title">{{__('user.Bank Payment')}}</h4>
-                                <div class="payment-popup__inner">
-                                    <div class="payment-popup__header">
-                                        <h4 class="payment-popup__heading">{{__('user.Total')}} <b>{{ num_format($pricing_plan->plan_price) }}</b></h4>
-                                    </div>
-                                    <ul class="payment-popup__bank-list">
-                                        <p>{!! clean(nl2br($bankPayment->account_info)) !!}</p>
-                                    </ul>
-                                    <!-- Sign in Form -->
-                                    <form class="ecom-wc__form-main p-0"  method="post" action="{{ route('bank-payment', $pricing_plan->plan_slug) }}">
-                                        @csrf
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="form-group homec-form-input">
-                                                    <textarea class="ecom-wc__form-input" type="text" name="tnx_info" placeholder="{{__('user.Transaction information')}}"></textarea>
-                                                </div>
-
-                                            </div>
-                                            <div class="col-12 mg-top-20">
-                                                <button type="submit" class="homec-btn homec-btn__second  homec-btn--payment"><span>{{__('user.Payment Now') }}</span></button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                    <!-- End Sign in Form -->
-                                </div>
-                            </div>
-                            <!-- End Payment Popup -->
-                        </div>
-                        <ul class="homec-payment-method__list">
-
-                            {{--
-                            @if ($stripe->status == 1)
-                            <li>
-                                <a href="javascript:;">
-                                    <input class="form-check-input payment-stripe-button " type="radio" value="" id="payment-7" name="payment-method">
-                                    <label class="form-check-label homec-payment-method__label" for="payment-7"><img src="{{ asset($stripe->image) }}"></label>
-                                </a>
-                            </li>
-                            @endif
-                            --}}
-
-
-                            @if ($paypal->status == 1)
-                            <li>
-                                <a href="{{ route('pay-with-paypal', $pricing_plan->plan_slug) }}">
-                                    <label class="form-check-label homec-payment-method__label" for="payment-1"><img src="{{ asset($paypal->image) }}"></label>
-                                </a>
-                            </li>
-                            @endif
-
-                            @if ($razorpay->status == 1)
-                            <li>
-                                <a href="javascript:;" onclick="payWithRazorpayStandard()">
-                                    <input class="form-check-input " type="radio" value="" id="payment-2"  name="payment-method">
-                                    <label class="form-check-label homec-payment-method__label" for="payment-2"><img src="{{ asset($razorpay->image) }}"></label>
-                                </a>
-                            </li>
-                            @endif
-
-
-                            @if ($flutterwave->status == 1)
-                            <li>
-                                <a onclick="flutterwavePayment()" href="javascript:;">
-                                    <input class="form-check-input " type="radio" value="" id="payment-3"  name="payment-method">
-                                    <label class="form-check-label homec-payment-method__label" for="payment-3"><img src="{{ asset($flutterwave->logo) }}"></label>
-                                </a>
-                            </li>
-                            @endif
-
-                            @if ($mollie->mollie_status ==1)
-                            <li>
-                                <a href="{{ route('pay-with-mollie',$pricing_plan->plan_slug) }}">
-                                    <label class="form-check-label homec-payment-method__label" for="payment-4"><img src="{{ ($mollie->mollie_image)? asset($mollie->mollie_image) : asset($setting->default_placeholder)}}"></label>
-                                </a>
-                            </li>
-                            @endif
-
-                            @if ($paystack->paystack_status == 1)
-                            <li>
-                                <a onclick="payWithPaystack()" href="javascript:;">
-                                    <input class="form-check-input " type="radio" value="" id="payment-5"  name="payment-method">
-                                    <label class="form-check-label homec-payment-method__label" for="payment-5"><img src="{{ ($paystack->paystack_image)? asset($paystack->paystack_image) : asset($setting->default_placeholder)}}"></label>
-                                </a>
-                            </li>
-                            @endif
-
-                            @if ($instamojoPayment->status == 1)
-                            <li>
-                                <a href="{{ route('pay-with-instamojo', $pricing_plan->plan_slug) }}">
-                                    <label class="form-check-label homec-payment-method__label" for="payment-51"><img src="{{ ($instamojoPayment->image)? asset($instamojoPayment->image) : asset($setting->default_placeholder)}}"></label>
-                            </li>
-                            @endif
-
-                            @if ($bankPayment->status == 1)
-                            <li>
-                                <a href="#">
-                                    <input class="form-check-input payment-bank-button" type="radio" value="" id="payment-6"  name="payment-method">
-                                    <label class="form-check-label homec-payment-method__label" for="payment-6"><img src="{{ ($bankPayment->image)? asset($bankPayment->image) : asset($setting->default_placeholder)}}"></label>
-                                </a>
-                            </li>
-                            @endif
-
+                <div class="col-12">
+                    <div class="breadcrumb-content">
+                        <ul class="breadcrumb__menu list-none">
+                            <li><a href="{{ route('home') }}">{{__('user.Home')}}</a></li>
+                            <li class="active"><a href="javascript:;">{{__('user.Payment')}}</a></li>
                         </ul>
-
+                        <h2 class="breadcrumb__title m-0">{{__('user.Payment')}}</h2>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+    <!-- End breadcrumbs -->
+
+    <section class="pd-top-60 pd-btm-80 homec-bg-third-color">
+        <div class="container">
+            <div class="row">
+                <!-- Package Details Card -->
+                <div class="col-lg-7 col-12">
+                    <div class="checkout-card">
+                        <div class="checkout-header">
+                            <div>
+                                <h3 class="checkout-header__title">{{ $pricing_plan->plan_name }} Plan</h3>
+                                <p class="checkout-header__sub">Valid till {{ date('d M Y', strtotime($plan_expired_date)) }}</p>
+                            </div>
+                            <div class="checkout-price-pill">
+                                {{ num_format($pricing_plan->plan_price) }}
+                                <span style="font-size: 13px; font-weight: 500; opacity: 0.9;">/ {{ ucfirst($pricing_plan->expired_time ?? 'Monthly') }}</span>
+                            </div>
+                        </div>
+                        <div class="checkout-body">
+                            <h4 style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 20px;">Included Features & Limits</h4>
+                            <div class="feature-grid">
+                                <div class="feature-item">
+                                    <span class="feature-item__icon {{ $pricing_plan->max_agent_add > 0 ? 'feature-item__icon--check' : 'feature-item__icon--cross' }}">
+                                        <i class="fas {{ $pricing_plan->max_agent_add > 0 ? 'fa-check' : 'fa-times' }}"></i>
+                                    </span>
+                                    <span class="feature-item__label">{{__('user.Agency Profile')}}</span>
+                                    <span class="feature-item__value">{{ $pricing_plan->max_agent_add > 0 ? 'Available' : 'Unavailable' }}</span>
+                                </div>
+
+                                <div class="feature-item">
+                                    <span class="feature-item__icon feature-item__icon--check"><i class="fas fa-check"></i></span>
+                                    <span class="feature-item__label">{{__('user.Agent Limit')}}</span>
+                                    <span class="feature-item__value">{{ $pricing_plan->max_agent_add }}</span>
+                                </div>
+
+                                <div class="feature-item">
+                                    <span class="feature-item__icon feature-item__icon--check"><i class="fas fa-check"></i></span>
+                                    <span class="feature-item__label">{{__('user.Property Submissions')}}</span>
+                                    <span class="feature-item__value">{{ $pricing_plan->number_of_property == -1 ? 'Unlimited' : $pricing_plan->number_of_property }}</span>
+                                </div>
+
+                                <div class="feature-item">
+                                    <span class="feature-item__icon {{ $pricing_plan->featured_property == 'enable' ? 'feature-item__icon--check' : 'feature-item__icon--cross' }}">
+                                        <i class="fas {{ $pricing_plan->featured_property == 'enable' ? 'fa-check' : 'fa-times' }}"></i>
+                                    </span>
+                                    <span class="feature-item__label">{{__('user.Featured Property')}}</span>
+                                    <span class="feature-item__value">{{ $pricing_plan->featured_property == 'enable' ? ($pricing_plan->featured_property_qty == -1 ? 'Unlimited' : $pricing_plan->featured_property_qty) : 'Unavailable' }}</span>
+                                </div>
+
+                                <div class="feature-item">
+                                    <span class="feature-item__icon {{ $pricing_plan->top_property == 'enable' ? 'feature-item__icon--check' : 'feature-item__icon--cross' }}">
+                                        <i class="fas {{ $pricing_plan->top_property == 'enable' ? 'fa-check' : 'fa-times' }}"></i>
+                                    </span>
+                                    <span class="feature-item__label">{{__('user.Top Property')}}</span>
+                                    <span class="feature-item__value">{{ $pricing_plan->top_property == 'enable' ? ($pricing_plan->top_property_qty == -1 ? 'Unlimited' : $pricing_plan->top_property_qty) : 'Unavailable' }}</span>
+                                </div>
+
+                                <div class="feature-item">
+                                    <span class="feature-item__icon {{ $pricing_plan->urgent_property == 'enable' ? 'feature-item__icon--check' : 'feature-item__icon--cross' }}">
+                                        <i class="fas {{ $pricing_plan->urgent_property == 'enable' ? 'fa-check' : 'fa-times' }}"></i>
+                                    </span>
+                                    <span class="feature-item__label">{{__('user.Urgent Property')}}</span>
+                                    <span class="feature-item__value">{{ $pricing_plan->urgent_property == 'enable' ? ($pricing_plan->urgent_property_qty == -1 ? 'Unlimited' : $pricing_plan->urgent_property_qty) : 'Unavailable' }}</span>
+                                </div>
+
+                                <div class="feature-item">
+                                    <span class="feature-item__icon feature-item__icon--check"><i class="fas fa-check"></i></span>
+                                    <span class="feature-item__label">{{__('user.Amenities')}}</span>
+                                    <span class="feature-item__value">Unlimited</span>
+                                </div>
+
+                                <div class="feature-item">
+                                    <span class="feature-item__icon feature-item__icon--check"><i class="fas fa-check"></i></span>
+                                    <span class="feature-item__label">{{__('user.Image Gallery')}}</span>
+                                    <span class="feature-item__value">Unlimited</span>
+                                </div>
+
+                                <div class="feature-item">
+                                    <span class="feature-item__icon feature-item__icon--check"><i class="fas fa-check"></i></span>
+                                    <span class="feature-item__label">{{__('user.Nearest Location')}}</span>
+                                    <span class="feature-item__value">Unlimited</span>
+                                </div>
+
+                                <div class="feature-item">
+                                    <span class="feature-item__icon feature-item__icon--check"><i class="fas fa-check"></i></span>
+                                    <span class="feature-item__label">{{__('user.Property Plan')}}</span>
+                                    <span class="feature-item__value">Unlimited</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method Column -->
+                <div class="col-lg-5 col-12">
+                    <div class="payment-method-card">
+                        <h3 class="payment-method-title">Complete Checkout</h3>
+                        <p class="payment-method-sub">Choose your payment gateway to subscribe</p>
+
+                        @if ($razorpay->status == 1)
+                            <div style="margin-bottom: 20px;">
+                                <button type="button" class="pay-razorpay-btn" onclick="payWithRazorpayStandard()">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor"/>
+                                        <path d="M11 7H13V13H11V7ZM11 15H13V17H11V15Z" fill="currentColor"/>
+                                    </svg>
+                                    <span>Pay {{ num_format($pricing_plan->plan_price) }} with Razorpay</span>
+                                </button>
+                            </div>
+                        @endif
+
+                        @if ($paypal->status == 1)
+                            <div style="margin-bottom: 16px;">
+                                <a href="{{ route('pay-with-paypal', $pricing_plan->plan_slug) }}" class="btn btn-outline-primary w-100 p-3 fw-bold" style="border-radius: 14px;">
+                                    Pay via PayPal
+                                </a>
+                            </div>
+                        @endif
+
+                        @if ($bankPayment->status == 1)
+                            <div style="margin-bottom: 16px;">
+                                <button type="button" class="btn btn-outline-secondary w-100 p-3 fw-bold payment-bank-button" style="border-radius: 14px;">
+                                    Bank Transfer / Wire
+                                </button>
+                            </div>
+                        @endif
+
+                        <div class="trust-badge-container">
+                            <div class="trust-badge-item">
+                                <i class="fas fa-lock text-success"></i> 256-Bit SSL Encrypted & Secure Checkout
+                            </div>
+                            <div class="trust-badge-item">
+                                <i class="fas fa-bolt text-warning"></i> Instant Activation Upon Successful Payment
+                            </div>
+                            <div class="trust-badge-item">
+                                <i class="fas fa-shield-alt text-primary"></i> Powered by Razorpay Verified Gateway
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <!-- Download App -->
     <section class="download-app homec-bg-cover homec-bg-primary-color pd-top-15 pd-btm-15" style="background-image:url({{ asset($mobile_app->app_bg) }})">
