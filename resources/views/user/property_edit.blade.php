@@ -10,6 +10,100 @@
 @endsection
 
 @section('frontend-content')
+<style>
+    body {
+        background-color: #f8fafc !important;
+    }
+    .pd-top-80.pd-btm-80, section.pd-top-80 {
+        background-color: #f8fafc !important;
+        padding-top: 40px !important;
+        padding-bottom: 70px !important;
+    }
+    .homec-submit-form {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05) !important;
+        overflow: hidden !important;
+        margin-bottom: 30px !important;
+        transition: all 0.3s ease-in-out !important;
+    }
+    .homec-submit-form:hover {
+        box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08) !important;
+    }
+    .homec-submit-form__title {
+        background: linear-gradient(135deg, #48aadf 0%, #008cc7 100%) !important;
+        color: #ffffff !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        padding: 18px 28px !important;
+        border-radius: 20px 20px 0 0 !important;
+        letter-spacing: 0.3px !important;
+        margin: 0 !important;
+    }
+    .homec-submit-form__inner {
+        padding: 28px 32px 36px !important;
+        background: #ffffff !important;
+    }
+    .homec-submit-form__heading {
+        font-size: 14.5px !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        margin-bottom: 8px !important;
+        display: block !important;
+    }
+    .homec-form-input input[type="text"],
+    .homec-form-input input[type="number"],
+    .homec-form-input select,
+    .homec-form-select {
+        width: 100% !important;
+        height: 50px !important;
+        background-color: #f8fafc !important;
+        border: 1.5px solid #cbd5e1 !important;
+        border-radius: 12px !important;
+        padding: 10px 18px !important;
+        font-size: 14.5px !important;
+        font-weight: 500 !important;
+        color: #0f172a !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    .homec-form-input input:focus,
+    .homec-form-input select:focus,
+    .homec-form-input textarea:focus,
+    .homec-form-select:focus {
+        background-color: #ffffff !important;
+        border-color: #48aadf !important;
+        box-shadow: 0 0 0 4px rgba(72, 170, 223, 0.18) !important;
+        outline: none !important;
+    }
+    .homec-image-video-upload {
+        background-color: #f1f5f9 !important;
+        border: 2px dashed #94a3b8 !important;
+        border-radius: 16px !important;
+        padding: 36px 20px !important;
+        transition: all 0.3s ease !important;
+    }
+    .homec-image-video-upload:hover {
+        border-color: #48aadf !important;
+        background-color: #e6f6ff !important;
+    }
+    .homec-btn, .homec-btn--primary {
+        background: linear-gradient(135deg, #48aadf 0%, #008cc7 100%) !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 15px !important;
+        border-radius: 30px !important;
+        padding: 14px 42px !important;
+        border: none !important;
+        box-shadow: 0 6px 20px rgba(0, 140, 199, 0.35) !important;
+        transition: all 0.3s ease !important;
+    }
+    .homec-btn:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 25px rgba(0, 140, 199, 0.45) !important;
+        color: #ffffff !important;
+    }
+</style>
     <!-- Breadcrumbs -->
     <section class="breadcrumbs__content" style="background-image: url({{ asset($breadcrumb) }});">
         <!-- <div class="homec-overlay"></div> -->
