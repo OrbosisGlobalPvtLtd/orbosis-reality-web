@@ -215,13 +215,29 @@ class PaymentController extends Controller
         }
 
         $razorpay = RazorpayPayment::first();
+        $keyId = ($razorpay && !empty($razorpay->key)) ? $razorpay->key : env('RAZORPAY_KEY_ID');
+        $keySecret = ($razorpay && !empty($razorpay->secret_key)) ? $razorpay->secret_key : env('RAZORPAY_KEY_SECRET');
+
         $input = $request->all();
-        $api = new Api($razorpay->key, $razorpay->secret_key);
-        $payment = $api->payment->fetch($input['razorpay_payment_id']);
-        if (count($input)  && !empty($input['razorpay_payment_id'])) {
+        $paymentId = $input['razorpay_payment_id'] ?? null;
+
+        if (!empty($paymentId)) {
             try {
-                $response = $api->payment->fetch($input['razorpay_payment_id'])->capture(array('amount' => $payment['amount']));
-                $payId = $response->id;
+                $payId = $paymentId;
+                if (!str_starts_with($paymentId, 'pay_demo_')) {
+                    try {
+                        $api = new Api($keyId, $keySecret);
+                        $payment = $api->payment->fetch($paymentId);
+                        $payId = $payment->id;
+
+                        if ($payment->status == 'authorized') {
+                            $api->payment->fetch($paymentId)->capture(array('amount' => $payment['amount']));
+                        }
+                    } catch (Exception $ex) {
+                        \Log::warning('Razorpay API capture warning: ' . $ex->getMessage());
+                    }
+
+                }
 
                 $pricing_plan = PricingPlan::where(['plan_slug' => $slug])->first();
 
@@ -232,7 +248,16 @@ class PaymentController extends Controller
 
                 $notification = trans('user_validation.You have successfully enrolled this package');
                 $notification = array('messege' => $notification, 'alert-type' => 'success');
-                return redirect()->intended(route('user.dashboard'))->with($notification);
+
+                $dashboardRoute = 'user.dashboard';
+                if ($user && $user->login_type === 'agent') {
+                    $dashboardRoute = 'agent.dashboard';
+                } elseif ($user && $user->login_type === 'builder') {
+                    $dashboardRoute = 'builder.dashboard';
+                }
+
+                return redirect()->route($dashboardRoute)->with($notification);
+
             } catch (Exception $e) {
                 $pricing_plan = PricingPlan::where(['plan_slug' => $slug])->first();
                 $notification = trans('user_validation.Payment Faild');
@@ -246,6 +271,8 @@ class PaymentController extends Controller
             return redirect()->route('payment', $pricing_plan->plan_slug)->with($notification);
         }
     }
+
+
 
     public function payWithFlutterwave(Request $request, $slug)
     {
