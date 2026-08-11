@@ -38,55 +38,72 @@ class UserProfileController extends Controller
         $this->middleware('auth:api');
     }
     public function dashboard(){
-
         $user_data = Auth::guard('api')->user();
 
-        if ($user_data->login_type === 'user') {
-            $recent_bookings = \App\Models\Booking::with('property')->where('user_id', $user_data->id)->orderBy('id', 'desc')->take(5)->get();
-            $wishlist_count = Wishlist::where('user_id', $user_data->id)->count();
-            $review_count = Review::where('user_id', $user_data->id)->count();
-            $recently_viewed = [];
-            $recommendations = Property::where('status', 'enable')->where('approve_by_admin', 'approved')->where('is_featured', 'enable')->take(5)->get();
-
-            $user = User::select('id','name','email','image','phone','address','status')->where('id', $user_data->id)->first();
-
-            return response()->json([
-                'recent_bookings' => $recent_bookings,
-                'wishlist_count' => $wishlist_count,
-                'review_count' => $review_count,
-                'recently_viewed' => $recently_viewed,
-                'recommendations' => $recommendations,
-                'user' => $user,
-            ]);
-        }
-
         $publish_property = Property::where('agent_id', $user_data->id)
-                                    ->where('status', 'enable')
-                                    ->where('approve_by_admin', 'approved')
-                                    ->where(function ($query) {
-                                        $query->where('expired_date', null)
-                                            ->orWhere('expired_date', '>=', date('Y-m-d'));
-                                    })
-                                    ->count();
+            ->where('status', 'enable')
+            ->where('approve_by_admin', 'approved')
+            ->where(function ($query) {
+                $query->where('expired_date', null)
+                    ->orWhere('expired_date', '>=', date('Y-m-d'));
+            })->count();
 
         $awaiting_property = Property::where('agent_id', $user_data->id)
-                                    ->where('approve_by_admin', 'pending')
-                                    ->count();
+            ->where('approve_by_admin', 'pending')
+            ->count();
 
         $reject_property = Property::where('agent_id', $user_data->id)
-                                    ->where('approve_by_admin', 'reject')
-                                    ->count();
+            ->where('approve_by_admin', 'reject')
+            ->count();
 
-        $total_purchase = Order::where('agent_id', $user_data->id)->count();
+        $total_purchase = Order::where(function($q) use ($user_data) {
+            $q->where('user_id', $user_data->id)->orWhere('agent_id', $user_data->id);
+        })->count();
+
         $total_wishlist = Wishlist::where('user_id', $user_data->id)->count();
         $total_review = Review::where('user_id', $user_data->id)->count();
+        $total_bookings = \App\Models\Booking::where('user_id', $user_data->id)->orWhere('agent_id', $user_data->id)->count();
 
-        $setting = Setting::first();
+        $recent_bookings = \App\Models\Booking::with('property')->where(function($q) use ($user_data) {
+            $q->where('user_id', $user_data->id)->orWhere('agent_id', $user_data->id);
+        })->orderBy('id', 'desc')->take(5)->get();
 
-        $user = User::select('id','name','email','image','phone','address','status')->where('id', $user_data->id)->first();
+        // Entitlement and Active Order Details
+        $free_listings_used = (int) ($user_data->free_listings_used ?? 0);
+        $free_listings_remaining = max(0, 5 - $free_listings_used);
 
-        $properties = Property::where('agent_id', $user->id)->orderBy('id','desc')->paginate(10);
+        $active_order = Order::where(function($q) use ($user_data) {
+            $q->where('user_id', $user_data->id)->orWhere('agent_id', $user_data->id);
+        })->where('order_status', 'active')->where('payment_status', 'success')->orderBy('id', 'desc')->first();
 
+        $is_plan_expired = false;
+        $paid_listings_used = 0;
+        $paid_listings_limit = 0;
+        $paid_listings_remaining = 0;
+
+        if ($active_order) {
+            if ($active_order->expiration_date != 'lifetime' && !empty($active_order->expiration_date)) {
+                if (date('Y-m-d') > $active_order->expiration_date) {
+                    $is_plan_expired = true;
+                }
+            }
+
+            if (!$is_plan_expired) {
+                $paid_listings_limit = (int) $active_order->number_of_property;
+                $paid_listings_used = Property::where('agent_id', $user_data->id)
+                    ->where('created_at', '>=', $active_order->created_at)
+                    ->count();
+
+                if ($paid_listings_limit == -1) {
+                    $paid_listings_remaining = 999999;
+                } else {
+                    $paid_listings_remaining = max(0, $paid_listings_limit - $paid_listings_used);
+                }
+            }
+        }
+
+        $user = User::where('id', $user_data->id)->first();
+        $properties = Property::where('agent_id', $user_data->id)->orderBy('id','desc')->paginate(10);
 
         return response()->json([
             'publish_property' => $publish_property,
@@ -94,8 +111,20 @@ class UserProfileController extends Controller
             'reject_property' => $reject_property,
             'total_purchase' => $total_purchase,
             'total_wishlist' => $total_wishlist,
+            'wishlist_count' => $total_wishlist,
             'total_review' => $total_review,
+            'review_count' => $total_review,
+            'total_bookings' => $total_bookings,
+            'recent_bookings' => $recent_bookings,
+            'free_listings_used' => $free_listings_used,
+            'free_listings_remaining' => $free_listings_remaining,
+            'active_order' => $active_order,
+            'is_plan_expired' => $is_plan_expired,
+            'paid_listings_used' => $paid_listings_used,
+            'paid_listings_limit' => $paid_listings_limit,
+            'paid_listings_remaining' => $paid_listings_remaining,
             'user' => $user,
+            'agent' => $user,
             'properties' => $properties
         ]);
     }
