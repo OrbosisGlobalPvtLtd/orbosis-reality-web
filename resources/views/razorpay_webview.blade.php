@@ -67,12 +67,13 @@
     </form>
 
     @php
-        $currency_rate = $razorpay->currency_rate ?? 1;
+        $currency_code = !empty($razorpay->currency_code) ? $razorpay->currency_code : 'INR';
+        $currency_rate = ($currency_code == 'INR') ? 1 : ($razorpay->currency_rate ?? 1);
         $payable_amount = round($pricing_plan->plan_price * $currency_rate, 2);
         $amount_in_paise = (int) round($payable_amount * 100);
         $key_id = !empty($razorpay->key) ? $razorpay->key : env('RAZORPAY_KEY_ID');
-        $currency_code = !empty($razorpay->currency_code) ? $razorpay->currency_code : 'INR';
     @endphp
+
 
     <script>
         document.addEventListener("DOMContentLoaded", async function () {

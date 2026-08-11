@@ -234,10 +234,9 @@ class PaymentController extends Controller
                             $api->payment->fetch($paymentId)->capture(array('amount' => $payment['amount']));
                         }
                     } catch (Exception $ex) {
-                        if (env('APP_ENV') != 'local' && env('APP_MODE') != 'DEMO') {
-                            throw $ex;
-                        }
+                        \Log::warning('Razorpay API capture warning: ' . $ex->getMessage());
                     }
+
                 }
 
                 $pricing_plan = PricingPlan::where(['plan_slug' => $slug])->first();
