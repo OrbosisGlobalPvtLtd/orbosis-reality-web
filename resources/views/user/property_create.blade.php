@@ -79,6 +79,39 @@
     .homec-submit-form:hover {
         box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08) !important;
     }
+    .amenity-tag-badge {
+        background: linear-gradient(135deg, #e6f6ff 0%, #d0efff 100%) !important;
+        color: #008cc7 !important;
+        border: 1.5px solid #90d8ff !important;
+        border-radius: 20px !important;
+        padding: 7px 16px !important;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin: 3px !important;
+        box-shadow: 0 2px 6px rgba(0, 140, 199, 0.12) !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .amenity-tag-badge:hover {
+        background: #bde4ff !important;
+        transform: translateY(-1px) !important;
+    }
+    .amenity-tag-remove {
+        cursor: pointer !important;
+        color: #ef4444 !important;
+        font-weight: 700 !important;
+        font-size: 16px !important;
+        line-height: 1 !important;
+        margin-left: 4px !important;
+        display: inline-block !important;
+        transition: transform 0.2s ease !important;
+    }
+    .amenity-tag-remove:hover {
+        color: #dc2626 !important;
+        transform: scale(1.3) !important;
+    }
     .homec-submit-form__title {
         background: linear-gradient(135deg, #48aadf 0%, #008cc7 100%) !important;
         color: #ffffff !important;
@@ -581,14 +614,25 @@
                         <div class="homec-submit-form mg-top-40">
                             <h4 class="homec-submit-form__title">{{__('user.Aminities')}}</h4>
                             <div class="homec-submit-form__inner">
-                                <div class="form-group homec-form-input--list">
-                                    @foreach ($aminities as $aminity)
-                                        <div class="form-group homec-form-checkbox mg-top-15">
-                                            <input type="checkbox" id="item1-{{ $aminity->id }}" name="aminities[]" value="{{ $aminity->id }}">
-                                            <label class="homec-form-label" for="item1-{{ $aminity->id }}">{{ $aminity->aminity }}</label>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group homec-form-input">
+                                            <h4 class="homec-submit-form__heading">{{__('user.Select Amenities')}}</h4>
+                                            <select id="amenity_dropdown_select" class="homec-form-select select2" style="width: 100%;">
+                                                <option value="">-- {{__('user.Select Amenities')}} --</option>
+                                                @foreach ($aminities as $aminity)
+                                                    <option value="{{ $aminity->id }}" data-name="{{ $aminity->aminity }}">{{ $aminity->aminity }}</option>
+                                                @endforeach
+                                            </select>
                                         </div>
-                                    @endforeach
-
+                                    </div>
+                                    <div class="col-12 mg-top-20">
+                                        <h4 class="homec-submit-form__heading" style="font-size: 13.5px; color: #64748b;">{{__('user.Selected Amenities')}}:</h4>
+                                        <div id="selected_amenities_tags" class="d-flex flex-wrap align-items-center gap-2 p-3" style="background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 14px; min-height: 60px;">
+                                            <!-- Badges will render here dynamically -->
+                                        </div>
+                                        <div id="hidden_amenities_inputs"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1016,6 +1060,52 @@
             $("#slider_image_hideden_btn").on("click", function() {
                 $('#slider_image_hideden_id').click();
             });
+
+            // Amenities dropdown multi-select tag picker
+            var selectedAmenities = new Map();
+
+            function renderAmenityTags() {
+                var tagsContainer = $('#selected_amenities_tags');
+                var inputsContainer = $('#hidden_amenities_inputs');
+                tagsContainer.empty();
+                inputsContainer.empty();
+
+                if (selectedAmenities.size === 0) {
+                    tagsContainer.html('<span class="text-muted" style="font-size:13.5px; font-style:italic;">No amenities selected yet. Pick amenities from dropdown list above.</span>');
+                    return;
+                }
+
+                selectedAmenities.forEach(function(name, id) {
+                    var tagHtml = `<span class="amenity-tag-badge">
+                        ${name}
+                        <span class="amenity-tag-remove" data-id="${id}">&times;</span>
+                    </span>`;
+                    tagsContainer.append(tagHtml);
+
+                    var inputHtml = `<input type="hidden" name="aminities[]" value="${id}">`;
+                    inputsContainer.append(inputHtml);
+                });
+            }
+
+            $('#amenity_dropdown_select').on('change', function() {
+                var id = $(this).val();
+                var name = $(this).find('option:selected').data('name');
+                if (id && name) {
+                    selectedAmenities.set(id.toString(), name);
+                    renderAmenityTags();
+                    $(this).val('').trigger('change.select2');
+                }
+            });
+
+            $(document).on('click', '.amenity-tag-remove', function() {
+                var id = $(this).data('id');
+                if (id !== undefined && id !== null) {
+                    selectedAmenities.delete(id.toString());
+                    renderAmenityTags();
+                }
+            });
+
+            renderAmenityTags();
 
             // slug generate and check
 
