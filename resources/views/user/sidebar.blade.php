@@ -190,14 +190,10 @@
         <span>Change Password</span>
     </a>
 
-    <a href="javascript:void(0)" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="list-group-item d-flex align-items-center text-danger">
+    <a href="{{ route('user.logout') }}" class="list-group-item d-flex align-items-center text-danger">
         <div class="homec-dashboard__list--icon text-danger" style="background: #fef2f2 !important;">
             <i class="fa-solid fa-right-from-bracket text-danger"></i>
         </div>
         <span>Logout</span>
     </a>
 </div>
-
-<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-    @csrf
-</form>
