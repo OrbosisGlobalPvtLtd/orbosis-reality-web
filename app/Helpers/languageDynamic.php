@@ -86,6 +86,13 @@ function num_format($price){
         $price = 0;
     }
 
+    if (is_string($price)) {
+        $clean_num = preg_replace('/[^\d.]/', '', $price);
+        $numeric_price = (is_numeric($clean_num) && $clean_num !== '') ? (float)$clean_num : 0;
+    } else {
+        $numeric_price = (float)$price;
+    }
+
     $currency_icon = '';
     $currency_code = '';
     $currency_position = '';
@@ -102,9 +109,11 @@ function num_format($price){
         $currency_code = $setting->currency_name ?? 'INR';
     }
 
+    $rounded_val = round($numeric_price);
+    $num_str = (string)$rounded_val;
+
     $formatted_value = '';
     if (strtoupper($currency_code) === 'INR' || $currency_icon === '₹') {
-        $num_str = (string)round($price);
         $lastThree = substr($num_str, -3);
         $remaining = substr($num_str, 0, -3);
         if ($remaining != '') {
@@ -114,7 +123,7 @@ function num_format($price){
             $formatted_value = $lastThree;
         }
     } else {
-        $formatted_value = number_format(round($price), 0, '.', ',');
+        $formatted_value = number_format($rounded_val, 0, '.', ',');
     }
 
     if($currency_position == 'before_price'){
@@ -131,6 +140,7 @@ function num_format($price){
 
     return $price;
 }
+
 
 
 
