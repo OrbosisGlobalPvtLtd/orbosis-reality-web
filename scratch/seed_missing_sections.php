@@ -37,11 +37,11 @@ $footer = Footer::first();
 if (!$footer) {
     $footer = new Footer();
 }
-$footer->email = 'info@orbosis.com';
-$footer->phone = '+91 9875643210';
-$footer->address = 'AB Road, Vijay Nagar, Indore, MP 452010';
+$footer->email = 'orbosisrealtyofficial@gmail.com';
+$footer->phone = '+91 9039524109';
+$footer->address = '3 floor mbience cafe Sector A, Mahalaxmi Nagar, Indore, Madhya Pradesh 452010';
 $footer->copyright = '© 2026 Orbosis Reality. All Rights Reserved.';
-$footer->footer_left_title = 'Orbosis Reality';
+$footer->footer_left_title = 'Orbosis Realty';
 $footer->footer_left_description = 'Indore\'s leading real estate platform for residential and commercial properties.';
 $footer->save();
 echo "Footer model updated successfully!\n";

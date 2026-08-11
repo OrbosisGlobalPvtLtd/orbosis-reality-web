@@ -45,8 +45,8 @@ $footer = Footer::first();
 if (!$footer) {
     $footer = new Footer();
 }
-$footer->email = 'info@orbosis.com';
-$footer->phone = '+91 9875643210';
-$footer->address = 'AB Road, Vijay Nagar, Indore, MP 452010';
+$footer->email = 'orbosisrealtyofficial@gmail.com';
+$footer->phone = '+91 9039524109';
+$footer->address = '3 floor mbience cafe Sector A, Mahalaxmi Nagar, Indore, Madhya Pradesh 452010';
 $footer->save();
 echo "Footer model updated!\n";

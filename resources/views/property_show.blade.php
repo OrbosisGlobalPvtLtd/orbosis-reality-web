@@ -171,7 +171,8 @@
                             <!--  Property Details -->
                             <div class="tab-pane fade show active" id="homec-pd-tab1" role="tabpanel">
                                 <div class="homec-pdetails-tab__inner">
-                                    {!! html_decode(clean($property->description)) !!}
+                                    {!! html_decode($property->description) !!}
+
                                     <!-- Homec Features -->
                                     @if ($additional_informations->count() > 0)
                                         <div class="homec-ptdetails-features mg-top-30">

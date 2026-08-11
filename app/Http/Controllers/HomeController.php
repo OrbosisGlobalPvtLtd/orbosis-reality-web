@@ -1273,6 +1273,14 @@ class HomeController extends Controller
         }
 
         $sliders = PropertySlider::where('property_id', $property->id)->get();
+        if ($sliders->count() == 0 && !empty($property->thumbnail_image)) {
+            $fallback_slider = (object)[
+                'image' => $property->thumbnail_image,
+                'property_id' => $property->id
+            ];
+            $sliders = collect([$fallback_slider]);
+        }
+
         $aminities = PropertyAminity::with('aminity')->where('property_id', $property->id)->get();
         $nearest_locations = PropertyNearestLocation::with('location')->where('property_id', $property->id)->get();
         $additional_informations = AdditionalInformation::where('property_id', $property->id)->get();
@@ -1285,28 +1293,43 @@ class HomeController extends Controller
             $admin = Admin::find(1);
             $property_agent = (object) array(
                 'agent_type'  => 'admin',
-                'id' => $admin->id,
-                'name' => $admin->agent_name,
-                'user_name' => $admin->user_name,
-                'designation' => $admin->designation,
-                'email' => $admin->agent_email,
-                'phone' => $admin->phone,
-                'image' => $admin->agent_image,
+                'id' => $admin->id ?? 1,
+                'name' => $admin->agent_name ?? 'Orbosis Realty',
+                'user_name' => $admin->user_name ?? 'admin',
+                'designation' => $admin->designation ?? 'Real Estate Advisor',
+                'email' => $admin->agent_email ?? 'orbosisrealtyofficial@gmail.com',
+                'phone' => $admin->agent_phone ?? ($admin->phone ?? '+91 9039524109'),
+                'image' => $admin->agent_image ?? ($admin->image ?? 'uploads/website-images/default-avatar-2026-07-23-03-56-43-1926.jpg'),
             );
         } else {
             $agent = User::find($property->agent_id);
 
-            $property_agent = (object) array(
-                'agent_type'  => 'agent',
-                'id' => $agent->id,
-                'name' => $agent->name,
-                'user_name' => $agent->user_name,
-                'designation' => $agent->designation,
-                'email' => $agent->email,
-                'phone' => $agent->phone,
-                'image' => $agent->image,
-            );
+            if ($agent) {
+                $property_agent = (object) array(
+                    'agent_type'  => 'agent',
+                    'id' => $agent->id,
+                    'name' => $agent->name ?? $agent->user_name,
+                    'user_name' => $agent->user_name ?? 'agent',
+                    'designation' => $agent->designation ?? 'Real Estate Agent',
+                    'email' => $agent->email,
+                    'phone' => $agent->phone ?? '+91 9039524109',
+                    'image' => $agent->image ?? 'uploads/website-images/default-avatar-2026-07-23-03-56-43-1926.jpg',
+                );
+            } else {
+                $admin = Admin::find(1);
+                $property_agent = (object) array(
+                    'agent_type'  => 'admin',
+                    'id' => 1,
+                    'name' => 'Orbosis Realty',
+                    'user_name' => 'admin',
+                    'designation' => 'Real Estate Advisor',
+                    'email' => 'orbosisrealtyofficial@gmail.com',
+                    'phone' => '+91 9039524109',
+                    'image' => 'uploads/website-images/default-avatar-2026-07-23-03-56-43-1926.jpg',
+                );
+            }
         }
+
 
         $recaptcha_setting = GoogleRecaptcha::first();
         $countries = Country::orderBy('id', 'desc')->get();
