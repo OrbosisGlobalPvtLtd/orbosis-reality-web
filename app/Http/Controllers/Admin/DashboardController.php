@@ -72,6 +72,9 @@ class DashboardController extends Controller
         $reject_property = Property::where('approve_by_admin', 'reject')->count();
 
 
+        $recent_properties = Property::orderBy('id', 'desc')->take(5)->get();
+        $recent_orders = Order::orderBy('id', 'desc')->take(5)->get();
+
         return view('admin.dashboard')->with([
             'today_total_order' => $today_total_order,
             'today_total_earning' => $today_total_earning,
@@ -96,7 +99,10 @@ class DashboardController extends Controller
             'reject_property' => $reject_property,
             'total_agent' => $total_agent,
             'total_user' => $total_user,
+            'recent_properties' => $recent_properties,
+            'recent_orders' => $recent_orders,
         ]);
+
 
     }
 
