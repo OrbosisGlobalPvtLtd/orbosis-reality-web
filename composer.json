@@ -20,13 +20,15 @@
         "nwidart/laravel-modules": "9.*",
         "paypal/rest-api-sdk-php": "*",
         "pusher/pusher-php-server": "^7.2",
-        "razorpay/razorpay": "^2.8",
+        "razorpay/razorpay": "^2.9",
         "stichoza/google-translate-php": "^5.2",
         "stripe/stripe-php": "^10.3",
         "symfony/console": "^6.4",
         "symfony/css-selector": "^6.4",
+        "symfony/deprecation-contracts": "^3.0",
         "symfony/error-handler": "^6.4",
         "symfony/event-dispatcher": "^6.4",
+        "symfony/event-dispatcher-contracts": "^3.0",
         "symfony/finder": "^6.4",
         "symfony/http-foundation": "^6.4",
         "symfony/http-kernel": "^6.4",
@@ -37,9 +39,7 @@
         "symfony/translation": "^6.4",
         "symfony/uid": "^6.4",
         "symfony/var-dumper": "^6.4",
-        "tymon/jwt-auth": "^2.0",
-        "symfony/deprecation-contracts": "^3.0",
-        "symfony/event-dispatcher-contracts": "^3.0"
+        "tymon/jwt-auth": "^2.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

@@ -100,6 +100,75 @@
 										</div>
 									</div>
 								</div>
+								<h4 class="homec-modal-form__middle">KYC & Bank Details</h4>
+								<div class="row">
+									<div class="col-lg-6 col-md-6 col-12">
+										<div class="form-group homec-form-input">
+											<label class="ecom-wc__form-label mg-btm-10">Aadhaar Number</label>
+											<div class="form-group__input">
+												<input class="ecom-wc__form-input" type="text" name="aadhaar_number" value="{{ html_decode($user->aadhaar_number) }}" placeholder="12 Digit Aadhaar">
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-6 col-md-6 col-12">
+										<div class="form-group homec-form-input">
+											<label class="ecom-wc__form-label mg-btm-10">PAN Number</label>
+											<div class="form-group__input">
+												<input class="ecom-wc__form-input" type="text" name="pan_number" value="{{ html_decode($user->pan_number) }}" placeholder="PAN Card Number">
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-6 col-md-6 col-12">
+										<div class="form-group homec-form-input">
+											<label class="ecom-wc__form-label mg-btm-10">Bank Name</label>
+											<div class="form-group__input">
+												<input class="ecom-wc__form-input" type="text" name="bank_name" value="{{ html_decode($user->bank_name) }}" placeholder="Bank Name">
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-6 col-md-6 col-12">
+										<div class="form-group homec-form-input">
+											<label class="ecom-wc__form-label mg-btm-10">Account Number</label>
+											<div class="form-group__input">
+												<input class="ecom-wc__form-input" type="text" name="account_number" value="{{ html_decode($user->account_number) }}" placeholder="Account Number">
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-6 col-md-6 col-12">
+										<div class="form-group homec-form-input">
+											<label class="ecom-wc__form-label mg-btm-10">IFSC Code</label>
+											<div class="form-group__input">
+												<input class="ecom-wc__form-input" type="text" name="ifsc_code" value="{{ html_decode($user->ifsc_code) }}" placeholder="IFSC Code">
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-6 col-md-6 col-12">
+										<div class="form-group homec-form-input">
+											<label class="ecom-wc__form-label mg-btm-10">UPI ID</label>
+											<div class="form-group__input">
+												<input class="ecom-wc__form-input" type="text" name="upi_id" value="{{ html_decode($user->upi_id) }}" placeholder="username@upi">
+											</div>
+										</div>
+									</div>
+									@if($user->login_type === 'agent')
+									<div class="col-lg-6 col-md-6 col-12">
+										<div class="form-group homec-form-input">
+											<label class="ecom-wc__form-label mg-btm-10">RERA Number (Optional)</label>
+											<div class="form-group__input">
+												<input class="ecom-wc__form-input" type="text" name="rera_number" value="{{ html_decode($user->rera_number) }}" placeholder="RERA Reg Number">
+											</div>
+										</div>
+									</div>
+									<div class="col-12">
+										<div class="form-group homec-form-input">
+											<label class="ecom-wc__form-label mg-btm-10">Office Address</label>
+											<div class="form-group__input">
+												<input class="ecom-wc__form-input" type="text" name="office_address" value="{{ html_decode($user->office_address) }}" placeholder="Full Office Address">
+											</div>
+										</div>
+									</div>
+									@endif
+								</div>
 								<h4 class="homec-modal-form__middle">{{__('user.Social Link')}}</h4>
 								<div class="row">
 									<div class="col-lg-6 col-md-6 col-12">

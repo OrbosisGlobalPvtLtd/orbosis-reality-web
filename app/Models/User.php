@@ -34,7 +34,15 @@ class User extends Authenticatable implements JWTSubject
         'forget_password_token',
         'city_id',
         'state_id',
-        'country_id'
+        'country_id',
+        'aadhaar_number',
+        'pan_number',
+        'bank_name',
+        'account_number',
+        'ifsc_code',
+        'upi_id',
+        'office_address',
+        'rera_number'
     ];
 
     /**
@@ -56,7 +64,7 @@ class User extends Authenticatable implements JWTSubject
         'email_verified_at' => 'datetime',
     ];
 
-    protected $appends = ['image_url', 'dashboard_type', 'can_add_property', 'can_book_property', 'agent_request_status', 'agent_request_label'];
+    protected $appends = ['image_url', 'dashboard_type', 'can_add_property', 'can_book_property', 'agent_request_status', 'agent_request_label', 'profile_completion_percentage'];
 
     public function getImageUrlAttribute()
     {
@@ -186,13 +194,66 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Get dashboard route based on user type
      */
-    public function getDashboardRoute(): string
+    /**
+     * Calculate profile completion percentage based on role
+     */
+    public function getProfileCompletionPercentageAttribute(): int
     {
-        return match($this->login_type) {
-            'builder' => 'builder.dashboard',
-            'agent' => 'agent.dashboard',
-            'admin' => 'admin.dashboard',
-            default => 'user.dashboard'
-        };
+        $fields = ['name', 'email', 'phone', 'image', 'address'];
+
+        if ($this->login_type === 'agent') {
+            $fields = array_merge($fields, ['aadhaar_number', 'pan_number', 'bank_name', 'account_number', 'ifsc_code', 'office_address']);
+        } else {
+            $fields = array_merge($fields, ['aadhaar_number', 'pan_number', 'bank_name', 'account_number', 'ifsc_code']);
+        }
+
+        $filled = 0;
+        foreach ($fields as $field) {
+            if (!empty($this->$field)) {
+                $filled++;
+            }
+        }
+
+        return (int) round(($filled / count($fields)) * 100);
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            try {
+                $hasActiveOrder = \App\Models\Order::where('agent_id', $user->id)->where('order_status', 'active')->exists();
+                if (!$hasActiveOrder) {
+                    $freePlan = \App\Models\PricingPlan::where('plan_price', 0)->where('status', 'enable')->first() 
+                               ?? \App\Models\PricingPlan::where('plan_type', 'free')->where('status', 'enable')->first();
+                    if ($freePlan) {
+                        $order = new \App\Models\Order();
+                        $order->order_id = substr(rand(0, time()), 0, 10);
+                        $order->agent_id = $user->id;
+                        $order->pricing_plan_id = $freePlan->id;
+                        $order->plan_type = $freePlan->plan_type;
+                        $order->plan_price = $freePlan->plan_price;
+                        $order->plan_name = $freePlan->plan_name;
+                        $order->expired_time = $freePlan->expired_time ?? 'lifetime';
+                        $order->number_of_property = $freePlan->number_of_property;
+                        $order->featured_property = $freePlan->featured_property ?? 'disable';
+                        $order->featured_property_qty = $freePlan->featured_property_qty ?? 0;
+                        $order->top_property = $freePlan->top_property ?? 'disable';
+                        $order->top_property_qty = $freePlan->top_property_qty ?? 0;
+                        $order->urgent_property = $freePlan->urgent_property ?? 'disable';
+                        $order->urgent_property_qty = $freePlan->urgent_property_qty ?? 0;
+                        $order->max_agent_add = $freePlan->max_agent_add ?? 0;
+                        $order->order_status = 'active';
+                        $order->payment_status = 'success';
+                        $order->transaction_id = 'free_welcome_enroll';
+                        $order->payment_method = 'Free';
+                        $order->expiration_date = 'lifetime';
+                        $order->save();
+                    }
+                }
+            } catch (\Exception $e) {
+                \Log::error('Default free plan error: ' . $e->getMessage());
+            }
+        });
     }
 }
+

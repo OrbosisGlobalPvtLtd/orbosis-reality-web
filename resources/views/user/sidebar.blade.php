@@ -47,6 +47,16 @@
     }
 </style>
 
+<div class="p-3 mb-3 bg-light rounded homec-border" style="border-radius: 8px;">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <span style="font-size: 13px; font-weight: 600; color: #4b5563;">Profile Completion</span>
+        <span style="font-size: 13px; font-weight: 700; color: #7065f0;">{{ $user->profile_completion_percentage }}%</span>
+    </div>
+    <div class="progress" style="height: 6px; background-color: #e5e7eb; border-radius: 3px;">
+        <div class="progress-bar" role="progressbar" style="width: {{ $user->profile_completion_percentage }}%; background-color: #7065f0; border-radius: 3px;" aria-valuenow="{{ $user->profile_completion_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+</div>
+
 <div class="list-group homec-list-tabs homec-list-tabs--v3 homec-border">
     <a href="{{ route('user.dashboard') }}" class="list-group-item {{ Route::is('user.dashboard') ? 'active' : '' }}" >
         <div class="homec-dashboard__list--icon">
@@ -72,70 +82,75 @@
         @endif
     @endif
 
-    @if(Auth::user()->login_type === 'agent')
-        <a href="{{ route('user.property.index') }}" class="list-group-item {{ Route::is('user.property.*') && !Route::is('user.choose-property-type') ? 'active' : '' }}" >
-            <div class="homec-dashboard__list--icon">
-                <svg width="32" height="31" viewBox="0 0 32 31" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M31.0628 13.3414L16.8879 0.425245C16.2657 -0.141769 15.3275 -0.141707 14.7055 0.425184L0.530549 13.3414C0.0321514 13.7956 -0.13248 14.4953 0.111011 15.1241C0.354564 15.7528 0.947557 16.159 1.62182 16.159H3.8858V29.1C3.8858 29.6131 4.30182 30.0291 4.81491 30.0291H12.5845C13.0976 30.0291 13.5136 29.6131 13.5136 29.1V21.2426H18.08V29.1001C18.08 29.6131 18.496 30.0292 19.0091 30.0292H26.7783C27.2914 30.0292 27.7074 29.6132 27.7074 29.1001V16.159H29.9719C30.6461 16.159 31.2391 15.7527 31.4827 15.1241C31.7259 14.4953 31.5612 13.7956 31.0628 13.3414Z"/>
-                    <path d="M27.4623 1.85425H21.2227L28.3914 8.3726V2.78329C28.3914 2.27021 27.9754 1.85425 27.4623 1.85425Z"/>
-                </svg>
-            </div>
-            {{__('user.My Properties')}}
-        </a>
+    <a href="{{ route('pricing-plan') }}" class="list-group-item {{ Route::is('pricing-plan') ? 'active' : '' }}" >
+        <div class="homec-dashboard__list--icon">
+            <i class="fa-solid fa-gem" style="color: #f59e0b;"></i>
+        </div>
+        Pricing & Plans
+    </a>
 
-        <a href="{{ route('user.choose-property-type') }}" class="list-group-item {{ Route::is('user.choose-property-type') ? 'active' : '' }}" >
-            <div class="homec-dashboard__list--icon">
-                <i class="fa-solid fa-plus"></i>
-            </div>
-            {{__('user.Add Property')}}
-        </a>
+    <a href="{{ route('user.property.index') }}" class="list-group-item {{ Route::is('user.property.*') && !Route::is('user.choose-property-type') ? 'active' : '' }}" >
+        <div class="homec-dashboard__list--icon">
+            <svg width="32" height="31" viewBox="0 0 32 31" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M31.0628 13.3414L16.8879 0.425245C16.2657 -0.141769 15.3275 -0.141707 14.7055 0.425184L0.530549 13.3414C0.0321514 13.7956 -0.13248 14.4953 0.111011 15.1241C0.354564 15.7528 0.947557 16.159 1.62182 16.159H3.8858V29.1C3.8858 29.6131 4.30182 30.0291 4.81491 30.0291H12.5845C13.0976 30.0291 13.5136 29.6131 13.5136 29.1V21.2426H18.08V29.1001C18.08 29.6131 18.496 30.0292 19.0091 30.0292H26.7783C27.2914 30.0292 27.7074 29.6132 27.7074 29.1001V16.159H29.9719C30.6461 16.159 31.2391 15.7527 31.4827 15.1241C31.7259 14.4953 31.5612 13.7956 31.0628 13.3414Z"/>
+                <path d="M27.4623 1.85425H21.2227L28.3914 8.3726V2.78329C28.3914 2.27021 27.9754 1.85425 27.4623 1.85425Z"/>
+            </svg>
+        </div>
+        {{__('user.My Properties')}}
+    </a>
 
-        @if($user->owner_id == 0)
-        <a href="{{ $user->profile ? route('user.edit-agency-information', ['id' => $user->profile->id]) : route('user.my-company') }}" class="list-group-item {{ Route::is('user.my-company') || Route::is('user.edit-agency-information') ? 'active' : '' }}">
-            <div class="homec-dashboard__list--icon">
-                <svg width="21" height="12" viewBox="0 0 21 12" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M3.75968 0C2.56575 0 1.59375 0.971584 1.59375 2.16593C1.59375 3.35164 2.553 4.31624 3.73584 4.32939H3.78351C4.96635 4.31624 5.9256 3.35205 5.9256 2.16593C5.9256 0.971995 4.95402 0 3.75968 0Z" />
-                    <path
-                        d="M6.76613 7.67048C6.75421 7.75761 6.74805 7.84597 6.74805 7.93516V11.9711H14.2511V7.93516C14.2511 7.22168 13.8599 6.56984 13.2298 6.23447C12.952 6.08323 12.6388 6.00391 12.3199 6.00391H10.5452C10.532 6.00391 10.5189 6.00596 10.5057 6.00596C10.4926 6.00596 10.4794 6.00432 10.4663 6.00391H8.67354C8.35461 6.00391 8.04144 6.08282 7.76731 6.23242C7.21576 6.52587 6.84915 7.0618 6.76613 7.67048Z" />
-                    <path
-                        d="M0.000821924 7.08205V11.118H5.9265V7.93568C5.9265 7.81691 5.93554 7.70018 5.95034 7.58428C5.95527 7.54688 5.96308 7.51072 5.96966 7.47373C5.98281 7.39564 5.9976 7.31837 6.01733 7.24234C6.02802 7.20042 6.04076 7.15973 6.0535 7.11863C6.07528 7.04876 6.09912 6.98013 6.12583 6.91231C6.14186 6.87204 6.1583 6.83176 6.17639 6.7923C6.20721 6.72408 6.24173 6.65832 6.2779 6.59338C6.29722 6.55845 6.3153 6.52351 6.33626 6.4894C6.38353 6.41255 6.43572 6.33898 6.49038 6.26706C6.50477 6.24856 6.51669 6.22842 6.53148 6.20993C6.60258 6.12115 6.67985 6.03731 6.76205 5.95758C6.78383 5.93662 6.80808 5.91812 6.83027 5.89798C6.88 5.85319 6.9285 5.80675 6.98152 5.76565C6.62478 5.37972 6.11268 5.15039 5.57182 5.15039H3.80661C3.79058 5.15039 3.77496 5.15286 3.75893 5.15286C3.7429 5.15286 3.72729 5.1508 3.71126 5.15039H1.93084C0.86596 5.15039 0 6.01676 0 7.08164L0.000821924 7.08205Z" />
-                    <path
-                        d="M10.486 5.18331H10.5259C11.7108 5.17222 12.6717 4.2068 12.6717 3.01944C12.6717 1.82551 11.7001 0.853516 10.5058 0.853516C9.31143 0.853516 8.33984 1.8251 8.33984 3.01944C8.33984 4.2068 9.30156 5.17222 10.486 5.18331Z" />
-                    <path
-                        d="M17.2538 0C16.0599 0 15.0879 0.971584 15.0879 2.16593C15.0879 3.35164 16.0471 4.31624 17.23 4.32939H17.2777C18.4605 4.31624 19.4197 3.35205 19.4197 2.16593C19.4197 0.971995 18.4482 0 17.2538 0Z" />
-                    <path
-                        d="M20.9982 11.1176V7.08164C20.9982 6.01676 20.1322 5.15039 19.0673 5.15039H17.2997C17.2836 5.15039 17.268 5.15286 17.252 5.15286C17.2359 5.15286 17.2203 5.1508 17.2043 5.15039H15.4206C14.8752 5.15039 14.3709 5.3752 14.0117 5.76565C14.0619 5.80428 14.1071 5.84784 14.1539 5.88976C14.181 5.91401 14.2102 5.93662 14.2365 5.96169C14.3171 6.03978 14.3927 6.12198 14.4626 6.20828C14.4839 6.23459 14.5016 6.26336 14.5222 6.29048C14.5703 6.3546 14.6167 6.41912 14.659 6.48735C14.6825 6.52516 14.7026 6.5642 14.7244 6.60284C14.7585 6.66448 14.791 6.72655 14.8206 6.79025C14.8399 6.83217 14.8571 6.8745 14.8744 6.91724C14.9007 6.98259 14.9237 7.04917 14.9447 7.11699C14.9578 7.15932 14.9714 7.20165 14.9825 7.24481C15.0018 7.31961 15.0166 7.39605 15.0297 7.47291C15.0363 7.51031 15.0445 7.5473 15.0495 7.58511C15.0643 7.7006 15.0733 7.81732 15.0733 7.93568V11.118H20.999L20.9982 11.1176Z" />
-                </svg>
-            </div>
-            {{__('user.Company Profile')}}
-        </a>
-        @endif
+    <a href="{{ route('user.choose-property-type') }}" class="list-group-item {{ Route::is('user.choose-property-type') ? 'active' : '' }}" >
+        <div class="homec-dashboard__list--icon">
+            <i class="fa-solid fa-plus"></i>
+        </div>
+        {{__('user.Add Property')}}
+    </a>
 
-        @if($user->is_agency == 1)
-        <a href="{{route('user.my-team')}}" class="list-group-item {{ Route::is('user.my-team') ? 'active' : '' }}">
-            <div class="homec-dashboard__list--icon">
-                <i class="fa-solid fa-users"></i>
-            </div>
-            {{__('user.My Team')}}
-        </a>
-        @endif
-
-        <a href="{{ route('user.property-booking') }}" class="list-group-item {{ Route::is('user.property-booking') ? 'active' : '' }}" >
-            <div class="homec-dashboard__list--icon">
-                <i class="fa-solid fa-calendar-check"></i>
-            </div>
-            {{__('user.Booking Request')}}
-        </a>
-
-        <a href="{{ route('user.orders') }}" class="list-group-item {{ Route::is('user.orders') ? 'active' : '' }}" >
-            <div class="homec-dashboard__list--icon">
-                <i class="fa-solid fa-history"></i>
-            </div>
-            {{__('user.Purchase History')}}
-        </a>
+    @if(Auth::user()->login_type === 'agent' && $user->owner_id == 0)
+    <a href="{{ $user->profile ? route('user.edit-agency-information', ['id' => $user->profile->id]) : route('user.my-company') }}" class="list-group-item {{ Route::is('user.my-company') || Route::is('user.edit-agency-information') ? 'active' : '' }}">
+        <div class="homec-dashboard__list--icon">
+            <svg width="21" height="12" viewBox="0 0 21 12" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M3.75968 0C2.56575 0 1.59375 0.971584 1.59375 2.16593C1.59375 3.35164 2.553 4.31624 3.73584 4.32939H3.78351C4.96635 4.31624 5.9256 3.35205 5.9256 2.16593C5.9256 0.971995 4.95402 0 3.75968 0Z" />
+                <path
+                    d="M6.76613 7.67048C6.75421 7.75761 6.74805 7.84597 6.74805 7.93516V11.9711H14.2511V7.93516C14.2511 7.22168 13.8599 6.56984 13.2298 6.23447C12.952 6.08323 12.6388 6.00391 12.3199 6.00391H10.5452C10.532 6.00391 10.5189 6.00596 10.5057 6.00596C10.4926 6.00596 10.4794 6.00432 10.4663 6.00391H8.67354C8.35461 6.00391 8.04144 6.08282 7.76731 6.23242C7.21576 6.52587 6.84915 7.0618 6.76613 7.67048Z" />
+                <path
+                    d="M0.000821924 7.08205V11.118H5.9265V7.93568C5.9265 7.81691 5.93554 7.70018 5.95034 7.58428C5.95527 7.54688 5.96308 7.51072 5.96966 7.47373C5.98281 7.39564 5.9976 7.31837 6.01733 7.24234C6.02802 7.20042 6.04076 7.15973 6.0535 7.11863C6.07528 7.04876 6.09912 6.98013 6.12583 6.91231C6.14186 6.87204 6.1583 6.83176 6.17639 6.7923C6.20721 6.72408 6.24173 6.65832 6.2779 6.59338C6.29722 6.55845 6.3153 6.52351 6.33626 6.4894C6.38353 6.41255 6.43572 6.33898 6.49038 6.26706C6.50477 6.24856 6.51669 6.22842 6.53148 6.20993C6.60258 6.12115 6.67985 6.03731 6.76205 5.95758C6.78383 5.93662 6.80808 5.91812 6.83027 5.89798C6.88 5.85319 6.9285 5.80675 6.98152 5.76565C6.62478 5.37972 6.11268 5.15039 5.57182 5.15039H3.80661C3.79058 5.15039 3.77496 5.15286 3.75893 5.15286C3.7429 5.15286 3.72729 5.1508 3.71126 5.15039H1.93084C0.86596 5.15039 0 6.01676 0 7.08164L0.000821924 7.08205Z" />
+                <path
+                    d="M10.486 5.18331H10.5259C11.7108 5.17222 12.6717 4.2068 12.6717 3.01944C12.6717 1.82551 11.7001 0.853516 10.5058 0.853516C9.31143 0.853516 8.33984 1.8251 8.33984 3.01944C8.33984 4.2068 9.30156 5.17222 10.486 5.18331Z" />
+                <path
+                    d="M17.2538 0C16.0599 0 15.0879 0.971584 15.0879 2.16593C15.0879 3.35164 16.0471 4.31624 17.23 4.32939H17.2777C18.4605 4.31624 19.4197 3.35205 19.4197 2.16593C19.4197 0.971995 18.4482 0 17.2538 0Z" />
+                <path
+                    d="M20.9982 11.1176V7.08164C20.9982 6.01676 20.1322 5.15039 19.0673 5.15039H17.2997C17.2836 5.15039 17.268 5.15286 17.252 5.15286C17.2359 5.15286 17.2203 5.1508 17.2043 5.15039H15.4206C14.8752 5.15039 14.3709 5.3752 14.0117 5.76565C14.0619 5.80428 14.1071 5.84784 14.1539 5.88976C14.181 5.91401 14.2102 5.93662 14.2365 5.96169C14.3171 6.03978 14.3927 6.12198 14.4626 6.20828C14.4839 6.23459 14.5016 6.26336 14.5222 6.29048C14.5703 6.3546 14.6167 6.41912 14.659 6.48735C14.6825 6.52516 14.7026 6.5642 14.7244 6.60284C14.7585 6.66448 14.791 6.72655 14.8206 6.79025C14.8399 6.83217 14.8571 6.8745 14.8744 6.91724C14.9007 6.98259 14.9237 7.04917 14.9447 7.11699C14.9578 7.15932 14.9714 7.20165 14.9825 7.24481C15.0018 7.31961 15.0166 7.39605 15.0297 7.47291C15.0363 7.51031 15.0445 7.5473 15.0495 7.58511C15.0643 7.7006 15.0733 7.81732 15.0733 7.93568V11.118H20.999L20.9982 11.1176Z" />
+            </svg>
+        </div>
+        {{__('user.Company Profile')}}
+    </a>
     @endif
+
+    @if(Auth::user()->login_type === 'agent' && $user->is_agency == 1)
+    <a href="{{route('user.my-team')}}" class="list-group-item {{ Route::is('user.my-team') ? 'active' : '' }}">
+        <div class="homec-dashboard__list--icon">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        {{__('user.My Team')}}
+    </a>
+    @endif
+
+    <a href="{{ route('user.property-booking') }}" class="list-group-item {{ Route::is('user.property-booking') ? 'active' : '' }}" >
+        <div class="homec-dashboard__list--icon">
+            <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        {{__('user.Booking Request')}}
+    </a>
+
+    <a href="{{ route('user.orders') }}" class="list-group-item {{ Route::is('user.orders') ? 'active' : '' }}" >
+        <div class="homec-dashboard__list--icon">
+            <i class="fa-solid fa-history"></i>
+        </div>
+        {{__('user.Purchase History')}}
+    </a>
     <a href="{{ route('user.my-profile') }}" class="list-group-item {{ Route::is('user.my-profile') ? 'active' : '' }}" >
         <div class="homec-dashboard__list--icon">
             <svg width="15" height="19" viewBox="0 0 15 19" fill="none" xmlns="http://www.w3.org/2000/svg">

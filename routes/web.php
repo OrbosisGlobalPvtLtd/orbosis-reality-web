@@ -28,6 +28,8 @@ use App\Http\Controllers\Admin\CounterController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\RazorpayController;
+
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
@@ -158,6 +160,7 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
             Route::post('/send-mail-to-agent', [HomeController::class, 'send_mail_to_agent'])->name('send-mail-to-agent');
 
             Route::post('/store-property-review', [HomeController::class, 'store_property_review'])->name('store-property-review');
+            Route::post('/report-property', [HomeController::class, 'report_property'])->name('report-property');
 
             Route::post('/subscribe-request', [HomeController::class, 'subscribe_request'])->name('subscribe-request');
             Route::get('/subscriber-verification/{token}', [HomeController::class, 'subscriber_verifcation'])->name('subscriber-verification');
@@ -176,6 +179,16 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
             Route::post('/bank-payment/{slug}', [PaymentController::class, 'bankPayment'])->name('bank-payment');
 
             Route::post('/pay-with-razorpay/{slug}', [PaymentController::class, 'payWithRazorpay'])->name('pay-with-razorpay');
+
+            // Razorpay Standard Checkout endpoints
+            Route::post('/create-order', [RazorpayController::class, 'createOrder'])->name('razorpay.create-order');
+            Route::post('/verify-payment', [RazorpayController::class, 'verifyPayment'])->name('razorpay.verify-payment');
+            Route::post('/api/create-order', [RazorpayController::class, 'createOrder']);
+            Route::post('/api/verify-payment', [RazorpayController::class, 'verifyPayment']);
+            Route::get('/razorpay-checkout-demo', function () {
+                return view('razorpay_demo');
+            })->name('razorpay.demo');
+
 
             Route::get('/razorpay-webview/{slug}', [APIPaymentController::class, 'razorpay_webview'])->name('razorpay-webview');
 

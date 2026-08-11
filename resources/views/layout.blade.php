@@ -453,10 +453,12 @@
 
                                 @if ($setting->agent_can_add_property)
                                     @if ($setting->agent_can_add_property == 'enable')
+                                        <a href="{{ route('pricing-plan') }}" class="homec-btn me-2" style="background-color: #f59e0b; border-color: #f59e0b;"><span>{{ __('user.Pricing Plan') }}</span></a>
                                         <a href="{{ route('user.choose-property-type') }}"
                                             class="homec-btn"><span>{{ __('user.Create property') }}</span></a>
                                     @endif
                                 @endif
+
 
 
                             </div>

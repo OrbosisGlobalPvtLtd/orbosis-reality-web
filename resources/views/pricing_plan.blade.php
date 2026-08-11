@@ -57,11 +57,10 @@
 
                                     @if ($pricing_plan->max_agent_add > 0)
                                         <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Agency Profile')}}</li>
+                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan->max_agent_add == -1 ? __('user.Unlimited') : $pricing_plan->max_agent_add }} {{__('user.Agent')}}</li>
                                     @else
                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Agency Profile')}}</li>
                                     @endif
-
-                                    <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan->max_agent_add }} {{__('user.Agent')}}</li>
 
                                     @if ($pricing_plan->number_of_property == -1)
                                         <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Property Submission')}}</li>
@@ -69,44 +68,41 @@
                                         <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan->number_of_property }} {{__('user.Property Submission')}}</li>
                                     @endif
 
-                                    @if ($pricing_plan->featured_property == 'enable')
-                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Featured Property')}}</li>
+                                    @if ($pricing_plan->featured_property == 'enable' && $pricing_plan->featured_property_qty != 0)
+                                        @if ($pricing_plan->featured_property_qty == -1)
+                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Featured Property')}}</li>
+                                        @else
+                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan->featured_property_qty }} {{__('user.Featured Property')}}</li>
+                                        @endif
                                     @else
                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Featured Property')}}</li>
                                     @endif
 
-                                    @if ($pricing_plan->featured_property_qty == -1)
-                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Featured Property')}}</li>
-                                    @else
-                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan->featured_property_qty }} {{__('user.Featured Property')}}</li>
-                                    @endif
-
-                                    @if ($pricing_plan->top_property == 'enable')
-                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Top Property')}}</li>
+                                    @if ($pricing_plan->top_property == 'enable' && $pricing_plan->top_property_qty != 0)
+                                        @if ($pricing_plan->top_property_qty == -1)
+                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Top Property')}}</li>
+                                        @else
+                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan->top_property_qty }} {{__('user.Top Property')}}</li>
+                                        @endif
                                     @else
                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Top Property')}}</li>
                                     @endif
 
-                                    @if ($pricing_plan->top_property_qty == -1)
-                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Top Property')}}</li>
-                                    @else
-                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan->top_property_qty }} {{__('user.Top Property')}}</li>
-                                    @endif
-
-                                    @if ($pricing_plan->urgent_property == 'enable')
-                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Urgent Property')}}</li>
+                                    @if ($pricing_plan->urgent_property == 'enable' && $pricing_plan->urgent_property_qty != 0)
+                                        @if ($pricing_plan->urgent_property_qty == -1)
+                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Urgent Property')}}</li>
+                                        @else
+                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan->urgent_property_qty }} {{__('user.Urgent Property')}}</li>
+                                        @endif
                                     @else
                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Urgent Property')}}</li>
                                     @endif
 
-                                    @if ($pricing_plan->urgent_property_qty == -1)
-                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Urgent Property')}}</li>
-                                    @else
-                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan->urgent_property_qty }} {{__('user.Urgent Property')}}</li>
+                                    @if ($pricing_plan->is_featured_badge_allowed ?? 0)
+                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>Verified & Featured Badge</li>
                                     @endif
 
                                     <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Aminities')}}</li>
-
                                     <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Nearest Location')}}</li>
 
                                 </ul>

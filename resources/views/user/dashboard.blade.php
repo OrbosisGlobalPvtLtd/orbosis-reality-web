@@ -50,7 +50,8 @@
 										@endif
 										<h3 class="homec-dashboard__heading m-0">{{__('user.My Dashboard')}}</h3>
 										<div class="row">
-                                            @if (auth()->user()->login_type === 'agent' && $setting->agent_can_add_property && $setting->agent_can_add_property == 'enable')
+                                            @if ($setting->agent_can_add_property && $setting->agent_can_add_property == 'enable')
+
                                                     <div class="col-lg-4 col-md-6 col-12">
                                                         <!-- Homec Dashboard Single -->
                                                         <div class="homec-dashboard__single">
@@ -87,19 +88,46 @@
                                                         </div>
                                                         <!-- End Homec Dashboard Single -->
                                                     </div>
-                                                    <div class="col-lg-4 col-md-6 col-12">
-                                                        <!-- Homec Dashboard Single -->
-                                                        <div class="homec-dashboard__single">
-                                                            <!-- Dashboard Icon -->
-                                                            <div class="homec-dashboard__icon">
-                                                                <img src="{{ asset('frontend/img/dash-icon4.svg') }}">
-                                                            </div>
-                                                            <div class="homec-dashboard__label">{{__('user.My Order')}}</div>
-                                                            <div class="homec-dashboard__title">{{ $total_purchase }}</div>
-                                                        </div>
-                                                        <!-- End Homec Dashboard Single -->
-                                                    </div>
-                                            @endif
+                                                     <div class="col-lg-4 col-md-6 col-12">
+                                                         <!-- Homec Dashboard Single -->
+                                                         <div class="homec-dashboard__single">
+                                                             <!-- Dashboard Icon -->
+                                                             <div class="homec-dashboard__icon">
+                                                                 <img src="{{ asset('frontend/img/dash-icon4.svg') }}">
+                                                             </div>
+                                                             <div class="homec-dashboard__label">{{__('user.My Order')}}</div>
+                                                             <div class="homec-dashboard__title">{{ $total_purchase }}</div>
+                                                         </div>
+                                                         <!-- End Homec Dashboard Single -->
+                                                     </div>
+                                                     <div class="col-lg-4 col-md-6 col-12">
+                                                         <div class="homec-dashboard__single">
+                                                             <div class="homec-dashboard__icon">
+                                                                 <i class="fa fa-layer-group text-primary" style="font-size: 24px;"></i>
+                                                             </div>
+                                                             <div class="homec-dashboard__label">Remaining Listings</div>
+                                                             <div class="homec-dashboard__title">{{ $remaining_properties }}</div>
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-lg-4 col-md-6 col-12">
+                                                         <div class="homec-dashboard__single">
+                                                             <div class="homec-dashboard__icon">
+                                                                 <i class="fa fa-handshake text-success" style="font-size: 24px;"></i>
+                                                             </div>
+                                                             <div class="homec-dashboard__label">Sold Properties</div>
+                                                             <div class="homec-dashboard__title">{{ $sold_properties }}</div>
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-lg-4 col-md-6 col-12">
+                                                         <div class="homec-dashboard__single">
+                                                             <div class="homec-dashboard__icon">
+                                                                 <i class="fa fa-key text-info" style="font-size: 24px;"></i>
+                                                             </div>
+                                                             <div class="homec-dashboard__label">Rented Properties</div>
+                                                             <div class="homec-dashboard__title">{{ $rented_properties }}</div>
+                                                         </div>
+                                                     </div>
+                                             @endif
 											<div class="col-lg-4 col-md-6 col-12">
 												<!-- Homec Dashboard Single -->
 												<div class="homec-dashboard__single">

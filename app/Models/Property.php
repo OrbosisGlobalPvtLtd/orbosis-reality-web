@@ -197,4 +197,20 @@ class Property extends Model
         'ratingAvarage' => 'double',
         'can_book' => 'boolean',
     ];
+
+    public function getStatusBadgeAttribute()
+    {
+        $status = strtolower($this->property_status_state ?? ($this->approve_by_admin === 'approved' ? 'live' : 'pending'));
+        if ($this->availability_status === 'sold') $status = 'sold';
+        if ($this->availability_status === 'rented') $status = 'rented';
+
+        return match($status) {
+            'live', 'approved' => ['label' => 'Live', 'class' => 'badge-success'],
+            'booked' => ['label' => 'Booked', 'class' => 'badge-warning'],
+            'sold' => ['label' => 'Sold', 'class' => 'badge-danger'],
+            'rented' => ['label' => 'Rented', 'class' => 'badge-info'],
+            'draft' => ['label' => 'Draft', 'class' => 'badge-secondary'],
+            default => ['label' => 'Pending Approval', 'class' => 'badge-primary'],
+        };
+    }
 }

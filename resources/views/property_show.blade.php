@@ -58,10 +58,32 @@
 												<img src="{{ ($slider->image)? asset($slider->image) : asset($setting->default_placeholder)}}" alt="#">
 												<div class="homec-image-gallery__bottom">
 													<div class="homec-image-gallery__content">
+														<div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+															@if($property->is_featured == 'enable')
+																<span class="badge bg-warning text-dark"><i class="fa fa-star"></i> Featured</span>
+															@endif
+															@if(optional($property->agent)->kyc_status == 1)
+																<span class="badge bg-success"><i class="fa fa-check-circle"></i> Verified Agent</span>
+															@endif
+															<span class="badge bg-primary">{{ $property->status_badge['label'] }}</span>
+															<span class="badge bg-dark"><i class="fa fa-eye"></i> {{ $property->views_count ?? 0 }} Views</span>
+														</div>
 														<h3 class="homec-image-gallery__title">{{ $property->title }}</h3>
 														<p class="homec-image-gallery__text">
 														<img src="{{ asset('frontend/img/map-icon.svg')}}" alt="#">
 														{{ $property->address }} </p>
+
+														<div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+															<a href="https://api.whatsapp.com/send?text={{ urlencode(url()->current()) }}" target="_blank" class="btn btn-sm btn-outline-light text-white" style="border: 1px solid rgba(255,255,255,0.4);">
+																<i class="fab fa-whatsapp"></i> WhatsApp Share
+															</a>
+															<button type="button" class="btn btn-sm btn-outline-light text-white" style="border: 1px solid rgba(255,255,255,0.4);" onclick="navigator.clipboard.writeText('{{ url()->current() }}'); alert('Link copied to clipboard!');">
+																<i class="fa fa-copy"></i> Copy Link
+															</button>
+															<button type="button" class="btn btn-sm btn-danger text-white ms-auto" data-bs-toggle="modal" data-bs-target="#reportPropertyModal">
+																<i class="fa fa-flag"></i> Report Property
+															</button>
+														</div>
 													</div>
 												</div>
 											</div>
@@ -931,5 +953,41 @@
         }
 
     </script>
+
+    <!-- Report Property Modal -->
+    <div class="modal fade" id="reportPropertyModal" tabindex="-1" aria-labelledby="reportPropertyModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form action="{{ route('report-property') }}" method="POST">
+            @csrf
+            <input type="hidden" name="property_id" value="{{ $property->id }}">
+            <div class="modal-header">
+              <h5 class="modal-title" id="reportPropertyModalLabel">Report Property</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Reason</label>
+                <select name="reason" class="form-select" required>
+                  <option value="Fake or misleading listing">Fake or misleading listing</option>
+                  <option value="Incorrect price or address">Incorrect price or address</option>
+                  <option value="Property sold/rented already">Property sold/rented already</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Comments (Optional)</label>
+                <textarea name="comments" class="form-control" rows="3" placeholder="Provide additional details..."></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-danger">Submit Report</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+@endsection
 
 @endsection

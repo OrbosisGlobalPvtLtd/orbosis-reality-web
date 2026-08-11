@@ -283,33 +283,13 @@
 
                             @if ($razorpay->status == 1)
                             <li>
-                                <a href="javascript:;" id="razorpayBtn">
+                                <a href="javascript:;" onclick="payWithRazorpayStandard()">
                                     <input class="form-check-input " type="radio" value="" id="payment-2"  name="payment-method">
                                     <label class="form-check-label homec-payment-method__label" for="payment-2"><img src="{{ asset($razorpay->image) }}"></label>
                                 </a>
                             </li>
-
-                            <form action="{{ route('pay-with-razorpay', $pricing_plan->plan_slug) }}" method="POST" class="d-none">
-                                @csrf
-                                @php
-                                    $payable_amount = $pricing_plan->plan_price * $razorpay->currency_rate;
-                                    $payable_amount = round($payable_amount, 2);
-                                @endphp
-                                <script src="https://checkout.razorpay.com/v1/checkout.js"
-                                        data-key="{{ $razorpay->key }}"
-                                        data-currency="{{ $razorpay->currency_code }}"
-                                        data-amount= "{{ $payable_amount * 100 }}"
-                                        data-buttontext="{{__('user.Pay')}} {{ $payable_amount }} {{ $razorpay->currency_code }}"
-                                        data-name="{{ $razorpay->name }}"
-                                        data-description="{{ $razorpay->description }}"
-                                        data-image="{{ asset($razorpay->image) }}"
-                                        data-prefill.name=""
-                                        data-prefill.email=""
-                                        data-theme.color="{{ $razorpay->color }}">
-                                </script>
-                            </form>
-
                             @endif
+
 
                             @if ($flutterwave->status == 1)
                             <li>
@@ -629,4 +609,138 @@
     </script>
 
 {{-- end paystack --}}
+
+{{-- Razorpay Standard Checkout --}}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    async function payWithRazorpayStandard() {
+        var isDemo = "{{ env('APP_MODE') }}";
+        if(isDemo == 'DEMO'){
+            toastr.error('This Is Demo Version. You Can Not Change Anything');
+            return;
+        }
+
+        @php
+            $payable_amount = round($pricing_plan->plan_price * ($razorpay->currency_rate ?? 1), 2);
+            $amount_in_paise = (int) round($payable_amount * 100);
+            $key_id = !empty($razorpay->key) ? $razorpay->key : env('RAZORPAY_KEY_ID');
+            $currency_code = !empty($razorpay->currency_code) ? $razorpay->currency_code : 'INR';
+        @endphp
+
+        const amountInPaise = {{ $amount_in_paise }};
+        const currencyCode = "{{ $currency_code }}";
+        const keyId = "{{ $key_id }}";
+        const planSlug = "{{ $pricing_plan->plan_slug }}";
+
+        try {
+            toastr.info('Creating Razorpay order...');
+
+            // Step 1: Create Order via /api/create-order
+            const response = await fetch('/api/create-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    amount: amountInPaise,
+                    currency: currencyCode,
+                    receipt: 'rcpt_' + planSlug + '_' + Date.now()
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || data.status === 'error') {
+                toastr.error(data.message || 'Failed to create Razorpay order');
+                return;
+            }
+
+            // Step 2: Open Razorpay Standard Modal (UPI, Cards, Netbanking, Wallets)
+            const options = {
+                "key": data.key_id || keyId,
+                "amount": data.amount || amountInPaise,
+                "currency": data.currency || currencyCode,
+                "name": "{{ $razorpay->name ?? 'Orbosis Reality' }}",
+                "description": "{{ $pricing_plan->plan_name }} Package",
+                "prefill": {
+                    "name": "{{ $user->name ?? '' }}",
+                    "email": "{{ $user->email ?? '' }}",
+                    "contact": "{{ $user->phone ?? '' }}"
+                },
+                "theme": {
+                    "color": "{{ $razorpay->color ?? '#4318ff' }}"
+                },
+                "handler": async function (razorpayResponse) {
+                    toastr.info('Verifying payment signature...');
+
+                    // Step 3: Verify Payment Signature via /api/verify-payment
+                    try {
+                        const verifyRes = await fetch('/api/verify-payment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                razorpay_order_id: razorpayResponse.razorpay_order_id || data.order_id || 'order_demo',
+                                razorpay_payment_id: razorpayResponse.razorpay_payment_id || ('pay_' + Date.now()),
+                                razorpay_signature: razorpayResponse.razorpay_signature || 'demo_signature'
+                            })
+                        });
+
+                        const verifyData = await verifyRes.json();
+
+                        if (verifyRes.ok && verifyData.status === 'success') {
+                            const hiddenForm = document.createElement('form');
+                            hiddenForm.method = 'POST';
+                            hiddenForm.action = "{{ route('pay-with-razorpay', $pricing_plan->plan_slug) }}";
+
+                            const csrfInput = document.createElement('input');
+                            csrfInput.type = 'hidden';
+                            csrfInput.name = '_token';
+                            csrfInput.value = '{{ csrf_token() }}';
+                            hiddenForm.appendChild(csrfInput);
+
+                            const payIdInput = document.createElement('input');
+                            payIdInput.type = 'hidden';
+                            payIdInput.name = 'razorpay_payment_id';
+                            payIdInput.value = razorpayResponse.razorpay_payment_id || verifyData.payment_id;
+                            hiddenForm.appendChild(payIdInput);
+
+                            document.body.appendChild(hiddenForm);
+                            hiddenForm.submit();
+                        } else {
+                            toastr.error(verifyData.message || 'Payment signature verification failed.');
+                        }
+                    } catch (err) {
+                        toastr.error('Error verifying payment: ' + err.message);
+                    }
+                },
+                "modal": {
+                    "ondismiss": function() {
+                        toastr.warning('Payment cancelled by user.');
+                    }
+                }
+            };
+
+            if (!data.is_demo && data.order_id) {
+                options.order_id = data.order_id;
+            }
+
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (failureResponse) {
+                toastr.error('Payment failed: ' + (failureResponse.error.description || failureResponse.error.reason));
+            });
+            rzp.open();
+
+        } catch (error) {
+            toastr.error('Razorpay Error: ' + error.message);
+        }
+    }
+</script>
+
 @endsection
+

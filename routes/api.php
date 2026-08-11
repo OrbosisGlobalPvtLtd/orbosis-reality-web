@@ -19,6 +19,12 @@ use App\Http\Controllers\API\User\MyBookingController;
 use App\Http\Controllers\API\User\UserProfileController;
 use App\Http\Controllers\API\User\PropertyController as UserPropertyController;
 use App\Http\Controllers\API\BuilderController;
+use App\Http\Controllers\RazorpayController;
+
+// Razorpay Standard Checkout endpoints
+Route::post('/create-order', [RazorpayController::class, 'createOrder']);
+Route::post('/verify-payment', [RazorpayController::class, 'verifyPayment']);
+
     
 Route::prefix('builder')->group(function () {
 

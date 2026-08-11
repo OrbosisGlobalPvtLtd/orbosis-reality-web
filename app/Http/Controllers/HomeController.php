@@ -284,7 +284,7 @@ class HomeController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take($agent_item);
+        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take($agent_item);
 
         $agent = (object) array(
             'visibility' => $agent_visibility,
@@ -644,7 +644,7 @@ class HomeController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take($agent_item);
+        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take($agent_item);
 
         $agent = (object) array(
             'visibility' => $agent_visibility,
@@ -1192,7 +1192,7 @@ class HomeController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take(6);
+        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take(6);
 
         // agent section
 
@@ -1341,6 +1341,7 @@ class HomeController extends Controller
         if (!$property) {
             abort(404);
         }
+        $property->increment('views_count');
 
         $sliders = PropertySlider::where('property_id', $property->id)->get();
         $aminities = PropertyAminity::with('aminity')->where('property_id', $property->id)->get();
@@ -1399,6 +1400,27 @@ class HomeController extends Controller
         ]);
     }
 
+    public function report_property(Request $request)
+    {
+        $request->validate([
+            'property_id' => 'required|integer',
+            'reason' => 'required|string',
+        ]);
+
+        DB::table('property_reports')->insert([
+            'property_id' => $request->property_id,
+            'user_id' => auth()->check() ? auth()->id() : null,
+            'reason' => $request->reason,
+            'comments' => $request->comments ?? null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $notification = trans('user_validation.Report submitted successfully');
+        $notification = array('messege' => $notification, 'alert-type' => 'success');
+        return redirect()->back()->with($notification);
+    }
+
 
     public function property_city_list(Request $request, $id)
     {
@@ -1433,7 +1455,18 @@ class HomeController extends Controller
 
         $paginate_qty = CustomPagination::find(3);
 
-        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->whereIn('id', $agent_arr)->orWhere('owner_id', '!=', 0)->where('status', 1)->orderBy('id', 'desc')->paginate($paginate_qty->qty);
+        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')
+            ->where('login_type', 'agent')
+            ->where('status', 1)
+            ->where(function ($query) use ($agent_arr, $request) {
+                $query->whereIn('id', $agent_arr)
+                    ->when($request->has('search'), function ($q) use ($request) {
+                        $q->where('name', 'LIKE', '%' . $request->search . '%');
+                    })
+                    ->orWhere('owner_id', '!=', 0);
+            })
+            ->orderBy('id', 'desc')
+            ->paginate($paginate_qty->qty);
         $agencies = User::where('is_agency', 1)->with('profile')->where('status', 1)->orderBy('id', 'desc')->paginate($paginate_qty->qty);
         $homepage = Homepage::first();
         $setting = Setting::first();
@@ -1626,7 +1659,7 @@ class HomeController extends Controller
         $paginate_qty = CustomPagination::find(3);
 
         $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')
-            ->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')
+            ->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')
             ->when($request->has('search'), function ($query) use ($request) {
                 $query->where('name', 'LIKE', '%' . $request->search . '%');
             })
