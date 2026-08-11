@@ -49,43 +49,94 @@ class PropertyController extends Controller
     }
 
 
-    public function choose_property_type(){
-
-        $setting = Setting::first();
-
-        $user = Auth::guard('api')->user();
+    public function checkUserPropertyEntitlement($user)
+    {
         $agent_id = $user->id;
-
-        if(($user->owner_id == 0 && $user->is_agency ==1) || ($user->owner_id == 0 && $user->is_agency ==0)){
-            $agent_order = Order::where('agent_id', $agent_id)->where('order_status','active')->orderBy('id','desc')->first();
-        }else{
-            $owner_id = $user->owner_id;
-            $agent_order = Order::where('agent_id', $owner_id)->where('order_status','active')->orderBy('id','desc')->first();
+        $target_user = $user;
+        if ($user->owner_id != 0) {
+            $target_user = User::find($user->owner_id) ?? $user;
+            $agent_id = $target_user->id;
         }
 
-        if(!$agent_order){
+        // 1. Check lifetime free listings slot (5 maximum)
+        $free_used = (int) ($target_user->free_listings_used ?? 0);
+        if ($free_used < 5) {
+            return [
+                'allowed' => true,
+                'is_free_slot' => true,
+                'free_used' => $free_used,
+                'free_remaining' => 5 - $free_used,
+            ];
+        }
+
+        // 2. Check active paid membership plan order
+        $agent_order = Order::where(function($q) use ($agent_id) {
+            $q->where('user_id', $agent_id)->orWhere('agent_id', $agent_id);
+        })->where('order_status', 'active')->where('payment_status', 'success')->orderBy('id', 'desc')->first();
+
+        if ($agent_order) {
+            $expiration_date = $agent_order->expiration_date;
+            if ($expiration_date != 'lifetime' && !empty($expiration_date)) {
+                if (date('Y-m-d') > $expiration_date) {
+                    return [
+                        'allowed' => false,
+                        'reason' => 'expired_plan',
+                        'message' => trans('user_validation.Pricing plan date is expired')
+                    ];
+                }
+            }
+
+            $number_of_property = (int) $agent_order->number_of_property;
+            if ($number_of_property == -1) {
+                return [
+                    'allowed' => true,
+                    'is_free_slot' => false,
+                    'order' => $agent_order
+                ];
+            }
+
+            // Count properties created under this active plan
+            $paid_count = Property::where('agent_id', $agent_id)
+                ->where('created_at', '>=', $agent_order->created_at)
+                ->count();
+
+            if ($paid_count < $number_of_property) {
+                return [
+                    'allowed' => true,
+                    'is_free_slot' => false,
+                    'order' => $agent_order,
+                    'paid_used' => $paid_count,
+                    'paid_limit' => $number_of_property
+                ];
+            }
+
+            return [
+                'allowed' => false,
+                'reason' => 'limit_exceeded',
+                'message' => trans('user_validation.You can not add property more than limit quantity')
+            ];
+        }
+
+        return [
+            'allowed' => false,
+            'reason' => 'no_plan',
+            'message' => "Your 5 lifetime free listings are finished. Please purchase a membership plan to post more properties."
+        ];
+    }
+
+    public function choose_property_type(){
+        $setting = Setting::first();
+        $user = Auth::guard('api')->user();
+        $entitlement = $this->checkUserPropertyEntitlement($user);
+
+        if (!$entitlement['allowed']) {
             return response()->json([
                 'success' => false,
-                'code' => 'NO_ACTIVE_PLAN',
-                'message' => "You don't have an active property listing plan.",
+                'code' => ($entitlement['reason'] ?? '') === 'no_plan' ? 'NO_ACTIVE_PLAN' : 'PLAN_LIMIT_EXCEEDED',
+                'message' => $entitlement['message'],
                 'redirect_to' => '/pricing-plan'
             ], 403);
         }
-
-        $expiration_date = $agent_order->expiration_date;
-
-        if($expiration_date != 'lifetime'){
-            if(date('Y-m-d') > $expiration_date){
-                return response()->json([
-                    'success' => false,
-                    'code' => 'NO_ACTIVE_PLAN',
-                    'message' => "You don't have an active property listing plan.",
-                    'redirect_to' => '/pricing-plan'
-                ], 403);
-            }
-        }
-
-        $user = User::select('id','name','email','image','phone','address','status')->where('id', $user->id)->first();
 
         $property_content = (object) array(
             'rent_logo' => $setting->rent_logo,
@@ -102,51 +153,14 @@ class PropertyController extends Controller
     }
 
     public function create(Request $request){
-
         $user = Auth::guard('api')->user();
-        $agent_id = $user->id;
+        $entitlement = $this->checkUserPropertyEntitlement($user);
 
-        if(($user->owner_id == 0 && $user->is_agency ==1) || ($user->owner_id == 0 && $user->is_agency ==0)){
-            $agent_order = Order::where('agent_id', $agent_id)->where('order_status','active')->orderBy('id','desc')->first();
-        }else{
-            $owner_id = $user->owner_id;
-            $agent_order = Order::where('agent_id', $owner_id)->where('order_status','active')->orderBy('id','desc')->first();
-        }
-
-        if($agent_order){
-
-            $available = 'disable';
-
-            $expiration_date = $agent_order->expiration_date;
-
-            if($expiration_date != 'lifetime'){
-                if(date('Y-m-d') > $expiration_date){
-                    $notification = trans('user_validation.Pricing plan date is expired');
-                    return response()->json(['message' => $notification],403);
-                }
-            }
-
-            $number_of_property = $agent_order->number_of_property;
-
-            if($number_of_property == -1){
-                $available = 'enable';
-            }else{
-                $property_count = Property::where('agent_id', $agent_id)->count();
-                if($property_count < $number_of_property){
-                    $available = 'enable';
-                }
-            }
-
-            if($available == 'disable'){
-                $notification = trans('user_validation.You can not add property more than limit quantity');
-                return response()->json(['message' => $notification],403);
-            }
-
-        }else{
+        if (!$entitlement['allowed']) {
             return response()->json([
                 'success' => false,
-                'code' => 'NO_ACTIVE_PLAN',
-                'message' => "You don't have an active property listing plan.",
+                'code' => ($entitlement['reason'] ?? '') === 'no_plan' ? 'NO_ACTIVE_PLAN' : 'PLAN_LIMIT_EXCEEDED',
+                'message' => $entitlement['message'],
                 'redirect_to' => '/pricing-plan'
             ], 403);
         }
@@ -156,23 +170,16 @@ class PropertyController extends Controller
             return response()->json(['message' => $notification],403);
         }
 
-        if($request->purpose != 'rent' && $request->purpose != 'sale'){
+        if($request->purpose != 'rent' && $request->purpose != 'sale' && $request->purpose != 'buy'){
             $notification = trans('user_validation.Please select valid property purpose');
             return response()->json(['message' => $notification],403);
         }
 
         $setting = Setting::first();
-
-        $user = Auth::guard('api')->user();
-
-        $user = User::select('id','name','email','image','phone','address','status')->where('id', $user->id)->first();
-
         $types = Category::where('status', 1)->get();
         $cities = City::all();
         $aminities = Aminity::all();
         $nearest_locations = NearestLocation::orderBy('id', 'desc')->where('status', 1)->get();
-
-
         $countries = Country::orderBy('id', 'desc')->get();
 
         return response()->json([
@@ -186,54 +193,17 @@ class PropertyController extends Controller
     }
 
     public function store(Request $request){
-
         $user = Auth::guard('api')->user();
         if (!$user->can_add_property) {
             return response()->json(['message' => 'Unauthorized role'], 403);
         }
-        $agent_id = $user->id;
 
-        if(($user->owner_id == 0 && $user->is_agency ==1) || ($user->owner_id == 0 && $user->is_agency ==0)){
-            $agent_order = Order::where('agent_id', $agent_id)->where('order_status','active')->orderBy('id','desc')->first();
-        }else{
-            $owner_id = $user->owner_id;
-            $agent_order = Order::where('agent_id', $owner_id)->where('order_status','active')->orderBy('id','desc')->first();
-        }
-
-        if($agent_order){
-
-            $available = 'disable';
-
-            $expiration_date = $agent_order->expiration_date;
-
-            if($expiration_date != 'lifetime'){
-                if(date('Y-m-d') > $expiration_date){
-                    $notification = trans('user_validation.Pricing plan date is expired');
-                    return response()->json(['message' => $notification],403);
-                }
-            }
-
-            $number_of_property = $agent_order->number_of_property;
-
-            if($number_of_property == -1){
-                $available = 'enable';
-            }else{
-                $property_count = Property::where('agent_id', $agent_id)->count();
-                if($property_count < $number_of_property){
-                    $available = 'enable';
-                }
-            }
-
-            if($available == 'disable'){
-                $notification = trans('user_validation.You can not add property more than limit quantity');
-                return response()->json(['message' => $notification],403);
-            }
-
-        }else{
+        $entitlement = $this->checkUserPropertyEntitlement($user);
+        if (!$entitlement['allowed']) {
             return response()->json([
                 'success' => false,
-                'code' => 'NO_ACTIVE_PLAN',
-                'message' => "You don't have an active property listing plan.",
+                'code' => ($entitlement['reason'] ?? '') === 'no_plan' ? 'NO_ACTIVE_PLAN' : 'PLAN_LIMIT_EXCEEDED',
+                'message' => $entitlement['message'],
                 'redirect_to' => '/pricing-plan'
             ], 403);
         }
@@ -422,6 +392,11 @@ class PropertyController extends Controller
                     $plan->save();
                 }
             }
+        }
+
+        if ($entitlement['is_free_slot'] ?? false) {
+            $target_user = ($user->owner_id != 0) ? (User::find($user->owner_id) ?? $user) : $user;
+            $target_user->increment('free_listings_used');
         }
 
         $notification = trans('user_validation.Created succssfully');

@@ -162,57 +162,18 @@ if (!in_array($request->purpose, $validPurposes)) {
     return redirect()->route('user.choose-property-type')->with($notification);
 }
         $user = Auth::guard('web')->user();
-        $agent_id = $user->id;
+        $entitlement = $this->checkUserPropertyEntitlement($user);
 
-        if(($user->owner_id == 0 && $user->is_agency ==1) || ($user->owner_id == 0 && $user->is_agency ==0)){
-            $agent_order = Order::where('agent_id', $agent_id)->where('order_status','active')->orderBy('id','desc')->first();
-        }else{
-            $owner_id = $user->owner_id;
-            $agent_order = Order::where('agent_id', $owner_id)->where('order_status','active')->orderBy('id','desc')->first();
-        }
-
-        if($agent_order){
-
-            $available = 'disable';
-
-            $expiration_date = $agent_order->expiration_date;
-
-            if($expiration_date != 'lifetime'){
-                if(date('Y-m-d') > $expiration_date){
-                    $notification = trans('user_validation.Pricing plan date is expired');
-                    $notification = array('messege'=>$notification,'alert-type'=>'error');
-                    return redirect()->back()->with($notification);
-                }
+        if (!$entitlement['allowed']) {
+            $notification = array('messege' => $entitlement['message'], 'alert-type' => 'error');
+            if (($entitlement['reason'] ?? '') === 'no_plan' || ($entitlement['reason'] ?? '') === 'expired_plan') {
+                session(['url.intended' => url()->full()]);
+                return redirect()->route('pricing-plan')->with($notification);
             }
-
-            $number_of_property = $agent_order->number_of_property;
-
-            if($number_of_property == -1){
-                $available = 'enable';
-            }else{
-                $property_count = Property::where('agent_id', $agent_id)->count();
-                if($property_count < $number_of_property){
-                    $available = 'enable';
-                }
-            }
-
-            if($available == 'disable'){
-                $notification = trans('user_validation.You can not add property more than limit quantity');
-                $notification = array('messege'=>$notification,'alert-type'=>'error');
-                return redirect()->back()->with($notification);
-            }
-
-        }else{
-            session(['url.intended' => url()->full()]);
-            $notification = "You don't have an active property listing plan. Please purchase a plan to add properties.";
-            $notification = array('messege'=>$notification,'alert-type'=>'error');
-            return redirect()->route('pricing-plan')->with($notification);
+            return redirect()->back()->with($notification);
         }
 
         $setting = Setting::first();
-
-        $user = Auth::guard('web')->user();
-
         $user = User::select('id','name','email','image','phone','address','status')->where('id', $user->id)->first();
 
         // mobile app
@@ -253,53 +214,93 @@ if (!in_array($request->purpose, $validPurposes)) {
         ]);
     }
 
+    public function checkUserPropertyEntitlement($user)
+    {
+        $agent_id = $user->id;
+        $target_user = $user;
+        if ($user->owner_id != 0) {
+            $target_user = User::find($user->owner_id) ?? $user;
+            $agent_id = $target_user->id;
+        }
+
+        // 1. Check lifetime free listings slot (5 maximum)
+        $free_used = (int) ($target_user->free_listings_used ?? 0);
+        if ($free_used < 5) {
+            return [
+                'allowed' => true,
+                'is_free_slot' => true,
+                'free_used' => $free_used,
+                'free_remaining' => 5 - $free_used,
+            ];
+        }
+
+        // 2. Check active paid membership plan order
+        $agent_order = Order::where(function($q) use ($agent_id) {
+            $q->where('user_id', $agent_id)->orWhere('agent_id', $agent_id);
+        })->where('order_status', 'active')->where('payment_status', 'success')->orderBy('id', 'desc')->first();
+
+        if ($agent_order) {
+            $expiration_date = $agent_order->expiration_date;
+            if ($expiration_date != 'lifetime' && !empty($expiration_date)) {
+                if (date('Y-m-d') > $expiration_date) {
+                    return [
+                        'allowed' => false,
+                        'reason' => 'expired_plan',
+                        'message' => trans('user_validation.Pricing plan date is expired')
+                    ];
+                }
+            }
+
+            $number_of_property = (int) $agent_order->number_of_property;
+            if ($number_of_property == -1) {
+                return [
+                    'allowed' => true,
+                    'is_free_slot' => false,
+                    'order' => $agent_order
+                ];
+            }
+
+            // Count properties created under this active plan
+            $paid_count = Property::where('agent_id', $agent_id)
+                ->where('created_at', '>=', $agent_order->created_at)
+                ->count();
+
+            if ($paid_count < $number_of_property) {
+                return [
+                    'allowed' => true,
+                    'is_free_slot' => false,
+                    'order' => $agent_order,
+                    'paid_used' => $paid_count,
+                    'paid_limit' => $number_of_property
+                ];
+            }
+
+            return [
+                'allowed' => false,
+                'reason' => 'limit_exceeded',
+                'message' => trans('user_validation.You can not add property more than limit quantity')
+            ];
+        }
+
+        return [
+            'allowed' => false,
+            'reason' => 'no_plan',
+            'message' => "Your 5 lifetime free listings are finished. Please purchase a membership plan to post more properties."
+        ];
+    }
+
     public function store(Request $request){
 
         $user = Auth::guard('web')->user();
-        $agent_id = $user->id;
+        $entitlement = $this->checkUserPropertyEntitlement($user);
 
-        if(($user->owner_id == 0 && $user->is_agency ==1) || ($user->owner_id == 0 && $user->is_agency ==0)){
-            $agent_order = Order::where('agent_id', $agent_id)->where('order_status','active')->orderBy('id','desc')->first();
-        }else{
-            $owner_id = $user->owner_id;
-            $agent_order = Order::where('agent_id', $owner_id)->where('order_status','active')->orderBy('id','desc')->first();
-        }
-
-        if($agent_order){
-
-            $available = 'disable';
-
-            $expiration_date = $agent_order->expiration_date;
-
-            if($expiration_date != 'lifetime'){
-                if(date('Y-m-d') > $expiration_date){
-                    $notification = trans('user_validation.Pricing plan date is expired');
-                    $notification = array('messege'=>$notification,'alert-type'=>'error');
-                    return redirect()->back()->with($notification);
-                }
+        if (!$entitlement['allowed']) {
+            $notification = array('messege' => $entitlement['message'], 'alert-type' => 'error');
+            if (($entitlement['reason'] ?? '') === 'no_plan' || ($entitlement['reason'] ?? '') === 'expired_plan') {
+                session(['url.intended' => url()->full()]);
+                return redirect()->route('pricing-plan')->with($notification);
             }
-
-            $number_of_property = $agent_order->number_of_property;
-
-            if($number_of_property == -1){
-                $available = 'enable';
-            }else{
-                $property_count = Property::where('agent_id', $agent_id)->count();
-                if($property_count < $number_of_property){
-                    $available = 'enable';
-                }
-            }
-
-            if($available == 'disable'){
-                $notification = trans('user_validation.You can not add property more than limit quantity');
-                $notification = array('messege'=>$notification,'alert-type'=>'error');
-                return redirect()->back()->with($notification);
-            }
-
-        }else{
-            $notification = "You don't have an active property listing plan. Please purchase a plan to add properties.";
-            $notification = array('messege'=>$notification,'alert-type'=>'error');
-            return redirect()->route('pricing-plan')->with($notification);
+            return redirect()->back()->with($notification);
         }
 
         $live_map = Setting::
@@ -474,6 +475,11 @@ if (!in_array($request->purpose, $validPurposes)) {
             }
         }
 
+
+        if ($entitlement['is_free_slot'] ?? false) {
+            $target_user = ($user->owner_id != 0) ? (User::find($user->owner_id) ?? $user) : $user;
+            $target_user->increment('free_listings_used');
+        }
 
         $notification = trans('user_validation.Created succssfully');
         $notification = array('messege'=>$notification,'alert-type'=>'success');

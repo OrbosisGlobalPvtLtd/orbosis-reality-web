@@ -30,53 +30,78 @@ class UserProfileController extends Controller
         $this->middleware('auth:web');
     }
     public function dashboard(){
-
         $user = Auth::guard('web')->user();
 
-        if ($user->login_type === 'user') {
-            $publish_property = 0;
-            $awaiting_property = 0;
-            $reject_property = 0;
-            $total_purchase = 0;
-            $total_wishlist = Wishlist::where('user_id', $user->id)->count();
-            $total_review = Review::where('user_id', $user->id)->count();
-            $recent_bookings = \App\Models\Booking::with('property')->where('user_id', $user->id)->orderBy('id', 'desc')->take(5)->get();
-            $recently_viewed = [];
-            $recommendations = Property::where('status', 'enable')->where('approve_by_admin', 'approved')->where('is_featured', 'enable')->take(5)->get();
-        } else {
-            $publish_property = Property::where('agent_id', $user->id)
-                                        ->where('status', 'enable')
-                                        ->where('approve_by_admin', 'approved')
-                                        ->where(function ($query) {
-                                            $query->where('expired_date', null)
-                                                ->orWhere('expired_date', '>=', date('Y-m-d'));
-                                        })
-                                        ->count();
+        // Real DB property statistics
+        $publish_property = Property::where('agent_id', $user->id)
+            ->where('status', 'enable')
+            ->where('approve_by_admin', 'approved')
+            ->where(function ($query) {
+                $query->where('expired_date', null)
+                    ->orWhere('expired_date', '>=', date('Y-m-d'));
+            })->count();
 
-            $awaiting_property = Property::where('agent_id', $user->id)
-                                        ->where('approve_by_admin', 'pending')
-                                        ->count();
+        $awaiting_property = Property::where('agent_id', $user->id)
+            ->where('approve_by_admin', 'pending')
+            ->count();
 
-            $reject_property = Property::where('agent_id', $user->id)
-                                        ->where('approve_by_admin', 'reject')
-                                        ->count();
+        $reject_property = Property::where('agent_id', $user->id)
+            ->where('approve_by_admin', 'reject')
+            ->count();
 
-            $total_purchase = Order::where('agent_id', $user->id)->count();
-            $total_wishlist = Wishlist::where('user_id', $user->id)->count();
-            $total_review = Review::where('user_id', $user->id)->count();
-            $recent_bookings = collect([]);
-            $recently_viewed = [];
-            $recommendations = collect([]);
+        $total_purchase = Order::where(function($q) use ($user) {
+            $q->where('user_id', $user->id)->orWhere('agent_id', $user->id);
+        })->count();
+
+        $total_wishlist = Wishlist::where('user_id', $user->id)->count();
+        $total_review = Review::where('user_id', $user->id)->count();
+        $total_bookings = \App\Models\Booking::where('user_id', $user->id)->orWhere('agent_id', $user->id)->count();
+        $recent_bookings = \App\Models\Booking::with('property')->where(function($q) use ($user) {
+            $q->where('user_id', $user->id)->orWhere('agent_id', $user->id);
+        })->orderBy('id', 'desc')->take(5)->get();
+
+        // Free listing allowance details (5 lifetime free)
+        $free_listings_used = (int) ($user->free_listings_used ?? 0);
+        $free_listings_remaining = max(0, 5 - $free_listings_used);
+
+        // Active paid plan order
+        $active_order = Order::where(function($q) use ($user) {
+            $q->where('user_id', $user->id)->orWhere('agent_id', $user->id);
+        })->where('order_status', 'active')->where('payment_status', 'success')->orderBy('id', 'desc')->first();
+
+        $is_plan_expired = false;
+        $paid_listings_used = 0;
+        $paid_listings_limit = 0;
+        $paid_listings_remaining = 0;
+
+        if ($active_order) {
+            if ($active_order->expiration_date != 'lifetime' && !empty($active_order->expiration_date)) {
+                if (date('Y-m-d') > $active_order->expiration_date) {
+                    $is_plan_expired = true;
+                }
+            }
+
+            if (!$is_plan_expired) {
+                $paid_listings_limit = (int) $active_order->number_of_property;
+                $paid_listings_used = Property::where('agent_id', $user->id)
+                    ->where('created_at', '>=', $active_order->created_at)
+                    ->count();
+
+                if ($paid_listings_limit == -1) {
+                    $paid_listings_remaining = 999999; // Unlimited
+                } else {
+                    $paid_listings_remaining = max(0, $paid_listings_limit - $paid_listings_used);
+                }
+            }
         }
 
+        // Company ownership check
+        $user_company = \App\Models\Company::where('user_id', $user->id)->first();
+
         $setting = Setting::first();
-
-        $user_select = User::select('id','name','email','image','phone','address','status')->where('id', $user->id)->first();
-
-        // mobile app
-        $app_visibility = false;
         $homepage = Homepage::first();
-        if($homepage->show_mobile_app == 'enable') $app_visibility = true;
+        $app_visibility = ($homepage && $homepage->show_mobile_app == 'enable');
+
         $mobile_app = (object) array(
             'visibility' => $app_visibility,
             'app_bg' => $setting->app_bg,
@@ -90,7 +115,6 @@ class UserProfileController extends Controller
             'google_btn_text1' => $setting->google_btn_text1,
             'google_btn_text2' => $setting->google_btn_text2,
         );
-        // mobile app
 
         return view('user.dashboard')->with([
             'publish_property' => $publish_property,
@@ -99,13 +123,18 @@ class UserProfileController extends Controller
             'total_purchase' => $total_purchase,
             'total_wishlist' => $total_wishlist,
             'total_review' => $total_review,
+            'total_bookings' => $total_bookings,
             'mobile_app' => $mobile_app,
             'recent_bookings' => $recent_bookings,
-            'recently_viewed' => $recently_viewed,
-            'recommendations' => $recommendations,
+            'free_listings_used' => $free_listings_used,
+            'free_listings_remaining' => $free_listings_remaining,
+            'active_order' => $active_order,
+            'is_plan_expired' => $is_plan_expired,
+            'paid_listings_used' => $paid_listings_used,
+            'paid_listings_limit' => $paid_listings_limit,
+            'paid_listings_remaining' => $paid_listings_remaining,
+            'user_company' => $user_company,
         ]);
-
-
     }
 
     public function my_profile(){
