@@ -192,6 +192,48 @@
         border-radius: 12px 12px 0 0 !important;
         background: #f8fafc !important;
     }
+    .property-submit-btn-wrapper {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        margin-top: 40px !important;
+        margin-bottom: 20px !important;
+        width: 100% !important;
+    }
+    .property-submit-btn {
+        background: linear-gradient(135deg, #48aadf 0%, #008cc7 100%) !important;
+        color: #ffffff !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        padding: 16px 50px !important;
+        border-radius: 50px !important;
+        border: none !important;
+        box-shadow: 0 8px 25px rgba(0, 140, 199, 0.35) !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        min-width: 260px !important;
+        text-align: center !important;
+    }
+    .property-submit-btn span {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 16px !important;
+    }
+    .property-submit-btn:hover {
+        background: linear-gradient(135deg, #008cc7 0%, #006699 100%) !important;
+        color: #ffffff !important;
+        transform: translateY(-3px) !important;
+        box-shadow: 0 12px 30px rgba(0, 140, 199, 0.5) !important;
+    }
+    .property-submit-btn:hover span {
+        color: #ffffff !important;
+    }
 </style>
     <section class="breadcrumbs__content" style="background-image: url({{ asset($breadcrumb) }});">
         <div class="container">
@@ -764,8 +806,10 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-12 d-flex justify-content-end mg-top-40">
-                                <button type="submit" class="homec-btn homec-btn__second"><span>{{__('user.Submit Property')}}</span></button>
+                            <div class="col-12 property-submit-btn-wrapper">
+                                <button type="submit" class="property-submit-btn">
+                                    <span>{{__('user.Submit Property')}}</span>
+                                </button>
                             </div>
                         </div>
                     </form>
