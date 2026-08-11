@@ -160,55 +160,51 @@ class PropertyController extends Controller
         $live_map = Setting::first()->live_map;
 
         $rules = [
-            'title'=>'nullable|unique:properties',
-            'slug'=>'nullable|unique:properties',
-            'property_type_id'=>'nullable',
-            'purpose'=> 'nullable',
-            'rent_period'=> $request->purpose == 'rent' ? 'nullable' : '',
-            'price'=>'nullable',
-            'description'=>'nullable',
-            'city_id'=>'nullable',
-            'country_id'=>'nullable',
-            'address'=>'nullable',
+            'title'=>'required|unique:properties',
+            'slug'=>'required|unique:properties',
+            'property_type_id'=>'required',
+            'purpose'=> 'required',
+            'rent_period'=> $request->purpose == 'rent' ? 'required' : 'nullable',
+            'price'=>'required',
+            'description'=>'required',
+            'city_id'=>'required',
+            'country_id'=>'required',
+            'address'=>'required',
             'address_description'=>'nullable',
             'google_map'=> $live_map == 'no' ? 'nullable' : '',
-            'total_area'=>'nullable',
-            'total_unit'=>'nullable',
-            'total_bedroom'=>'nullable',
-            'total_bathroom'=>'nullable',
-            'total_garage'=>'nullable',
-            'total_kitchen'=>'nullable',
-            'thumbnail_image'=>'nullable',
+            'total_area'=>'required',
+            'total_unit'=>'required',
+            'total_bedroom'=>'required',
+            'total_bathroom'=>'required',
+            'total_garage'=>'required',
+            'total_kitchen'=>'required',
+            'thumbnail_image'=>'required',
             'lat' => $live_map == 'yes' ? 'nullable' : '',
             'lng' => $live_map == 'yes' ? 'nullable' : ''
         ];
         $customMessages = [
-            'title.nullable' => trans('admin_validation.Title is nullable'),
+            'title.required' => trans('admin_validation.Title is required'),
             'title.unique' => trans('admin_validation.Title already exist'),
-            'slug.nullable' => trans('admin_validation.Slug is nullable'),
+            'slug.required' => trans('admin_validation.Slug is required'),
             'slug.unique' => trans('admin_validation.Slug already exist'),
-            'property_type_id.nullable' => trans('admin_validation.Property type is nullable'),
-            'purpose.nullable' => trans('admin_validation.Purpose is nullable'),
-            'rent_period.nullable' => trans('admin_validation.Rent period is nullable'),
-            'price.nullable' => trans('admin_validation.Price is nullable'),
-            'description.nullable' => trans('admin_validation.Description is nullable'),
-            'city_id.nullable' => trans('admin_validation.City is nullable'),
-            'country_id.nullable' => trans('admin_validation.Country is nullable'),
-            'address.nullable' => trans('admin_validation.Address is nullable'),
-            'address_description.nullable' => trans('admin_validation.Address details is nullable'),
-            'google_map.nullable' => trans('admin_validation.Google map is nullable'),
-            'total_area.nullable' => trans('admin_validation.Total area is nullable'),
-            'total_unit.nullable' => trans('admin_validation.Total unit is nullable'),
-            'total_bedroom.nullable' => trans('admin_validation.Total bedroom is nullable'),
-            'total_bathroom.nullable' => trans('admin_validation.Total bathroom is nullable'),
-            'total_garage.nullable' => trans('admin_validation.Total garage is nullable'),
-            'total_kitchen.nullable' => trans('admin_validation.Total kitchen is nullable'),
-            'thumbnail_image.nullable' => trans('admin_validation.Thumbnail image is nullable'),
-            'lat.nullable' => trans('admin_validation.The latitude is nullable'),
-            'lng.nullable' => trans('admin_validation.The longitude is nullable'),
+            'property_type_id.required' => trans('admin_validation.Property type is required'),
+            'purpose.required' => trans('admin_validation.Purpose is required'),
+            'rent_period.required' => trans('admin_validation.Rent period is required'),
+            'price.required' => trans('admin_validation.Price is required'),
+            'description.required' => trans('admin_validation.Description is required'),
+            'city_id.required' => trans('admin_validation.City is required'),
+            'country_id.required' => trans('admin_validation.Country is required'),
+            'address.required' => trans('admin_validation.Address is required'),
+            'total_area.required' => trans('admin_validation.Total area is required'),
+            'total_unit.required' => trans('admin_validation.Total unit is required'),
+            'total_bedroom.required' => trans('admin_validation.Total bedroom is required'),
+            'total_bathroom.required' => trans('admin_validation.Total bathroom is required'),
+            'total_garage.required' => trans('admin_validation.Total garage is required'),
+            'total_kitchen.required' => trans('admin_validation.Total kitchen is required'),
+            'thumbnail_image.required' => trans('admin_validation.Thumbnail image is required'),
         ];
 
-        $this->validate($request, $rules,$customMessages);
+        $this->validate($request, $rules, $customMessages);
 
         $property = new Property();
         $property->agent_id = $request->owner_id;
@@ -226,10 +222,18 @@ class PropertyController extends Controller
         $property->total_bathroom = $request->total_bathroom;
         $property->total_garage = $request->total_garage;
         $property->total_kitchen = $request->total_kitchen;
-        $property->total_bathroom = $request->total_bathroom;
 
-        $property->city_id = $request->city_id;
-        $property->country_id = $request->country_id;
+        // Safe fallback for city_id and country_id to prevent SQL integrity errors
+        $fallback_country = ($request->country_id && $request->country_id != 'null' && $request->country_id != '') 
+            ? $request->country_id 
+            : (Country::first()->id ?? 1);
+
+        $fallback_city = ($request->city_id && $request->city_id != 'null' && $request->city_id != '') 
+            ? $request->city_id 
+            : (City::where('country_id', $fallback_country)->first()->id ?? (City::first()->id ?? 1));
+
+        $property->city_id = $fallback_city;
+        $property->country_id = $fallback_country;
         $property->address = $request->address;
         $property->address_description = $request->address_description;
         $property->google_map = $request->google_map;
@@ -515,8 +519,17 @@ class PropertyController extends Controller
         $property->total_kitchen = $request->total_kitchen;
         $property->total_bathroom = $request->total_bathroom;
 
-        $property->country_id = $request->country_id;
-        $property->city_id = $request->city_id;
+        // Safe fallback for city_id and country_id to prevent SQL integrity errors
+        $fallback_country = ($request->country_id && $request->country_id != 'null' && $request->country_id != '') 
+            ? $request->country_id 
+            : ($property->country_id ?: (Country::first()->id ?? 1));
+
+        $fallback_city = ($request->city_id && $request->city_id != 'null' && $request->city_id != '') 
+            ? $request->city_id 
+            : ($property->city_id ?: (City::where('country_id', $fallback_country)->first()->id ?? (City::first()->id ?? 1)));
+
+        $property->country_id = $fallback_country;
+        $property->city_id = $fallback_city;
         $property->google_map = $request->google_map;
         $property->lat = $request->has('lat') ? $request->lat : $property->lat;
         $property->lon = $request->has('lng') ? $request->lng : $property->lon;
