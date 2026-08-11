@@ -96,7 +96,7 @@ class UserProfileController extends Controller
         }
 
         // Company ownership check
-        $user_company = \App\Models\Company::where('user_id', $user->id)->first();
+        $user_company = \App\Models\CompanyProfile::where('user_id', $user->id)->first();
 
         $setting = Setting::first();
         $homepage = Homepage::first();

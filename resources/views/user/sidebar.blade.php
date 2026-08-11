@@ -1,6 +1,6 @@
 @php
     $user = Auth::guard('web')->user();
-    $user_company = \App\Models\Company::where('user_id', $user->id)->first();
+    $user_company = \App\Models\CompanyProfile::where('user_id', $user->id)->first();
 @endphp
 
 <style>
