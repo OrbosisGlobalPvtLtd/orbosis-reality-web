@@ -46,15 +46,15 @@
                             </div>
                         @endif
 
-                        <!-- 1. Welcome Section -->
-                        <div class="welcome-banner p-4 mb-4 rounded-4" style="background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%); color: #fff;">
+                        <!-- 1. Welcome Section matching Header UI -->
+                        <div class="welcome-banner p-4 mb-4 rounded-4 shadow-sm" style="background: linear-gradient(135deg, #48aadf 0%, #008cc7 100%); color: #fff;">
                             <div class="d-flex flex-wrap align-items-center justify-content-between">
                                 <div>
                                     <h3 class="fw-bold mb-1 text-white">Welcome back, {{ auth()->user()->name }} 👋</h3>
-                                    <p class="mb-0 text-white-50">Manage your properties, enquiries, and membership allowance from one place.</p>
+                                    <p class="mb-0 text-white-50" style="font-size: 14px;">Manage your properties, enquiries, and membership allowance from one place.</p>
                                 </div>
                                 <div class="mt-3 mt-md-0">
-                                    <a href="{{ route('user.choose-property-type') }}" class="btn btn-light fw-bold text-primary px-4 py-2 rounded-pill shadow-sm">
+                                    <a href="{{ route('user.choose-property-type') }}" class="btn btn-light fw-bold px-4 py-2 rounded-pill shadow-sm" style="color: #008cc7 !important;">
                                         <i class="fa fa-plus-circle me-1"></i> Post New Property
                                     </a>
                                 </div>
@@ -68,26 +68,26 @@
                                 <div class="card h-100 border-0 shadow-sm rounded-4 p-4" style="background: #f8fafc; border: 1px solid #e2e8f0;">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h5 class="fw-bold m-0 text-dark">
-                                            <i class="fa fa-gift text-primary me-2"></i> Free Listing Allowance
+                                            <i class="fa fa-gift me-2" style="color: #48aadf;"></i> Free Listing Allowance
                                         </h5>
-                                        <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill">Lifetime Free</span>
+                                        <span class="badge fw-bold px-3 py-1 rounded-pill" style="background: #e6f6ff; color: #008cc7;">Lifetime Free</span>
                                     </div>
                                     <div class="mb-2 d-flex justify-content-between align-items-center">
                                         <span class="text-muted fs-6">Used: <strong>{{ $free_listings_used }} / 5</strong></span>
-                                        <span class="fw-bold text-{{ $free_listings_remaining > 0 ? 'success' : 'danger' }}">
+                                        <span class="fw-bold" style="color: {{ $free_listings_remaining > 0 ? '#008cc7' : '#dc3545' }};">
                                             {{ $free_listings_remaining }} Remaining
                                         </span>
                                     </div>
                                     
                                     <div class="progress mb-3" style="height: 10px; border-radius: 6px; background: #e2e8f0;">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ min(100, ($free_listings_used / 5) * 100) }}%; border-radius: 6px;" aria-valuenow="{{ $free_listings_used }}" aria-valuemin="0" aria-valuemax="5"></div>
+                                        <div class="progress-bar" role="progressbar" style="width: {{ min(100, ($free_listings_used / 5) * 100) }}%; border-radius: 6px; background: linear-gradient(135deg, #48aadf 0%, #008cc7 100%);" aria-valuenow="{{ $free_listings_used }}" aria-valuemin="0" aria-valuemax="5"></div>
                                     </div>
 
                                     @if ($free_listings_used >= 5)
                                         <p class="small text-danger mb-3 fw-medium">
                                             <i class="fa fa-exclamation-circle me-1"></i> Your 5 lifetime free listings are finished. Purchase a membership plan to post more properties.
                                         </p>
-                                        <a href="{{ route('pricing-plan') }}" class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold">
+                                        <a href="{{ route('pricing-plan') }}" class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold" style="border-color: #48aadf; color: #008cc7;">
                                             View Membership Plans
                                         </a>
                                     @else
@@ -114,7 +114,7 @@
 
                                     @if ($active_order && !$is_plan_expired)
                                         <div class="mb-2">
-                                            <h4 class="fw-bold text-primary mb-1">{{ $active_order->plan_name }} Plan</h4>
+                                            <h4 class="fw-bold mb-1" style="color: #008cc7;">{{ $active_order->plan_name }} Plan</h4>
                                             <p class="small text-muted mb-2">
                                                 Expiry: <strong>{{ $active_order->expiration_date == 'lifetime' ? 'Lifetime' : \Carbon\Carbon::parse($active_order->expiration_date)->format('M d, Y') }}</strong>
                                             </p>
@@ -128,12 +128,12 @@
                                                 <div class="progress-bar bg-success" role="progressbar" style="width: {{ min(100, ($paid_listings_used / max(1, $paid_listings_limit)) * 100) }}%; border-radius: 6px;"></div>
                                             </div>
                                         @endif
-                                        <a href="{{ route('pricing-plan') }}" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold mt-2">
+                                        <a href="{{ route('pricing-plan') }}" class="btn btn-sm w-100 rounded-pill fw-bold text-white mt-2 shadow-sm" style="background: linear-gradient(135deg, #48aadf 0%, #008cc7 100%);">
                                             Manage / Upgrade Plan
                                         </a>
                                     @else
                                         <p class="text-muted small mb-3">You are on the <strong>Basic Free Plan</strong>. Upgrade to Silver, Gold, or Premium to get extra listing quotas.</p>
-                                        <a href="{{ route('pricing-plan') }}" class="btn btn-warning text-dark btn-sm w-100 rounded-pill fw-bold mt-auto">
+                                        <a href="{{ route('pricing-plan') }}" class="btn btn-warning text-dark btn-sm w-100 rounded-pill fw-bold mt-auto shadow-sm">
                                             Upgrade Membership
                                         </a>
                                     @endif
@@ -142,11 +142,11 @@
                         </div>
 
                         <!-- 3. Real DB Property Statistics -->
-                        <h5 class="fw-bold text-dark mb-3"><i class="fa fa-building text-primary me-2"></i> Property Overview</h5>
+                        <h5 class="fw-bold text-dark mb-3"><i class="fa fa-building me-2" style="color: #48aadf;"></i> Property Overview</h5>
                         <div class="row g-3 mb-4">
                             <div class="col-md-4 col-12">
-                                <div class="p-3 rounded-4 shadow-sm text-center" style="background: #eef2ff; border: 1px solid #c7d2fe;">
-                                    <div class="fs-2 fw-bold text-primary">{{ $publish_property }}</div>
+                                <div class="p-3 rounded-4 shadow-sm text-center" style="background: #e6f6ff; border: 1px solid #b3e5ff;">
+                                    <div class="fs-2 fw-bold" style="color: #008cc7;">{{ $publish_property }}</div>
                                     <div class="text-muted small fw-semibold">Published Properties</div>
                                 </div>
                             </div>
@@ -199,7 +199,7 @@
 
                         <!-- 5. Recent Bookings Table -->
                         @if (count($recent_bookings) > 0)
-                            <h5 class="fw-bold text-dark mb-3"><i class="fa fa-history text-info me-2"></i> Recent Booking Requests</h5>
+                            <h5 class="fw-bold text-dark mb-3"><i class="fa fa-history me-2" style="color: #48aadf;"></i> Recent Booking Requests</h5>
                             <div class="table-responsive rounded-3 border">
                                 <table class="table table-hover align-middle m-0">
                                     <thead class="bg-light">

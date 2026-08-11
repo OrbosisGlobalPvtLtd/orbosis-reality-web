@@ -12,19 +12,21 @@
         border-bottom: 1px solid #f1f3f7 !important;
         transition: all 0.2s ease-in-out !important;
         border-radius: 8px !important;
-        margin-bottom: 3px !important;
+        margin-bottom: 4px !important;
+        color: #475569 !important;
     }
     .homec-list-tabs.homec-list-tabs--v3 .list-group-item:hover,
     .homec-list-tabs.homec-list-tabs--v3 .list-group-item.active {
-        background-color: #0d6efd !important;
-        color: #fff !important;
-        border-bottom-color: #0d6efd !important;
+        background: linear-gradient(135deg, #48aadf 0%, #008cc7 100%) !important;
+        color: #ffffff !important;
+        border-color: transparent !important;
+        box-shadow: 0 4px 12px rgba(72, 170, 223, 0.25) !important;
     }
     .homec-dashboard__list--icon {
         width: 32px !important;
         height: 32px !important;
         min-width: 32px !important;
-        background: #eef2f7 !important;
+        background: #f1f5f9 !important;
         border-radius: 8px !important;
         display: flex !important;
         align-items: center !important;
@@ -33,16 +35,16 @@
     }
     .homec-list-tabs.homec-list-tabs--v3 .list-group-item:hover .homec-dashboard__list--icon,
     .homec-list-tabs.homec-list-tabs--v3 .list-group-item.active .homec-dashboard__list--icon {
-        background: rgba(255, 255, 255, 0.2) !important;
+        background: rgba(255, 255, 255, 0.25) !important;
     }
     .homec-dashboard__list--icon i {
         font-size: 14px !important;
-        color: #475569 !important;
+        color: #48aadf !important;
         transition: all 0.2s ease-in-out !important;
     }
     .homec-list-tabs.homec-list-tabs--v3 .list-group-item:hover i,
     .homec-list-tabs.homec-list-tabs--v3 .list-group-item.active i {
-        color: #fff !important;
+        color: #ffffff !important;
     }
     .sidebar-section-title {
         font-size: 11px;
@@ -58,11 +60,11 @@
 <div class="list-group homec-list-tabs homec-list-tabs--v3 homec-border p-2 bg-white rounded-4 shadow-sm">
     
     <!-- DASHBOARD -->
-    <a href="{{ route('user.dashboard') }}" class="list-group-item d-flex align-items-center {{ Route::is('user.dashboard') ? 'active' : '' }}">
+    <a href="{{ route('user.dashboard') }}" class="list-group-item d-flex align-items-center {{ Route::is('user.dashboard') || Route::is('agent.dashboard') ? 'active' : '' }}">
         <div class="homec-dashboard__list--icon">
             <i class="fa-solid fa-chart-pie"></i>
         </div>
-        <span>{{__('user.Dashboard')}}</span>
+        <span>Dashboard</span>
     </a>
 
     <!-- PROPERTY SECTION -->
@@ -72,14 +74,14 @@
         <div class="homec-dashboard__list--icon">
             <i class="fa-solid fa-building"></i>
         </div>
-        <span>{{__('user.My Properties')}}</span>
+        <span>My Properties</span>
     </a>
 
     <a href="{{ route('user.choose-property-type') }}" class="list-group-item d-flex align-items-center {{ Route::is('user.choose-property-type') ? 'active' : '' }}">
         <div class="homec-dashboard__list--icon">
             <i class="fa-solid fa-circle-plus"></i>
         </div>
-        <span>{{__('user.Add Property')}}</span>
+        <span>Add Property</span>
     </a>
 
     <!-- ACTIVITY / BUSINESS SECTION -->
@@ -96,28 +98,28 @@
         <div class="homec-dashboard__list--icon">
             <i class="fa-solid fa-clock-rotate-left"></i>
         </div>
-        <span>{{__('user.My Booking')}}</span>
+        <span>My Booking</span>
     </a>
 
     <a href="{{ route('user.wishlist') }}" class="list-group-item d-flex align-items-center {{ Route::is('user.wishlist') ? 'active' : '' }}">
         <div class="homec-dashboard__list--icon">
             <i class="fa-solid fa-heart"></i>
         </div>
-        <span>{{__('user.Wishlist')}}</span>
+        <span>Wishlist</span>
     </a>
 
     <a href="{{ route('user.compare') }}" class="list-group-item d-flex align-items-center {{ Route::is('user.compare') ? 'active' : '' }}">
         <div class="homec-dashboard__list--icon">
             <i class="fa-solid fa-code-compare"></i>
         </div>
-        <span>{{__('user.Compare')}}</span>
+        <span>Compare</span>
     </a>
 
     <a href="{{ route('user.my-reviews') }}" class="list-group-item d-flex align-items-center {{ Route::is('user.my-reviews') ? 'active' : '' }}">
         <div class="homec-dashboard__list--icon">
             <i class="fa-solid fa-star"></i>
         </div>
-        <span>{{__('user.My Reviews')}}</span>
+        <span>My Reviews</span>
     </a>
 
     <!-- COMPANY / PROFESSIONAL SECTION -->
@@ -180,7 +182,7 @@
         <div class="homec-dashboard__list--icon">
             <i class="fa-solid fa-user-gear"></i>
         </div>
-        <span>{{__('user.My Profile')}}</span>
+        <span>My Profile</span>
     </a>
 
     <a href="{{ route('user.change-password') }}" class="list-group-item d-flex align-items-center {{ Route::is('user.change-password') ? 'active' : '' }}">
