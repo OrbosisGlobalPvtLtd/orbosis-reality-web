@@ -5,11 +5,24 @@
 <div class="main-sidebar">
     <aside id="sidebar-wrapper">
       <div class="sidebar-brand">
-        <a href="{{ route('admin.dashboard') }}">{{ $setting->app_name }}</a>
+        <a href="{{ route('admin.dashboard') }}">
+            @if(!empty($setting->logo))
+                <img src="{{ asset($setting->logo) }}" alt="{{ $setting->app_name }}" style="max-height: 42px; max-width: 170px; object-fit: contain; vertical-align: middle;">
+            @else
+                {{ $setting->app_name }}
+            @endif
+        </a>
       </div>
       <div class="sidebar-brand sidebar-brand-sm">
-        <a href="{{ route('admin.dashboard') }}">{{ $setting->app_name }}</a>
+        <a href="{{ route('admin.dashboard') }}">
+            @if(!empty($setting->favicon))
+                <img src="{{ asset($setting->favicon) }}" alt="{{ $setting->app_name }}" style="max-height: 30px; object-fit: contain; vertical-align: middle;">
+            @else
+                OR
+            @endif
+        </a>
       </div>
+
       <ul class="sidebar-menu">
           <li class="{{ Route::is('admin.dashboard')  ? 'active' : '' }}"><a class="nav-link" href="{{ route('admin.dashboard') }}"><i class="fas fa-home"></i> <span>{{__('admin.Dashboard')}}</span></a></li>
 
