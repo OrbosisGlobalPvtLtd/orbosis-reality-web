@@ -6,6 +6,8 @@ use Auth;
 use File;
 use Image;
 use App\Models\City;
+use App\Helpers\ImageHelper;
+
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Review;
@@ -238,23 +240,11 @@ class PropertyController extends Controller
         $property->video_description = $request->video_description;
 
         if($request->thumbnail_image){
-            $extention = $request->thumbnail_image->getClientOriginalExtension();
-            $image_name = 'property-thumb'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-            $image_name = 'uploads/custom-images/'.$image_name;
-            Image::make($request->thumbnail_image)
-                ->encode('webp', 80)
-                ->save(public_path().'/'.$image_name);
-            $property->thumbnail_image = $image_name;
+            $property->thumbnail_image = ImageHelper::saveImageSafely($request->thumbnail_image, 'property-thumb');
         }
 
         if($request->video_thumbnail){
-            $extention = $request->video_thumbnail->getClientOriginalExtension();
-            $image_name = 'video-thumb'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-            $image_name = 'uploads/custom-images/'.$image_name;
-            Image::make($request->video_thumbnail)
-                ->encode('webp', 80)
-                ->save(public_path().'/'.$image_name);
-            $property->video_thumbnail = $image_name;
+            $property->video_thumbnail = ImageHelper::saveImageSafely($request->video_thumbnail, 'video-thumb');
         }
 
 
@@ -289,17 +279,13 @@ class PropertyController extends Controller
 
         if($request->slider_images){
             foreach($request->slider_images as $index => $image){
-                $extention = $image->getClientOriginalExtension();
-                $image_name = 'Property-slider'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-                $image_name = 'uploads/custom-images/'.$image_name;
-                Image::make($image)
-                    ->encode('webp', 80)
-                    ->save(public_path().'/'.$image_name);
-
-                $slider = new PropertySlider();
-                $slider->property_id = $property->id;
-                $slider->image = $image_name;
-                $slider->save();
+                $image_name = ImageHelper::saveImageSafely($image, 'Property-slider');
+                if ($image_name) {
+                    $slider = new PropertySlider();
+                    $slider->property_id = $property->id;
+                    $slider->image = $image_name;
+                    $slider->save();
+                }
             }
         }
 
@@ -330,12 +316,7 @@ class PropertyController extends Controller
         if($request->plan_images && $request->plan_titles && $request->plan_descriptions){
             foreach($request->plan_images as $index => $image){
                 if($request->plan_images[$index] && $request->plan_titles[$index] && $request->plan_descriptions[$index]){
-                    $extention = $image->getClientOriginalExtension();
-                    $image_name = 'Property-plan'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-                    $image_name = 'uploads/custom-images/'.$image_name;
-                    Image::make($image)
-                        ->encode('webp', 80)
-                        ->save(public_path().'/'.$image_name);
+                    $image_name = ImageHelper::saveImageSafely($image, 'Property-plan');
 
                     $plan = new PropertyPlan();
                     $plan->property_id = $property->id;
@@ -346,6 +327,7 @@ class PropertyController extends Controller
                 }
             }
         }
+
 
         $notification = trans('admin_validation.Created succssfully');
         $notification = array('messege'=>$notification,'alert-type'=>'success');
@@ -543,36 +525,20 @@ class PropertyController extends Controller
 
         if($request->thumbnail_image && $request->lang_code === 'en'){
             $old_thumbnail_image = $property->thumbnail_image;
-            $extention = $request->thumbnail_image->getClientOriginalExtension();
-            $image_name = 'property-thumb'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-            $image_name = 'uploads/custom-images/'.$image_name;
-
-
-
-            Image::make($request->thumbnail_image)
-                ->encode('webp', 80)
-                ->save(public_path().'/'.$image_name);
-
-            $property->thumbnail_image = $image_name;
+            $property->thumbnail_image = ImageHelper::saveImageSafely($request->thumbnail_image, 'property-thumb');
             $property->save();
 
-            if($old_thumbnail_image){
-                if(File::exists(public_path().'/'.$old_thumbnail_image))unlink(public_path().'/'.$old_thumbnail_image);
+            if($old_thumbnail_image && File::exists(public_path().'/'.$old_thumbnail_image)){
+                unlink(public_path().'/'.$old_thumbnail_image);
             }
         }
 
         if($request->video_thumbnail && $request->lang_code === 'en'){
             $old_video_thumbnail = $property->video_thumbnail;
-            $extention = $request->video_thumbnail->getClientOriginalExtension();
-            $image_name = 'video-thumb'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-            $image_name = 'uploads/custom-images/'.$image_name;
-            Image::make($request->video_thumbnail)
-                ->encode('webp', 80)
-                ->save(public_path().'/'.$image_name);
-            $property->video_thumbnail = $image_name;
+            $property->video_thumbnail = ImageHelper::saveImageSafely($request->video_thumbnail, 'video-thumb');
 
-            if($old_video_thumbnail){
-                if(File::exists(public_path().'/'.$old_video_thumbnail))unlink(public_path().'/'.$old_video_thumbnail);
+            if($old_video_thumbnail && File::exists(public_path().'/'.$old_video_thumbnail)){
+                unlink(public_path().'/'.$old_video_thumbnail);
             }
         }
 
@@ -609,19 +575,16 @@ class PropertyController extends Controller
 
         if($request->slider_images && $request->lang_code === 'en'){
             foreach($request->slider_images as $index => $image){
-                $extention = $image->getClientOriginalExtension();
-                $image_name = 'Property-slider'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-                $image_name = 'uploads/custom-images/'.$image_name;
-                Image::make($image)
-                    ->encode('webp', 80)
-                    ->save(public_path().'/'.$image_name);
-
-                $slider = new PropertySlider();
-                $slider->property_id = $property->id;
-                $slider->image = $image_name;
-                $slider->save();
+                $image_name = ImageHelper::saveImageSafely($image, 'Property-slider');
+                if ($image_name) {
+                    $slider = new PropertySlider();
+                    $slider->property_id = $property->id;
+                    $slider->image = $image_name;
+                    $slider->save();
+                }
             }
         }
+
 
         if($request->existing_nearest_locations && $request->existing_distances && ($request->lang_code === 'en')){
             foreach($request->existing_nearest_locations as $index => $nearest_location){
