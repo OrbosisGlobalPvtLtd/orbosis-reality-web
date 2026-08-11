@@ -423,7 +423,7 @@
 		<!-- End Properties Listing -->
     @endif
 
-    @if ($setting->agent_can_add_property)
+    {{-- @if ($setting->agent_can_add_property)
         @if ($setting->agent_can_add_property == 'enable')
             @if ($agent->visibility)
                 <!-- Agents -->
@@ -517,7 +517,7 @@
                 <!-- End Agents -->
             @endif
         @endif
-    @endif
+    @endif --}}
 
    @if ($location->visibility)
             <!-- Property Listing -->
@@ -566,171 +566,97 @@
                             <!-- End Homec Search -->
                         </div>
                     </div>
+                    <style>
+                        .homec-location-card {
+                            border-radius: 12px;
+                            overflow: hidden;
+                            position: relative;
+                            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+                            transition: transform 0.3s ease, box-shadow 0.3s ease;
+                            height: 280px;
+                            width: 100%;
+                        }
+                        .homec-location-card:hover {
+                            transform: translateY(-6px);
+                            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+                        }
+                        .homec-location-card a {
+                            display: block;
+                            width: 100%;
+                            height: 100%;
+                        }
+                        .homec-location-card__img {
+                            position: relative;
+                            width: 100%;
+                            height: 100%;
+                            overflow: hidden;
+                        }
+                        .homec-location-card__img img {
+                            width: 100% !important;
+                            height: 100% !important;
+                            object-fit: cover !important;
+                            transition: transform 0.5s ease !important;
+                        }
+                        .homec-location-card:hover .homec-location-card__img img {
+                            transform: scale(1.08) !important;
+                        }
+                        .homec-location-card .homec-listing__title {
+                            position: absolute;
+                            left: 0;
+                            bottom: 0;
+                            width: 100%;
+                            padding: 20px;
+                            margin: 0;
+                            z-index: 2;
+                            color: #ffffff;
+                            word-wrap: break-word;
+                            transition: color 0.3s ease;
+                            font-size: 24px;
+                            font-weight: 600;
+                        }
+                        .homec-location-card .homec-listing__title span {
+                            display: block;
+                            font-size: 15px;
+                            font-weight: 400;
+                            color: #f2c94c;
+                            margin-bottom: 4px;
+                        }
+                        .homec-location-card:hover .homec-listing__title {
+                            color: #f2c94c;
+                        }
+                        .homec-location-card:hover .homec-listing__title span {
+                            color: #ffffff;
+                        }
+                    </style>
+
                     <div class="row">
                         @php
                             $home_locations = $location->locations;
-                            $second_property = false;
-                            $third_property = false;
-
-                            $four_property = false;
-                            $five_property = false;
-
-                            $six_property = false;
-                            $seven_property = false;
                         @endphp
 
-                        <div class="col-12" data-aos="fade-up" data-aos-delay="600">
-                            <!-- Homec Listing -->
-                            <div class="homec-listing mg-top-40">
-                                @foreach ($home_locations as $loc_index => $home_location)
-                                    @if ($loc_index == 0)
-                                        <!-- Homec Single Listing -->
-                                        <div class="homec-listing__single">
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__big" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
+                        @foreach ($home_locations as $loc_index => $home_location)
+                            @php
+                                $loc_img = ($home_location->image && file_exists(public_path($home_location->image))) 
+                                    ? asset($home_location->image) 
+                                    : asset('uploads/website-images/city-2026-01-10-06-50-10-1272.webp');
+                            @endphp
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-12 mg-top-30" data-aos="fade-up" data-aos-delay="{{ 300 + ($loc_index % 4) * 100 }}">
+                                <!-- Homec Location Card -->
+                                <div class="homec-location-card">
+                                    <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
+                                        <div class="homec-location-card__img">
+                                            <img src="{{ $loc_img }}" alt="{{ $home_location->name }}">
+                                            <div class="homec-overlay homec-listing__overlay"></div>
+                                            <h4 class="homec-listing__title">
+                                                <span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>
+                                                {{ $home_location->name }}
+                                            </h4>
                                         </div>
-                                        <!-- End Homec Single Listing -->
-                                    @elseif ($loc_index == 1 || $loc_index == 2)
-                                     <!-- Homec Single Listing -->
-                                        @if ($second_property == false)
-                                            <div class="homec-listing__single">
-                                        @endif
-
-                                        @if ($loc_index == 1)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__small"  src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-
-                                            @php
-                                                $second_property = true;
-                                            @endphp
-                                        @endif
-
-                                        @if ($loc_index == 2)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__medium" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-                                            @php
-                                                $third_property = true;
-                                            @endphp
-
-                                        @endif
-
-                                        @if ($third_property == true)
-                                        </div>
-                                        @endif
-
-                                    <!-- End Homec Single Listing -->
-
-                                    @elseif ($loc_index == 3)
-                                        <!-- Homec Single Listing -->
-                                        <div class="homec-listing__single">
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__big" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <!-- End Homec Single Listing -->
-
-                                    @elseif ($loc_index == 4 || $loc_index == 5)
-                                        <!-- Homec Single Listing -->
-                                        @if ($four_property == false)
-                                            <div class="homec-listing__single">
-                                        @endif
-
-                                        @if ($loc_index == 4)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__medium" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-
-                                            @php
-                                                $four_property = true;
-                                            @endphp
-                                        @endif
-
-                                        @if ($loc_index == 5)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__small" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-
-                                            @php
-                                                $five_property = true;
-                                            @endphp
-                                        @endif
-
-                                        @if ($five_property == true)
-                                        </div>
-                                        @endif
-                                        <!-- End Homec Single Listing -->
-                                    @elseif ($loc_index == 6 || $loc_index == 7)
-                                        <!-- Homec Single Listing -->
-                                        @if ($six_property == false)
-                                            <div class="homec-listing__single homec-listing__single--last">
-                                        @endif
-
-                                        @if ($loc_index == 6)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__small" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-
-                                            @php
-                                                $six_property = true;
-                                            @endphp
-                                        @endif
-
-                                        @if ($loc_index == 7)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__medium" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-
-                                            @php
-                                                $seven_property = true;
-                                            @endphp
-                                        @endif
-
-                                        @if ($seven_property == true)
-                                        </div>
-                                        @endif
-                                        <!-- End Homec Single Listing -->
-
-                                    @endif
-                                @endforeach
-
+                                    </a>
+                                </div>
+                                <!-- End Homec Location Card -->
                             </div>
-                            <!-- End Homec Listing -->
-                        </div>
+                        @endforeach
                     </div>
                     <div class="row">
                         <div class="col-12  d-flex justify-content-center mg-top-40" data-aos="fade-up" data-aos-delay="700">
@@ -842,10 +768,12 @@
 
                                                     @if ($pricing_plan_item->max_agent_add > 0)
                                                         <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Agency Profile')}}</li>
-                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->max_agent_add == -1 ? __('user.Unlimited') : $pricing_plan_item->max_agent_add }} {{__('user.Agent')}}</li>
                                                     @else
                                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Agency Profile')}}</li>
                                                     @endif
+
+                                                    <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->max_agent_add }} {{__('user.Agent')}}</li>
+
 
                                                     @if ($pricing_plan_item->number_of_property == -1)
                                                         <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Property Submission')}}</li>
@@ -853,41 +781,44 @@
                                                         <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->number_of_property }} {{__('user.Property Submission')}}</li>
                                                     @endif
 
-                                                    @if ($pricing_plan_item->featured_property == 'enable' && $pricing_plan_item->featured_property_qty != 0)
-                                                        @if ($pricing_plan_item->featured_property_qty == -1)
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Featured Property')}}</li>
-                                                        @else
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->featured_property_qty }} {{__('user.Featured Property')}}</li>
-                                                        @endif
+                                                    @if ($pricing_plan_item->featured_property == 'enable')
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Featured Property')}}</li>
                                                     @else
                                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Featured Property')}}</li>
                                                     @endif
 
-                                                    @if ($pricing_plan_item->top_property == 'enable' && $pricing_plan_item->top_property_qty != 0)
-                                                        @if ($pricing_plan_item->top_property_qty == -1)
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Top Property')}}</li>
-                                                        @else
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->top_property_qty }} {{__('user.Top Property')}}</li>
-                                                        @endif
+                                                    @if ($pricing_plan_item->featured_property_qty == -1)
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Featured Property')}}</li>
+                                                    @else
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->featured_property_qty }} {{__('user.Featured Property')}}</li>
+                                                    @endif
+
+                                                    @if ($pricing_plan_item->top_property == 'enable')
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Top Property')}}</li>
                                                     @else
                                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Top Property')}}</li>
                                                     @endif
 
-                                                    @if ($pricing_plan_item->urgent_property == 'enable' && $pricing_plan_item->urgent_property_qty != 0)
-                                                        @if ($pricing_plan_item->urgent_property_qty == -1)
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Urgent Property')}}</li>
-                                                        @else
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->urgent_property_qty }} {{__('user.Urgent Property')}}</li>
-                                                        @endif
+                                                    @if ($pricing_plan_item->top_property_qty == -1)
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Top Property')}}</li>
+                                                    @else
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->top_property_qty }} {{__('user.Top Property')}}</li>
+                                                    @endif
+
+                                                    @if ($pricing_plan_item->urgent_property == 'enable')
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Urgent Property')}}</li>
                                                     @else
                                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Urgent Property')}}</li>
                                                     @endif
 
-                                                    @if ($pricing_plan_item->is_featured_badge_allowed ?? 0)
-                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>Verified & Featured Badge</li>
+                                                    @if ($pricing_plan_item->urgent_property_qty == -1)
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Urgent Property')}}</li>
+                                                    @else
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->urgent_property_qty }} {{__('user.Urgent Property')}}</li>
                                                     @endif
 
                                                     <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Aminities')}}</li>
+
                                                     <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Nearest Location')}}</li>
 
 

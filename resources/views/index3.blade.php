@@ -339,7 +339,7 @@
         <!-- End About Area -->
     @endif
 
-    @if ($setting->agent_can_add_property)
+    {{-- @if ($setting->agent_can_add_property)
         @if ($setting->agent_can_add_property == 'enable')
             @if ($agent->visibility)
             <!-- Agents -->
@@ -430,7 +430,7 @@
             <!-- End Agents -->
             @endif
         @endif
-    @endif
+    @endif --}}
 
     @if ($urgent_property->visibility)
     <!-- Testimonials & Clients -->

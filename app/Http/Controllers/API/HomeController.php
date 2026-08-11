@@ -937,6 +937,7 @@ class HomeController extends Controller
         $seo_setting = SeoSetting::where('id', 5)->first();
 
         $paginate_qty = CustomPagination::find(2);
+        $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
         $properties = Property::with(['agent', 'city', 'property_type'])
                             ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured','city_id','property_type_id', 'availability_status')
@@ -1027,7 +1028,7 @@ class HomeController extends Controller
 
 
 
-        $properties = $properties->paginate($paginate_qty->qty);
+        $properties = $properties->paginate($qty);
 
         $locations = City::select('id', 'name', 'slug')->get();
         $property_types = Category::select('id', 'name', 'slug')->orderBy('name', 'asc')->where('status', 1)->get();
@@ -1068,6 +1069,7 @@ class HomeController extends Controller
     public function properties_with_ajax(Request $request){
 
         $paginate_qty = CustomPagination::find(2);
+        $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
         $properties = Property::with(['agent', 'city', 'property_type'])
                             ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured','city_id','property_type_id', 'availability_status')
@@ -1156,7 +1158,7 @@ class HomeController extends Controller
         }
 
 
-        $properties = $properties->paginate($paginate_qty->qty);
+        $properties = $properties->paginate($qty);
         $properties = $properties->appends($request->all());
 
         return view('properties_with_ajax')->with(['properties' => $properties]);
@@ -1246,6 +1248,7 @@ class HomeController extends Controller
         }
 
         $paginate_qty = CustomPagination::find(3);
+        $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
         $agents = User::select('id','name','user_name','email','status','image','designation','facebook','twitter','linkedin','instagram', 'kyc_status', 'about_me')
         ->where('login_type', 'agent')
@@ -1257,7 +1260,7 @@ class HomeController extends Controller
                   ->orWhere('owner_id', '!=', 0);
         })
         ->where('status', 1)
-        ->orderBy('id','desc')->paginate($paginate_qty->qty);
+        ->orderBy('id','desc')->paginate($qty);
 
         $homepage = Homepage::first();
         $setting = Setting::first();
@@ -1324,6 +1327,7 @@ class HomeController extends Controller
             if(!$agent) return response()->json(['message' => trans('Agent not found')],403);
 
             $paginate_qty = CustomPagination::find(2);
+            $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
             $properties = Property::with('agent')
                             ->where(function ($query) use ($agent) {
@@ -1345,7 +1349,7 @@ class HomeController extends Controller
                 });
             }
 
-            $properties = $properties->paginate($paginate_qty->qty);
+            $properties = $properties->paginate($qty);
             $properties = $properties->appends($request->all());
 
             $total_property = Property::with('agent')
@@ -1385,6 +1389,7 @@ class HomeController extends Controller
             );
 
             $paginate_qty = CustomPagination::find(2);
+            $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
             $properties = Property::with('agent')->select('id','agent_id','title','slug','purpose','rent_period','price','thumbnail_image','address','total_bedroom','total_bathroom','total_area','status','is_featured', 'availability_status')->where('status', 'enable')->where('agent_id', 0)->orderBy('id','desc');
 
@@ -1392,7 +1397,7 @@ class HomeController extends Controller
                 $properties = $properties->where('title','LIKE','%'.$request->search.'%')->orWhere('description','LIKE','%'.$request->search.'%');
             }
 
-            $properties = $properties->paginate($paginate_qty->qty);
+            $properties = $properties->paginate($qty);
             $properties = $properties->appends($request->all());
 
             $total_property =  Property::with('agent')->where('status', 'enable')->where('agent_id', 0)->count();
@@ -1511,6 +1516,7 @@ class HomeController extends Controller
     {
 
         $paginate_qty = CustomPagination::find(2);
+        $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
         $agencies = User::where('is_agency', 1)->with('profile')->where('status', 1)
         ->when($request->has('search'), function($query) use ($request) {
@@ -1518,7 +1524,7 @@ class HomeController extends Controller
                 $query->where('company_name', 'LIKE', '%' . $request->search . '%');
             });
         })
-        ->orderBy('id','desc')->paginate($paginate_qty->qty);
+        ->orderBy('id','desc')->paginate($qty);
 
         return response()->json(['data' => $agencies]);
     }
@@ -1536,6 +1542,7 @@ class HomeController extends Controller
             $agent_ids[] = $agency->id;
 
             $paginate_qty = CustomPagination::find(2);
+            $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
             $properties = Property::with('agent')
                             ->where(function ($query) use ($agent_ids) {
@@ -1557,7 +1564,7 @@ class HomeController extends Controller
                 });
             }
 
-            $properties = $properties->paginate($paginate_qty->qty);
+            $properties = $properties->paginate($qty);
             $properties = $properties->appends($request->all());
 
             $total_property = $properties->count();
@@ -1567,7 +1574,7 @@ class HomeController extends Controller
                 $query->where('name','LIKE','%'.$request->agent_search.'%');
             })
             ->orWhere('id', $agency->id)
-            ->where('status', 1)->paginate($paginate_qty->qty);
+            ->where('status', 1)->paginate($qty);
 
         return response()->json(['agency' => $agency, 'agents' => $agents, 'properties' => $properties, 'total_property' => $total_property]);
 

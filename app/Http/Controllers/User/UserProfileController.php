@@ -67,11 +67,6 @@ class UserProfileController extends Controller
             $recent_bookings = collect([]);
             $recently_viewed = [];
             $recommendations = collect([]);
-            $sold_properties = Property::where('agent_id', $user->id)->where('availability_status', 'sold')->count();
-            $rented_properties = Property::where('agent_id', $user->id)->where('availability_status', 'rented')->count();
-            $active_order = Order::where('agent_id', $user->id)->where('order_status', 'active')->orderBy('id', 'desc')->first();
-            $max_properties = $active_order ? $active_order->initial_qty : 5;
-            $remaining_properties = ($max_properties < 0) ? 'Unlimited' : max(0, $max_properties - $publish_property);
         }
 
         $setting = Setting::first();
@@ -104,9 +99,6 @@ class UserProfileController extends Controller
             'total_purchase' => $total_purchase,
             'total_wishlist' => $total_wishlist,
             'total_review' => $total_review,
-            'sold_properties' => $sold_properties ?? 0,
-            'rented_properties' => $rented_properties ?? 0,
-            'remaining_properties' => $remaining_properties ?? 5,
             'mobile_app' => $mobile_app,
             'recent_bookings' => $recent_bookings,
             'recently_viewed' => $recently_viewed,
@@ -178,14 +170,6 @@ class UserProfileController extends Controller
         $user->twitter = $request->twitter;
         $user->linkedin = $request->linkedin;
         $user->instagram = $request->instagram;
-        $user->aadhaar_number = $request->aadhaar_number;
-        $user->pan_number = $request->pan_number;
-        $user->bank_name = $request->bank_name;
-        $user->account_number = $request->account_number;
-        $user->ifsc_code = $request->ifsc_code;
-        $user->upi_id = $request->upi_id;
-        $user->office_address = $request->office_address;
-        $user->rera_number = $request->rera_number;
         $user->save();
 
         if($request->file('image')){

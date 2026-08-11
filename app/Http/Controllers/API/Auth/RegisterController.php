@@ -85,11 +85,10 @@ class RegisterController extends Controller
         $user->password = Hash::make($request->password);
         $user->verify_token = Str::random(100);
         $user->login_type = 'user';
-        $user->status = 1;
-        $user->email_verified = 1;
-        $user->email_verified_at = now();
+        $user->status = 0;
+        $user->email_verified = 0;
+        $user->email_verified_at = null;
         $user->save();
-
 
         try{
             MailHelper::setMailConfig();

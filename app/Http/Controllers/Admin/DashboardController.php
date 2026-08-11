@@ -55,7 +55,7 @@ class DashboardController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $total_agent = User::where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id','desc')->count();
+        $total_agent = User::whereIn('id', $agent_arr)->where('status', 1)->orderBy('id','desc')->count();
         $total_user = User::orderBy('id','desc')->where('status',1)->count();
 
         $total_own_property = Property::where('agent_id', 0)->count();

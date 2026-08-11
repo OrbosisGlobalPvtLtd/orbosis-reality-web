@@ -60,17 +60,8 @@ class BookingController extends Controller
             $booking->zip_code = $request->zip_code;
             $booking->email = $request->email;
             $booking->phone = $request->phone;
+            $booking->comment = $request->comment;
             $booking->save();
-
-            try {
-                $owner = \App\Models\User::find($booking->agent_id);
-                if ($owner) {
-                    $owner->notify(new \App\Notifications\BookingRequestNotification($booking));
-                }
-            } catch (\Exception $e) {
-                // Ignore notification failure if SMTP not configured
-            }
-
             $notification = trans('user_validation.Booking Created Successfully');
             $notification=array('messege'=>$notification,'alert-type'=>'success');
             return redirect()->back()->with($notification);
