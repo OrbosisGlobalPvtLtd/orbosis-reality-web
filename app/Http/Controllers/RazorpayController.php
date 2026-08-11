@@ -14,9 +14,10 @@ class RazorpayController extends Controller
      */
     public function createOrder(Request $request)
     {
-        $amount = $request->input('amount');
-        $currency = $request->input('currency', 'INR');
-        $receipt = $request->input('receipt', 'rcpt_' . time() . '_' . rand(1000, 9999));
+        $amount = $request->json('amount') ?? $request->input('amount');
+        $currency = $request->json('currency') ?? $request->input('currency', 'INR');
+        $receipt = $request->json('receipt') ?? $request->input('receipt', 'rcpt_' . time() . '_' . rand(1000, 9999));
+
 
         // Validate amount >= 100 paise
         if (!$amount || !is_numeric($amount) || (int)$amount < 100) {
@@ -26,10 +27,12 @@ class RazorpayController extends Controller
             ], 400);
         }
 
-        $keyId = env('RAZORPAY_KEY_ID') ?: config('services.razorpay.key_id');
-        $keySecret = env('RAZORPAY_KEY_SECRET') ?: config('services.razorpay.key_secret');
+        $razorpay = \App\Models\RazorpayPayment::first();
+        $keyId = ($razorpay && !empty($razorpay->key)) ? $razorpay->key : env('RAZORPAY_KEY_ID');
+        $keySecret = ($razorpay && !empty($razorpay->secret_key)) ? $razorpay->secret_key : env('RAZORPAY_KEY_SECRET');
 
         if (!$keyId || !$keySecret) {
+
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Razorpay API credentials not configured.'

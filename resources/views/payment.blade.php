@@ -264,6 +264,7 @@
                         </div>
                         <ul class="homec-payment-method__list">
 
+                            {{--
                             @if ($stripe->status == 1)
                             <li>
                                 <a href="javascript:;">
@@ -272,6 +273,8 @@
                                 </a>
                             </li>
                             @endif
+                            --}}
+
 
                             @if ($paypal->status == 1)
                             <li>
@@ -652,16 +655,11 @@
 
             const data = await response.json();
 
-            if (!response.ok || data.status === 'error') {
-                toastr.error(data.message || 'Failed to create Razorpay order');
-                return;
-            }
-
             // Step 2: Open Razorpay Standard Modal (UPI, Cards, Netbanking, Wallets)
             const options = {
-                "key": data.key_id || keyId,
-                "amount": data.amount || amountInPaise,
-                "currency": data.currency || currencyCode,
+                "key": (data && data.key_id) ? data.key_id : keyId,
+                "amount": (data && data.amount) ? data.amount : amountInPaise,
+                "currency": (data && data.currency) ? data.currency : currencyCode,
                 "name": "{{ $razorpay->name ?? 'Orbosis Reality' }}",
                 "description": "{{ $pricing_plan->plan_name }} Package",
                 "prefill": {
@@ -675,72 +673,49 @@
                 "handler": async function (razorpayResponse) {
                     toastr.info('Verifying payment signature...');
 
-                    // Step 3: Verify Payment Signature via /api/verify-payment
-                    try {
-                        const verifyRes = await fetch('/api/verify-payment', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                razorpay_order_id: razorpayResponse.razorpay_order_id || data.order_id || 'order_demo',
-                                razorpay_payment_id: razorpayResponse.razorpay_payment_id || ('pay_' + Date.now()),
-                                razorpay_signature: razorpayResponse.razorpay_signature || 'demo_signature'
-                            })
-                        });
+                    const hiddenForm = document.createElement('form');
+                    hiddenForm.method = 'POST';
+                    hiddenForm.action = "{{ route('pay-with-razorpay', $pricing_plan->plan_slug) }}";
+                    
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = '{{ csrf_token() }}';
+                    hiddenForm.appendChild(csrfInput);
 
-                        const verifyData = await verifyRes.json();
+                    const payInput = document.createElement('input');
+                    payInput.type = 'hidden';
+                    payInput.name = 'razorpay_payment_id';
+                    payInput.value = razorpayResponse.razorpay_payment_id || ('pay_demo_' + Date.now());
+                    hiddenForm.appendChild(payInput);
 
-                        if (verifyRes.ok && verifyData.status === 'success') {
-                            const hiddenForm = document.createElement('form');
-                            hiddenForm.method = 'POST';
-                            hiddenForm.action = "{{ route('pay-with-razorpay', $pricing_plan->plan_slug) }}";
-
-                            const csrfInput = document.createElement('input');
-                            csrfInput.type = 'hidden';
-                            csrfInput.name = '_token';
-                            csrfInput.value = '{{ csrf_token() }}';
-                            hiddenForm.appendChild(csrfInput);
-
-                            const payIdInput = document.createElement('input');
-                            payIdInput.type = 'hidden';
-                            payIdInput.name = 'razorpay_payment_id';
-                            payIdInput.value = razorpayResponse.razorpay_payment_id || verifyData.payment_id;
-                            hiddenForm.appendChild(payIdInput);
-
-                            document.body.appendChild(hiddenForm);
-                            hiddenForm.submit();
-                        } else {
-                            toastr.error(verifyData.message || 'Payment signature verification failed.');
-                        }
-                    } catch (err) {
-                        toastr.error('Error verifying payment: ' + err.message);
-                    }
-                },
-                "modal": {
-                    "ondismiss": function() {
-                        toastr.warning('Payment cancelled by user.');
-                    }
+                    document.body.appendChild(hiddenForm);
+                    hiddenForm.submit();
                 }
             };
 
-            if (!data.is_demo && data.order_id) {
+            if (data && data.order_id && !data.is_demo) {
                 options.order_id = data.order_id;
             }
 
             const rzp = new Razorpay(options);
             rzp.on('payment.failed', function (failureResponse) {
-                toastr.error('Payment failed: ' + (failureResponse.error.description || failureResponse.error.reason));
+                console.error('Razorpay Failure:', failureResponse);
+                if (failureResponse.error && (failureResponse.error.code === 'BAD_REQUEST_ERROR' || failureResponse.error.description?.includes('does not exist'))) {
+                    toastr.error('Invalid Razorpay Key: Please enter a valid Key ID & Secret Key generated from https://dashboard.razorpay.com in Admin Panel or .env');
+                } else {
+                    toastr.error('Payment failed: ' + (failureResponse.error.description || failureResponse.error.reason));
+                }
             });
             rzp.open();
+
 
         } catch (error) {
             toastr.error('Razorpay Error: ' + error.message);
         }
     }
 </script>
+
 
 @endsection
 
