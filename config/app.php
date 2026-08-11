@@ -54,9 +54,9 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'https://orbosisreality.com/'),
+    'url' => env('APP_URL', 'http://localhost'),
 
-   'asset_url' => env('ASSET_URL','https://orbosisreality.com/public'),
+   'asset_url' => env('ASSET_URL', null),
 
     /*
     |--------------------------------------------------------------------------

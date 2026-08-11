@@ -211,36 +211,11 @@ class PaymentController extends Controller
         }
 
         $razorpay = RazorpayPayment::first();
-        if (!$razorpay) {
-            $razorpay = new RazorpayPayment();
-        }
-        if (empty($razorpay->key)) {
-            $razorpay->key = env('RAZORPAY_KEY_ID');
-        }
-        if (empty($razorpay->secret_key)) {
-            $razorpay->secret_key = env('RAZORPAY_KEY_SECRET');
-        }
-        if (empty($razorpay->currency_rate)) {
-            $razorpay->currency_rate = 1;
-        }
-        if (empty($razorpay->currency_code)) {
-            $razorpay->currency_code = 'INR';
-        }
 
         $user = Auth::guard('api')->user();
-        if (!$user && $request->has('token')) {
-            try {
-                $user = \Tymon\JWTAuth\Facades\JWTAuth::setToken($request->token)->toUser();
-            } catch (\Exception $e) {
-                // Ignore token exception
-            }
-        }
-
         $pricing_plan = PricingPlan::where(['plan_slug' => $slug])->first();
 
-        if ($user) {
-            Session::put('auth_user', $user);
-        }
+        Session::put('auth_user', $user);
 
         return view('razorpay_webview', compact('razorpay','user','pricing_plan'));
     }
@@ -252,64 +227,31 @@ class PaymentController extends Controller
         }
 
         $user = Session::get('auth_user');
-        if (!$user && Auth::guard('api')->check()) {
-            $user = Auth::guard('api')->user();
-        }
 
         $razorpay = RazorpayPayment::first();
-        $keyId = ($razorpay && !empty($razorpay->key)) ? $razorpay->key : env('RAZORPAY_KEY_ID');
-        $keySecret = ($razorpay && !empty($razorpay->secret_key)) ? $razorpay->secret_key : env('RAZORPAY_KEY_SECRET');
-
         $input = $request->all();
-        $paymentId = $request->input('razorpay_payment_id');
-        $orderId = $request->input('razorpay_order_id');
-        $signature = $request->input('razorpay_signature');
-
-        if (!empty($paymentId)) {
+        $api = new Api($razorpay->key,$razorpay->secret_key);
+        $payment = $api->payment->fetch($input['razorpay_payment_id']);
+        if(count($input)  && !empty($input['razorpay_payment_id'])) {
             try {
-                $payId = $paymentId;
-                if (!str_starts_with($paymentId, 'pay_demo_') && !str_starts_with($orderId, 'order_demo_')) {
-                    // Verify signature if provided
-                    if (!empty($orderId) && !empty($signature)) {
-                        $expectedSignature = hash_hmac('sha256', $orderId . '|' . $paymentId, $keySecret);
-                        if (!hash_equals($expectedSignature, $signature)) {
-                            return redirect()->route('webview-faild-payment');
-                        }
-                    }
-
-                    try {
-                        $api = new Api($keyId, $keySecret);
-                        $payment = $api->payment->fetch($paymentId);
-                        $payId = $payment->id;
-
-                        if ($payment->status == 'authorized') {
-                            $api->payment->fetch($paymentId)->capture(array('amount' => $payment['amount']));
-                        }
-                    } catch (Exception $ex) {
-                        if (env('APP_ENV') != 'local' && env('APP_MODE') != 'DEMO') {
-                            throw $ex;
-                        }
-                    }
-                }
+                $response = $api->payment->fetch($input['razorpay_payment_id'])->capture(array('amount'=>$payment['amount']));
+                $payId = $response->id;
 
                 $pricing_plan = PricingPlan::where(['plan_slug' => $slug])->first();
 
-                if ($user && $pricing_plan) {
-                    $order = $this->createOrder($user, $pricing_plan, 'Razorpay', 'success', $payId);
-                    $this->sendMailToClient($user, $order);
-                }
+                $order = $this->createOrder($user, $pricing_plan, 'Razorpay', 'success', $payId);
+
+                $this->sendMailToClient($user, $order);
 
                 return redirect()->route('webview-success-payment');
 
-            } catch (Exception $e) {
+            }catch (Exception $e) {
                 return redirect()->route('webview-faild-payment');
             }
-        } else {
+        }else{
             return redirect()->route('webview-faild-payment');
         }
     }
-
-
 
     public function webview_success_payment(){
         $notification = trans('user_validation.You have successfully enrolled this package');

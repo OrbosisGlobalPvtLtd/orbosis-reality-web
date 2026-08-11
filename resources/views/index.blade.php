@@ -512,170 +512,97 @@
                             <!-- End Homec Search -->
                         </div>
                     </div>
+                    <style>
+                        .homec-location-card {
+                            border-radius: 12px;
+                            overflow: hidden;
+                            position: relative;
+                            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+                            transition: transform 0.3s ease, box-shadow 0.3s ease;
+                            height: 280px;
+                            width: 100%;
+                        }
+                        .homec-location-card:hover {
+                            transform: translateY(-6px);
+                            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+                        }
+                        .homec-location-card a {
+                            display: block;
+                            width: 100%;
+                            height: 100%;
+                        }
+                        .homec-location-card__img {
+                            position: relative;
+                            width: 100%;
+                            height: 100%;
+                            overflow: hidden;
+                        }
+                        .homec-location-card__img img {
+                            width: 100% !important;
+                            height: 100% !important;
+                            object-fit: cover !important;
+                            transition: transform 0.5s ease !important;
+                        }
+                        .homec-location-card:hover .homec-location-card__img img {
+                            transform: scale(1.08) !important;
+                        }
+                        .homec-location-card .homec-listing__title {
+                            position: absolute;
+                            left: 0;
+                            bottom: 0;
+                            width: 100%;
+                            padding: 20px;
+                            margin: 0;
+                            z-index: 2;
+                            color: #ffffff;
+                            word-wrap: break-word;
+                            transition: color 0.3s ease;
+                            font-size: 24px;
+                            font-weight: 600;
+                        }
+                        .homec-location-card .homec-listing__title span {
+                            display: block;
+                            font-size: 15px;
+                            font-weight: 400;
+                            color: #f2c94c;
+                            margin-bottom: 4px;
+                        }
+                        .homec-location-card:hover .homec-listing__title {
+                            color: #f2c94c;
+                        }
+                        .homec-location-card:hover .homec-listing__title span {
+                            color: #ffffff;
+                        }
+                    </style>
+
                     <div class="row">
                         @php
                             $home_locations = $location->locations;
-                            $second_property = false;
-                            $third_property = false;
-
-                            $four_property = false;
-                            $five_property = false;
-
-                            $six_property = false;
-                            $seven_property = false;
                         @endphp
 
-                        <div class="col-12" data-aos="fade-up" data-aos-delay="600">
-                            <!-- Homec Listing -->
-                            <div class="homec-listing mg-top-40">
-                                @foreach ($home_locations as $loc_index => $home_location)
-                                    @if ($loc_index == 0)
-                                        <!-- Homec Single Listing -->
-                                        <div class="homec-listing__single">
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__big" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
+                        @foreach ($home_locations as $loc_index => $home_location)
+                            @php
+                                $loc_img = ($home_location->image && file_exists(public_path($home_location->image))) 
+                                    ? asset($home_location->image) 
+                                    : asset('uploads/website-images/city-2026-01-10-06-50-10-1272.webp');
+                            @endphp
+                            <div class="col-xl-3 col-lg-3 col-md-6 col-12 mg-top-30" data-aos="fade-up" data-aos-delay="{{ 300 + ($loc_index % 4) * 100 }}">
+                                <!-- Homec Location Card -->
+                                <div class="homec-location-card">
+                                    <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
+                                        <div class="homec-location-card__img">
+                                            <img src="{{ $loc_img }}" alt="{{ $home_location->name }}">
+                                            <div class="homec-overlay homec-listing__overlay"></div>
+                                            <h4 class="homec-listing__title">
+                                                <span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>
+                                                {{ $home_location->name }}
+                                            </h4>
                                         </div>
-                                        <!-- End Homec Single Listing -->
-                                    @elseif ($loc_index == 1 || $loc_index == 2)
-                                     <!-- Homec Single Listing -->
-                                        @if ($second_property == false)
-                                            <div class="homec-listing__single">
-                                        @endif
-
-                                        @if ($loc_index == 1)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__small"  src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-
-                                            @php
-                                                $second_property = true;
-                                            @endphp
-                                        @endif
-                                        @if ($loc_index == 2)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__medium" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-                                            @php
-                                                $third_property = true;
-                                            @endphp
-
-                                        @endif
-
-                                        @if ($third_property == true)
-                                        </div>
-                                        @endif
-
-                                    <!-- End Homec Single Listing -->
-
-                                    @elseif ($loc_index == 3)
-                                        <!-- Homec Single Listing -->
-                                        <div class="homec-listing__single">
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__big" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <!-- End Homec Single Listing -->
-
-                                    @elseif ($loc_index == 4 || $loc_index == 5)
-                                        <!-- Homec Single Listing -->
-                                        @if ($four_property == false)
-                                            <div class="homec-listing__single">
-                                        @endif
-
-                                        @if ($loc_index == 4)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__medium" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-
-                                            @php
-                                                $four_property = true;
-                                            @endphp
-                                        @endif
-
-                                        @if ($loc_index == 5)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__small" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-
-                                            @php
-                                                $five_property = true;
-                                            @endphp
-                                        @endif
-
-                                        @if ($five_property == true)
-                                        </div>
-                                        @endif
-                                        <!-- End Homec Single Listing -->
-                                    @elseif ($loc_index == 6 || $loc_index == 7)
-                                        <!-- Homec Single Listing -->
-                                        @if ($six_property == false)
-                                            <div class="homec-listing__single homec-listing__single--last">
-                                        @endif
-
-                                        @if ($loc_index == 6)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__small" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-
-                                            @php
-                                                $six_property = true;
-                                            @endphp
-                                        @endif
-
-                                        @if ($loc_index == 7)
-                                            <div class="homec-listing__inner">
-                                                <a href="{{ route('properties', ['location' => $home_location->slug]) }}">
-                                                    <img class="homec-listing__single__medium" src="{{ ($home_location->image)? asset($home_location->image) : asset($setting->default_placeholder)}}" alt="home_location">
-                                                    <div class="homec-overlay homec-listing__overlay"></div>
-                                                    <h4 class="homec-listing__title"><span>{{ $home_location->totalProperty }}+ {{__('user.Property')}}</span>{{ $home_location->name }}</h4>
-                                                </a>
-                                            </div>
-
-                                            @php
-                                                $seven_property = true;
-                                            @endphp
-                                        @endif
-
-                                        @if ($seven_property == true)
-                                        </div>
-                                        @endif
-                                        <!-- End Homec Single Listing -->
-
-                                    @endif
-                                @endforeach
-
+                                    </a>
+                                </div>
+                                <!-- End Homec Location Card -->
                             </div>
-                            <!-- End Homec Listing -->
-                        </div>
+                        @endforeach
                     </div>
                     <div class="row">
                         <div class="col-12  d-flex justify-content-center mg-top-40" data-aos="fade-up" data-aos-delay="700">
@@ -691,7 +618,92 @@
         @if ($about_us->visibility)
             @php
                 $home1_content = $about_us->home1_content;
+                $bg_img = ($home1_content->background_image && file_exists(public_path($home1_content->background_image))) 
+                    ? asset($home1_content->background_image) 
+                    : asset('uploads/website-images/about-us-bg-2026-03-20-08-00-49-1074.webp');
+                $auth_img = ($home1_content->author_image && file_exists(public_path($home1_content->author_image))) 
+                    ? asset($home1_content->author_image) 
+                    : asset('uploads/website-images/john-doe-2023-04-02-12-13-26-4519.jpg');
             @endphp
+            <style>
+                .homec-image-group__main {
+                    position: relative;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+                }
+                .homec-image-group__main img.about-main-img {
+                    width: 100%;
+                    height: 480px;
+                    object-fit: cover;
+                }
+                .orbosis-ceo-badge {
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 14px !important;
+                    background: #ffffff !important;
+                    padding: 10px 22px 10px 10px !important;
+                    border-radius: 60px !important;
+                    box-shadow: 0 15px 35px rgba(0,0,0,0.18) !important;
+                    position: absolute !important;
+                    bottom: 25px !important;
+                    right: 25px !important;
+                    z-index: 10 !important;
+                    border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+                    width: auto !important;
+                    height: auto !important;
+                }
+                .orbosis-ceo-badge__avatar {
+                    width: 50px !important;
+                    height: 50px !important;
+                    border-radius: 50% !important;
+                    overflow: hidden !important;
+                    flex-shrink: 0 !important;
+                    border: 2px solid #6366f1 !important;
+                }
+                .orbosis-ceo-badge__avatar img {
+                    width: 100% !important;
+                    height: 100% !important;
+                    object-fit: cover !important;
+                    border-radius: 50% !important;
+                }
+                .orbosis-ceo-badge__info {
+                    display: flex !important;
+                    flex-direction: column !important;
+                    justify-content: center !important;
+                }
+                .orbosis-ceo-badge__name {
+                    margin: 0 !important;
+                    font-size: 15px !important;
+                    font-weight: 700 !important;
+                    color: #0f172a !important;
+                    line-height: 1.2 !important;
+                    white-space: nowrap !important;
+                }
+                .orbosis-ceo-badge__role {
+                    margin: 2px 0 0 0 !important;
+                    font-size: 12px !important;
+                    font-weight: 600 !important;
+                    color: #6366f1 !important;
+                    white-space: nowrap !important;
+                }
+
+                .homec-section__badge {
+                    display: inline-block !important;
+                    width: auto !important;
+                    max-width: fit-content !important;
+                    margin: 0 auto 12px auto !important;
+                    padding: 6px 20px !important;
+                    border-radius: 30px !important;
+                    font-size: 13px !important;
+                    font-weight: 700 !important;
+                    letter-spacing: 0.5px !important;
+                    text-transform: uppercase !important;
+                    background: #e0e7ff !important;
+                    color: #4338ca !important;
+                    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.12) !important;
+                }
+            </style>
             <!-- About Area -->
             <section class="homec-about homec-bg-third-color pd-top-90 pd-btm-120">
                 <div class="homec-shape">
@@ -708,17 +720,19 @@
                             <!-- Homec Image Group -->
                             <div class="homec-image-group homec-image-group--v2">
                                 <div class="homec-image-group__main">
-                                    <img src="{{ ($home1_content->background_image)? asset($home1_content->background_image) : asset($setting->default_placeholder)}}" alt="background_image">
+                                    <img src="{{ $bg_img }}" alt="about_bg" class="about-main-img">
                                     <div class="homec-experiences">
                                         <h4 class="homec-experiences__title">{{ $home1_content->experience_text_1 }} <span>{{ $home1_content->experience_text_2 }}</span></h4>
                                     </div>
-                                </div>
-                                <div class="homec-ceo-quote">
-                                    <div class="homec-ceo-quote__img">
-                                        <div class="homec-overlay"></div>
-                                        <img src="{{ ($home1_content->author_image)? asset($home1_content->author_image) : asset($setting->default_placeholder)}}" alt="author_image">
+                                    <div class="orbosis-ceo-badge">
+                                        <div class="orbosis-ceo-badge__avatar">
+                                            <img src="{{ $auth_img }}" alt="CEO Avatar" onerror="this.onerror=null; this.src='{{ asset('uploads/website-images/john-doe-2023-04-02-12-13-26-4519.jpg') }}';">
+                                        </div>
+                                        <div class="orbosis-ceo-badge__info">
+                                            <h5 class="orbosis-ceo-badge__name">{{ $home1_content->author_name }}</h5>
+                                            <span class="orbosis-ceo-badge__role">{{ $home1_content->author_designation }}</span>
+                                        </div>
                                     </div>
-                                    <h4 class="homec-ceo-quote__title">{{ $home1_content->author_name }}<span>{{ $home1_content->author_designation }}</span></h4>
                                 </div>
                             </div>
                             <!-- End Homec Image Group -->
@@ -740,17 +754,17 @@
                                     <div class="homec-dflex-space">
                                         <div class="homec-funfact__single homec-funfact__single--v2">
                                             <div class="homec-funfact__icon">
-                                                <img src="{{ $home1_content->item1->icon }}" alt="icon">
+                                                <img src="{{ asset($home1_content->item1->icon ?? 'uploads/website-images/trusted20230409043810.svg') }}" alt="icon">
                                             </div>
                                             <h3 class="homec-funfact__number"><span class="counter">{{ $home1_content->item1->title }}</span>{{ $home1_content->item1->title2 }}</h3>
                                             <p class="homec-funfact__text">{{ $home1_content->item1->description }}</p>
                                         </div>
                                         <div class="homec-funfact__single homec-funfact__single--v2">
                                             <div class="homec-funfact__icon">
-                                                <img src="{{ $home1_content->item2->icon }}" alt="icon">
+                                                <img src="{{ asset($home1_content->item2->icon ?? 'uploads/website-images/247-support20230409043819.svg') }}" alt="icon">
                                             </div>
-                                            <h3 class="homec-funfact__number"><span class="counter">{{ $home1_content->item1->title }}</span>{{ $home1_content->item1->title2 }}</h3>
-                                            <p class="homec-funfact__text">{{ $home1_content->item1->description }}</p>
+                                            <h3 class="homec-funfact__number"><span class="counter">{{ $home1_content->item2->title }}</span>{{ $home1_content->item2->title2 }}</h3>
+                                            <p class="homec-funfact__text">{{ $home1_content->item2->description }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -763,8 +777,21 @@
         @endif
 
         @if ($featured_property->visibility)
+            <style>
+                .homec-property-listing-bg {
+                    background: #f8fafc !important;
+                    position: relative;
+                }
+                .homec-property-listing-bg .homec-section__title {
+                    color: #0f172a !important;
+                }
+                .homec-property-listing-bg .homec-section__badge {
+                    color: #6366f1 !important;
+                    background: #e0e7ff !important;
+                }
+            </style>
             <!-- Properties Listing -->
-            <section class="homec-properties homec-bg-cover  pd-top-120 pd-btm-120 homec-property-listing-bg">
+            <section class="homec-properties pd-top-90 pd-btm-100 homec-property-listing-bg">
                 <div class="homec-shape">
                     <div class="homec-shape-single homec-shape-7"><img src="{{ asset('frontend/img/anim-shape-4.svg') }}" alt="shape"></div>
                     <div class="homec-shape-single homec-shape-8"><img src="{{ asset('frontend/img/anim-shape-5.svg') }}" alt="shape"></div>
@@ -773,8 +800,8 @@
                     <div class="row">
                         <div class="col-12">
                             <!-- Section TItle -->
-                            <div class="homec-section__head text-center section-white mg-btm-30">
-                                <span class="homec-section__badge homec-section__badge--small homec-primary-color  m-0" data-aos="fade-in" data-aos-delay="300">{{ $featured_property->title }}</span>
+                            <div class="homec-section__head text-center mg-btm-30">
+                                <span class="homec-section__badge homec-section__badge--small homec-primary-color m-0" data-aos="fade-in" data-aos-delay="300">{{ $featured_property->title }}</span>
                                 <h2 class="homec-section__title" data-aos="fade-in" data-aos-delay="400">{{ $featured_property->description }}</h2>
                             </div>
                         </div>
@@ -783,13 +810,45 @@
                         @php
                             $featured_properties = $featured_property->properties;
                         @endphp
+                        <style>
+                            .homec-property {
+                                border-radius: 12px;
+                                overflow: hidden;
+                                box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+                                background: #ffffff;
+                                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                            }
+                            .homec-property:hover {
+                                transform: translateY(-5px);
+                                box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+                            }
+                            .homec-property__head {
+                                height: 230px;
+                                position: relative;
+                                overflow: hidden;
+                            }
+                            .homec-property__head img {
+                                width: 100% !important;
+                                height: 100% !important;
+                                object-fit: cover !important;
+                                transition: transform 0.5s ease !important;
+                            }
+                            .homec-property:hover .homec-property__head img {
+                                transform: scale(1.08) !important;
+                            }
+                        </style>
                         @foreach ($featured_properties as $featured_property)
+                            @php
+                                $prop_thumb = ($featured_property->thumbnail_image && file_exists(public_path($featured_property->thumbnail_image))) 
+                                    ? asset($featured_property->thumbnail_image) 
+                                    : asset('uploads/website-images/luxury_villa.png');
+                            @endphp
                             <div class="col-lg-4 col-md-6 col-12 mg-top-30" data-aos="fade-up" data-aos-delay="400">
                                 <!-- Single property-->
                                 <div class="homec-property">
                                     <!-- Property Head-->
                                     <div class="homec-property__head">
-                                        <img src="{{ ($featured_property->thumbnail_image)? asset($featured_property->thumbnail_image) : asset($setting->default_placeholder)}}" alt="thumbnail_image">
+                                        <img src="{{ $prop_thumb }}" alt="{{ $featured_property->title }}">
                                         <!-- Top Sticky -->
                                         <div class="homec-property__hsticky">
                                           <div class="homec-heart-df">
@@ -798,10 +857,10 @@
                                                         <path d="M10.5745 3.73257L11.1008 4.69447L11.6272 3.73258C11.9704 3.10535 12.5438 2.26267 13.3886 1.60933C14.2595 0.935774 15.2355 0.6 16.3044 0.6C19.29 0.6 21.6017 3.03446 21.6017 6.3966C21.6017 8.18186 20.8932 9.70959 19.5597 11.3187C18.211 12.9462 16.2694 14.6033 13.8617 16.6552L14.2508 17.1119L13.8617 16.6552L13.8611 16.6557C13.0479 17.3487 12.1237 18.1363 11.1625 18.9769L11.1623 18.977C11.1457 18.9916 11.1241 18.9999 11.1008 18.9999C11.0776 18.9999 11.056 18.9916 11.0394 18.9771L11.0391 18.9768C10.0784 18.1367 9.15452 17.3493 8.34203 16.6569L8.34054 16.6556L8.34053 16.6556C5.93251 14.6035 3.99081 12.9463 2.64202 11.3188C1.30844 9.70958 0.6 8.18186 0.6 6.3966C0.6 3.03446 2.91167 0.6 5.89732 0.6C6.96614 0.6 7.94219 0.935773 8.81311 1.60933C9.6579 2.26267 10.2313 3.10532 10.5745 3.73257Z" stroke-width="1.2"/>
                                                     </svg>
                                                 </a>
-                                                <a href="javascript:;" class="homec-heart add-to-compare" data-property-id="{{ $featured_property->id }}">
-                                                    <span>
-                                                        <i class="fa-solid fa-shuffle"></i>
-                                                    </span>
+                                                <a href="javascript:;" class="homec-heart add-to-compare" data-property-id="{{ $featured_property->id }}" title="{{__('user.Compare')}}">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+                                                    </svg>
                                                 </a>
                                           </div>
                                             <span class="homec-property__salebadge">
@@ -907,10 +966,11 @@
 
                                                     @if ($pricing_plan_item->max_agent_add > 0)
                                                         <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Agency Profile')}}</li>
-                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->max_agent_add == -1 ? __('user.Unlimited') : $pricing_plan_item->max_agent_add }} {{__('user.Agent')}}</li>
                                                     @else
                                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Agency Profile')}}</li>
                                                     @endif
+
+                                                    <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->max_agent_add }} {{__('user.Agent')}}</li>
 
                                                     @if ($pricing_plan_item->number_of_property == -1)
                                                         <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Property Submission')}}</li>
@@ -918,41 +978,44 @@
                                                         <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->number_of_property }} {{__('user.Property Submission')}}</li>
                                                     @endif
 
-                                                    @if ($pricing_plan_item->featured_property == 'enable' && $pricing_plan_item->featured_property_qty != 0)
-                                                        @if ($pricing_plan_item->featured_property_qty == -1)
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Featured Property')}}</li>
-                                                        @else
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->featured_property_qty }} {{__('user.Featured Property')}}</li>
-                                                        @endif
+                                                    @if ($pricing_plan_item->featured_property == 'enable')
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Featured Property')}}</li>
                                                     @else
                                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Featured Property')}}</li>
                                                     @endif
 
-                                                    @if ($pricing_plan_item->top_property == 'enable' && $pricing_plan_item->top_property_qty != 0)
-                                                        @if ($pricing_plan_item->top_property_qty == -1)
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Top Property')}}</li>
-                                                        @else
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->top_property_qty }} {{__('user.Top Property')}}</li>
-                                                        @endif
+                                                    @if ($pricing_plan_item->featured_property_qty == -1)
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Featured Property')}}</li>
+                                                    @else
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->featured_property_qty }} {{__('user.Featured Property')}}</li>
+                                                    @endif
+
+                                                    @if ($pricing_plan_item->top_property == 'enable')
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Top Property')}}</li>
                                                     @else
                                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Top Property')}}</li>
                                                     @endif
 
-                                                    @if ($pricing_plan_item->urgent_property == 'enable' && $pricing_plan_item->urgent_property_qty != 0)
-                                                        @if ($pricing_plan_item->urgent_property_qty == -1)
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Urgent Property')}}</li>
-                                                        @else
-                                                            <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->urgent_property_qty }} {{__('user.Urgent Property')}}</li>
-                                                        @endif
+                                                    @if ($pricing_plan_item->top_property_qty == -1)
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Top Property')}}</li>
+                                                    @else
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->top_property_qty }} {{__('user.Top Property')}}</li>
+                                                    @endif
+
+                                                    @if ($pricing_plan_item->urgent_property == 'enable')
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Urgent Property')}}</li>
                                                     @else
                                                         <li><span class="homec-psingle__icon homec-remove-color"><i class="fas fa-remove"></i></span>{{__('user.Urgent Property')}}</li>
                                                     @endif
 
-                                                    @if ($pricing_plan_item->is_featured_badge_allowed ?? 0)
-                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>Verified & Featured Badge</li>
+                                                    @if ($pricing_plan_item->urgent_property_qty == -1)
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Unlimited')}} {{__('user.Urgent Property')}}</li>
+                                                    @else
+                                                        <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{ $pricing_plan_item->urgent_property_qty }} {{__('user.Urgent Property')}}</li>
                                                     @endif
 
                                                     <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Aminities')}}</li>
+
                                                     <li><span class="homec-psingle__icon homec-check-color"><i class="fas fa-check"></i></span>{{__('user.Nearest Location')}}</li>
 
 
@@ -981,58 +1044,105 @@
         @endif
 
         @if ($why_choose_us->visibility)
+            <style>
+                .homec-why-card {
+                    background: rgba(255, 255, 255, 0.08);
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 16px;
+                    padding: 28px 22px;
+                    height: 100%;
+                    transition: transform 0.3s ease, background 0.3s ease;
+                }
+                .homec-why-card:hover {
+                    transform: translateY(-8px);
+                    background: rgba(255, 255, 255, 0.16);
+                    border-color: rgba(255, 255, 255, 0.35);
+                }
+                .homec-why-card__icon-wrap {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 20px;
+                }
+                .homec-why-card__icon {
+                    width: 58px;
+                    height: 58px;
+                    background: #ffffff;
+                    border-radius: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+                }
+                .homec-why-card__icon img {
+                    width: 32px;
+                    height: 32px;
+                    object-fit: contain;
+                }
+                .homec-why-card__num {
+                    font-size: 20px;
+                    font-weight: 800;
+                    color: #f59e0b;
+                    background: rgba(245, 158, 11, 0.15);
+                    border: 1px solid rgba(245, 158, 11, 0.3);
+                    padding: 3px 12px;
+                    border-radius: 20px;
+                }
+                .homec-why-card__title {
+                    color: #ffffff;
+                    font-size: 18px;
+                    font-weight: 700;
+                    margin-bottom: 10px;
+                    line-height: 1.35;
+                }
+                .homec-why-card__text {
+                    color: rgba(255, 255, 255, 0.85);
+                    font-size: 14px;
+                    line-height: 1.6;
+                    margin: 0;
+                }
+            </style>
             <!-- Features -->
-            <section class="homec-bg-primary-color pd-top-110 pd-btm-110">
-                <div class="homec-bg homec-bg__opacity homec-why-choose-bg"></div>
+            <section class="homec-bg-primary-color pd-top-90 pd-btm-90">
                 <div class="container">
                     <div class="row justify-content-center">
-                        <div class="col-lg-8 col-md-8  col-12 mg-btm-40">
+                        <div class="col-lg-8 col-md-8 col-12 mg-btm-40">
                             <div class="homec-section__head section-white text-center">
-                                <p class="text-white"  data-aos="fade-in" data-aos-delay="300">{{ $why_choose_us->title }}</p>
-                                <h2 class="homec-section__title"  data-aos="fade-in" data-aos-delay="400">{{ $why_choose_us->description }}</h2>
+                                <span class="homec-section__badge homec-section__badge--small text-white m-0" style="background: rgba(255,255,255,0.2) !important; color: #ffffff !important;" data-aos="fade-in" data-aos-delay="300">{{ $why_choose_us->title }}</span>
+                                <h2 class="homec-section__title text-white mg-top-10" data-aos="fade-in" data-aos-delay="400">{{ $why_choose_us->description }}</h2>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-12">
-                            <div class="homec-features-list">
-                                @foreach ($why_choose_us->items as $why_choose_index => $why_choose_item)
-                                    <!-- Features Single -->
-                                    <div class="homec-features-list__single" data-aos="fade-up" data-aos-delay="400">
-                                        <div class="homec-features-list__head">
-                                            <div class="homec-features-list__first">
-                                                <div class="homec-features-list__icon">
-                                                    <img src="{{ asset($why_choose_item->icon) }}" alt="icon">
-                                                    <h4 class="homec-features-list__number" >01</h4>
-                                                </div>
-                                            </div>
-                                            @if ($why_choose_index != 3)
-                                                <div class="homec-features-list__arrow homec-features-list__arrow--one">
-                                                    <img src="{{ asset('frontend/img/arrow-icon.svg') }}" alt="icon">
-                                                </div>
-                                            @endif
-
+                        @foreach ($why_choose_us->items as $why_choose_index => $why_choose_item)
+                            @php
+                                $w_icon = ($why_choose_item->icon && file_exists(public_path($why_choose_item->icon))) 
+                                    ? asset($why_choose_item->icon) 
+                                    : asset('uploads/website-images/trusted20230409043232.svg');
+                            @endphp
+                            <div class="col-lg-3 col-md-6 col-12 mg-top-30" data-aos="fade-up" data-aos-delay="{{ 300 + $why_choose_index * 100 }}">
+                                <div class="homec-why-card">
+                                    <div class="homec-why-card__icon-wrap">
+                                        <div class="homec-why-card__icon">
+                                            <img src="{{ $w_icon }}" alt="{{ $why_choose_item->title }}">
                                         </div>
-                                        <div class="homec-features-list__body">
-                                            <h4 class="homec-features-list__title">{{ $why_choose_item->title }} </h4>
-                                            <p class="homec-features-list__text">{{ $why_choose_item->description }}</p>
-                                        </div>
+                                        <span class="homec-why-card__num">0{{ $why_choose_index + 1 }}</span>
                                     </div>
-                                    <!-- End Features Single -->
-                                @endforeach
-
+                                    <h4 class="homec-why-card__title">{{ $why_choose_item->title }}</h4>
+                                    <p class="homec-why-card__text">{{ $why_choose_item->description }}</p>
+                                </div>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
             </section>
             <!-- End Features -->
         @endif
 
-       @if ($setting->agent_can_add_property)
-            @if ($setting->agent_can_add_property == 'enable')
-                @if ($agent->visibility)
-                    <!-- Agents -->
+       {{-- @if ($setting->agent_can_add_property && $setting->agent_can_add_property == 'enable')
+            @if (isset($agent) && $agent->visibility && isset($agent->agents) && count($agent->agents) > 0)
+                <!-- Agents -->
                     <section class="homec-about homec-bg-third-color pd-top-120 pd-btm-120">
                         <div class="homec-shape">
                             <div class="homec-shape-single homec-shape-1"><img src="{{ asset('frontend/img/anim-shape-1.svg') }}" alt="icon"></div>
@@ -1117,175 +1227,235 @@
                         </div>
                     </section>
                     <!-- End Agents -->
-                @endif
             @endif
-        @endif
+        @endif --}}
         @if ($faq->visibility)
-		<!-- Faq Area -->
-		<section class="homec-bg-cover pd-top-90 pd-btm-120 homec-faq-bg">
-			<div class="container homec-container-medium">
-				<div class="row homec-container-medium__row align-items-center">
-					<div class="col-lg-6 col-12 mg-top-30" data-aos="fade-up" data-aos-delay="400">
-						<div class="homec-section__head">
-							<div class="homec-section__shape">
-								<span class="homec-section__badge homec-section__badge--shape homec-section__badge--shape--v2">{{ $faq->content->short_title }}</span>
-							</div>
-							<h2 class="homec-section__title">{{ $faq->content->long_title }}</h2>
-						</div>
-						<div class="homec-accordion accordion accordion-flush" id="homec-accordion">
-
-                            @foreach ($faq->faqs as $faq_index => $faq_item )
-
-							<!-- End Single Accordion -->
-							<div class="accordion-item homec-accordion__single mg-top-30 {{ $faq_index == 0 ? 'active' : '' }}">
-								<h2 class="accordion-header" id="homect-1-{{ $faq_index }}">
-									<button class="accordion-button collapsed homec-accordion__heading" type="button" data-bs-toggle="collapse" data-bs-target="#ac-collapse1-{{ $faq_index }}">{{ $faq_item->question }}</button>
-								</h2>
-								<div id="ac-collapse1-{{ $faq_index }}" class="accordion-collapse collapse {{ $faq_index == 0 ? 'show' : '' }}"  data-bs-parent="#homec-accordion">
-									<div class="accordion-body homec-accordion__body">{!! nl2br($faq_item->answer) !!}</div>
-								</div>
-							</div>
-							<!-- End Single Accordion -->
-                            @endforeach
-						</div>
-					</div>
-					<div class="col-lg-6 col-md-6 col-12 mg-top-30 d-none-tab" data-aos="fade-up" data-aos-delay="600">
-						<!-- Support Img -->
-						<div class="homec-support-img">
-							<img src="{{ ($faq->content->support_image)? asset($faq->content->support_image) : asset($setting->default_placeholder)}}" alt="support_image">
-							<div class="homec-support-img__content">
-								<img src="{{ asset('frontend/img/support-icon-white.svg') }}" alt="support_image">
-								<h4 class="homec-support-img__title">{{ $faq->content->support_time }} <span>{{ $faq->content->support_title }}</span>
-								</h4>
-							</div>
-						</div>
-						<!-- End Support Img -->
-					</div>
-				</div>
-			</div>
-		</section>
-		<!-- End Faq Area -->
-        @endif
-
-        @if ($mobile_app->visibility)
-            <!-- Download App -->
-            <section class="download-app homec-bg-cover homec-bg-primary-color pd-top-15 pd-btm-15" style="background-image:url({{ asset($mobile_app->app_bg) }})">
-                <div class="homec-shape">
-                    <div class="homec-shape-single homec-shape-11"><img src="{{ asset('frontend/img/anim-shape-10.svg') }}" alt="bg"></div>
-                    <div class="homec-shape-single homec-shape-12"><img src="{{ asset('frontend/img/anim-shape-10.svg') }}" alt="bg"></div>
-                    <div class="homec-shape-single homec-shape-13"><img src="{{ asset('frontend/img/anim-shape-10.svg') }}" alt="bg"></div>
-                </div>
+            <style>
+                .homec-faq-section {
+                    background: #f8fafc;
+                    padding: 80px 0;
+                    position: relative;
+                }
+                .homec-faq-title {
+                    font-size: 32px;
+                    font-weight: 800;
+                    color: #0f172a;
+                    line-height: 1.35;
+                    margin-top: 12px;
+                    margin-bottom: 30px;
+                    text-align: center;
+                }
+                .homec-faq-accordion .accordion-item {
+                    border: 1px solid #e2e8f0;
+                    border-radius: 14px !important;
+                    overflow: hidden;
+                    margin-bottom: 16px;
+                    background: #ffffff;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+                    transition: all 0.3s ease;
+                }
+                .homec-faq-accordion .accordion-item:hover {
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.07);
+                    border-color: #cbd5e1;
+                }
+                .homec-faq-accordion .accordion-item.active,
+                .homec-faq-accordion .accordion-item:has(.accordion-button:not(.collapsed)) {
+                    border-left: 4px solid #6366f1 !important;
+                    border-color: #c7d2fe;
+                }
+                .homec-faq-accordion .accordion-button {
+                    font-size: 17px;
+                    font-weight: 700;
+                    color: #0f172a;
+                    background: #ffffff;
+                    padding: 20px 24px;
+                    box-shadow: none !important;
+                    border: none;
+                }
+                .homec-faq-accordion .accordion-button:not(.collapsed) {
+                    color: #6366f1;
+                    background: #ffffff;
+                }
+                .homec-faq-accordion .accordion-body {
+                    font-size: 15px;
+                    line-height: 1.65;
+                    color: #475569;
+                    padding: 0 24px 22px 24px;
+                    background: #ffffff;
+                }
+                @media (max-width: 768px) {
+                    .homec-faq-title {
+                        font-size: 24px;
+                    }
+                    .homec-faq-section {
+                        padding: 50px 0;
+                    }
+                    .homec-faq-accordion .accordion-button {
+                        font-size: 15px;
+                        padding: 14px 16px;
+                    }
+                }
+            </style>
+            <!-- Faq Area -->
+            <section class="homec-faq-section">
                 <div class="container">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="download-app__middle">
-                                <div class="download-app__content">
-                                    <div class="homec-section__head section-white mg-btm-30" data-aos="fade-up" data-aos-delay="400">
-                                        <h2 class="homec-section__title">{{ $mobile_app->full_title }}</h2>
-                                        <p class="sec-head__text">{{ $mobile_app->description }}</p>
+                    <div class="row justify-content-center">
+                        <div class="col-lg-10 col-12">
+                            <div class="homec-section__head text-center">
+                                <span class="homec-section__badge m-0">{{ $faq->content->short_title ?? 'Frequently Asked Questions' }}</span>
+                                <h2 class="homec-faq-title">{{ $faq->content->long_title ?? 'Everything You Need To Know About Buying Property in Indore' }}</h2>
+                            </div>
+                            <div class="accordion accordion-flush homec-faq-accordion" id="homec-accordion">
+                                @foreach ($faq->faqs as $faq_index => $faq_item)
+                                    <!-- Single Accordion -->
+                                    <div class="accordion-item {{ $faq_index == 0 ? 'active' : '' }}" data-aos="fade-up" data-aos-delay="{{ 300 + $faq_index * 100 }}">
+                                        <h2 class="accordion-header" id="homect-1-{{ $faq_index }}">
+                                            <button class="accordion-button {{ $faq_index == 0 ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#ac-collapse1-{{ $faq_index }}">{{ $faq_item->question }}</button>
+                                        </h2>
+                                        <div id="ac-collapse1-{{ $faq_index }}" class="accordion-collapse collapse {{ $faq_index == 0 ? 'show' : '' }}" data-bs-parent="#homec-accordion">
+                                            <div class="accordion-body">{!! nl2br($faq_item->ans ?? $faq_item->answer ?? '') !!}</div>
+                                        </div>
                                     </div>
-                                    <!-- App Download Button -->
-                                    <div class="download__app-button" data-aos="fade-up" data-aos-delay="500">
-                                        <a href="{{ $mobile_app->app_store }}" class="homec-btn homec-btn-primary-overlay homec-btn__download">
-                                            <div class="homec-btn__inside">
-                                                <i class="fa-brands fa-apple"></i>
-                                                <div class="btn-content"><span>{{ $mobile_app->apple_btn_text1 }}</span><p>{{ $mobile_app->apple_btn_text2 }}</p></div>
-                                            </div>
-                                        </a>
-                                        <a href="{{ $mobile_app->play_store }}" class="homec-btn homec-btn-primary-overlay homec-btn__download">
-                                            <div class="homec-btn__inside">
-                                                <i class="fa-brands fa-google-play"></i>
-                                                <div class="btn-content"><span>{{ $mobile_app->google_btn_text1 }}</span><p>{{ $mobile_app->google_btn_text2 }}</p></div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                    <!-- End App Download Button -->
-                                </div>
-                                <!-- Download Image -->
-                                <div class="download-app__img" data-aos="fade-up" data-aos-delay="700">
-                                    <img src="{{ ($mobile_app->image)? asset($mobile_app->image) : asset($setting->default_placeholder)}}" alt="mobile_app">
-                                </div>
+                                    <!-- End Single Accordion -->
+                                @endforeach
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
-            <!-- End Download App -->
+            <!-- End Faq Area -->
         @endif
 
         @if ($blog->visibility)
+            <style>
+                .homec-blog-card {
+                    background: #ffffff;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .homec-blog-card:hover {
+                    transform: translateY(-6px);
+                    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+                }
+                .homec-blog-card__img {
+                    height: 220px;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .homec-blog-card__img img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: transform 0.5s ease;
+                }
+                .homec-blog-card:hover .homec-blog-card__img img {
+                    transform: scale(1.08);
+                }
+                .homec-blog-card__badge {
+                    position: absolute;
+                    top: 15px;
+                    left: 15px;
+                    background: #6366f1;
+                    color: #ffffff;
+                    font-size: 11px;
+                    font-weight: 700;
+                    padding: 4px 12px;
+                    border-radius: 20px;
+                    text-transform: uppercase;
+                }
+                .homec-blog-card__body {
+                    padding: 24px;
+                    display: flex;
+                    flex-direction: column;
+                    flex-grow: 1;
+                }
+                .homec-blog-card__title {
+                    font-size: 18px;
+                    font-weight: 700;
+                    color: #0f172a;
+                    line-height: 1.4;
+                    margin-bottom: 12px;
+                }
+                .homec-blog-card__title a {
+                    color: #0f172a;
+                    text-decoration: none;
+                    transition: color 0.2s ease;
+                }
+                .homec-blog-card__title a:hover {
+                    color: #6366f1;
+                }
+                .homec-blog-card__desc {
+                    font-size: 14px;
+                    color: #64748b;
+                    line-height: 1.6;
+                    margin-bottom: 20px;
+                    flex-grow: 1;
+                }
+                .homec-blog-card__footer {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    border-top: 1px solid #f1f5f9;
+                    padding-top: 16px;
+                }
+                .homec-blog-card__readmore {
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: #6366f1;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+            </style>
             <!-- Blog Area -->
-            <section id="blog" class="blog-area homec-bg-cover section-padding homec-blog-bg">
-                <div class="blog-bg-pattern">
-                    <div class="container">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-6 col-md-8 col-12">
-                                <div class="homec-section__head text-center mg-btm-30">
-                                    <span class="homec-section__badge homec-primary-color homec-section__badge--small m-0" data-aos="fade-in" data-aos-delay="300">{{ $blog->title }} </span>
-                                    <h2 class="homec-section__title" data-aos="fade-in" data-aos-delay="400">{{ $blog->description }}</h2>
-                                </div>
+            <section id="blog" class="pd-top-90 pd-btm-110" style="background: #ffffff;">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 col-md-8 col-12">
+                            <div class="homec-section__head text-center mg-btm-40">
+                                <span class="homec-section__badge m-0">Indore Real Estate Insights</span>
+                                <h2 class="homec-section__title mg-top-10">Latest News & Market Trends in Indore MP</h2>
                             </div>
                         </div>
-                        <div class="row">
-                            @foreach ($blog->blogs as $blog_index => $single_blog)
-                                <div class="col-lg-4 col-md-6 col-12" data-aos="fade-up" data-aos-delay="400">
-                                    <!-- Single Blog -->
-                                    <div class="homec-blog">
-                                        <div class="homec-blog__head">
-                                            <div class="homec-overlay homec-blog__overlay"></div>
-                                            <a href="{{ route('blog', $single_blog->slug) }}"><img src="{{($single_blog->image)? asset($single_blog->image) : asset($setting->default_placeholder) }}" alt="single_blog"></a>
-                                            <!-- Blog Content -->
-                                            <div class="homec-blog__content">
-                                                <ul class="homec-blog__meta list-none">
-                                                    <li>
-                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M9.8182 12.3637H8.36367V13.8182H9.8182V12.3637Z" />
-                                                            <path d="M9.8182 9.81816H8.36367V11.2727H9.8182V9.81816Z" />
-                                                            <path d="M7.63637 7.27266H6.18184V8.72719H7.63637V7.27266Z" />
-                                                            <path d="M7.63637 9.81816H6.18184V11.2727H7.63637V9.81816Z" />
-                                                            <path d="M11.9999 9.81816H10.5454V11.2727H11.9999V9.81816Z" />
-                                                            <path d="M14.1818 9.81816H12.7272V11.2727H14.1818V9.81816Z" />
-                                                            <path d="M14.1818 7.27266H12.7272V8.72719H14.1818V7.27266Z" />
-                                                            <path d="M11.9999 7.27266H10.5454V8.72719H11.9999V7.27266Z" />
-                                                            <path d="M9.8182 7.27266H8.36367V8.72719H9.8182V7.27266Z" />
-                                                            <path d="M3.2727 9.81816H1.81816V11.2727H3.2727V9.81816Z" />
-                                                            <path d="M3.2727 12.3637H1.81816V13.8182H3.2727V12.3637Z" />
-                                                            <path d="M14.5455 1.45453H13.0909V0.363625C13.0909 0.162812 12.9281 0 12.7273 0C12.5264 0 12.3637 0.162812 12.3637 0.363625V1.45453H3.63637V0.363625C3.63637 0.162812 3.47356 0 3.27272 0C3.07187 0 2.90909 0.162812 2.90909 0.363625V1.45453H1.45453C0.651219 1.45453 0 2.10578 0 2.90909V14.5455C0 15.3488 0.651219 16 1.45453 16H14.5454C15.3488 16 16 15.3488 16 14.5455V2.90909C16 2.10578 15.3488 1.45453 14.5455 1.45453ZM15.2727 14.5455C15.2727 14.9471 14.9471 15.2727 14.5454 15.2727H1.45453C1.05287 15.2727 0.72725 14.9471 0.72725 14.5455V5.81819H15.2727V14.5455ZM15.2727 5.09091H0.727281V2.90909C0.727281 2.50744 1.05291 2.18181 1.45456 2.18181H2.90909V3.27272C2.90909 3.47356 3.07191 3.63634 3.27272 3.63634C3.47356 3.63634 3.63634 3.47353 3.63634 3.27272V2.18181H12.3636V3.27272C12.3636 3.47356 12.5264 3.63634 12.7273 3.63634C12.9281 3.63634 13.0909 3.47353 13.0909 3.27272V2.18181H14.5454C14.9471 2.18181 15.2727 2.50744 15.2727 2.90909L15.2727 5.09091Z" />
-                                                            <path d="M3.2727 7.27266H1.81816V8.72719H3.2727V7.27266Z" />
-                                                            <path d="M7.63637 12.3637H6.18184V13.8182H7.63637V12.3637Z" />
-                                                            <path d="M5.45453 12.3637H4V13.8182H5.45453V12.3637Z" />
-                                                            <path d="M5.45453 7.27266H4V8.72719H5.45453V7.27266Z" />
-                                                            <path d="M5.45453 9.81816H4V11.2727H5.45453V9.81816Z" />
-                                                        </svg>
-                                                        {{ $single_blog->created_at->format('M d, Y') }}
-                                                    </li>
-                                                    <li class="active">
-                                                        <svg width="15" height="17" viewBox="0 0 15 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M7.60687 8.64356C8.67386 8.64356 9.59767 8.26087 10.3527 7.50584C11.1075 6.75093 11.4903 5.82724 11.4903 4.76013C11.4903 3.69339 11.1076 2.76958 10.3526 2.01443C9.59755 1.25964 8.67374 0.876953 7.60687 0.876953C6.53976 0.876953 5.61608 1.25964 4.86117 2.01455C4.10626 2.76946 3.72345 3.69327 3.72345 4.76013C3.72345 5.82724 4.10626 6.75105 4.86117 7.50596C5.61633 8.26075 6.54013 8.64356 7.60687 8.64356ZM5.52936 2.68262C6.10861 2.10336 6.78812 1.82179 7.60687 1.82179C8.42551 1.82179 9.10514 2.10336 9.68451 2.68262C10.2638 3.26199 10.5455 3.94162 10.5455 4.76013C10.5455 5.57889 10.2638 6.25839 9.68451 6.83777C9.10514 7.41715 8.42551 7.69872 7.60687 7.69872C6.78837 7.69872 6.10886 7.41702 5.52936 6.83777C4.94998 6.25852 4.66829 5.57889 4.66829 4.76013C4.66829 3.94162 4.94998 3.26199 5.52936 2.68262Z"/>
-                                                            <path d="M14.4018 13.275C14.3801 12.9609 14.336 12.6182 14.2712 12.2563C14.2057 11.8917 14.1215 11.547 14.0206 11.232C13.9163 10.9064 13.7747 10.5848 13.5994 10.2767C13.4177 9.95684 13.2042 9.67835 12.9646 9.44918C12.714 9.20944 12.4072 9.01668 12.0525 8.87608C11.6989 8.73622 11.3071 8.66536 10.888 8.66536C10.7235 8.66536 10.5643 8.73289 10.2569 8.93303C10.0677 9.05641 9.84639 9.1991 9.59939 9.35692C9.38818 9.4915 9.10206 9.61758 8.74865 9.73174C8.40386 9.84331 8.05377 9.89989 7.70811 9.89989C7.3627 9.89989 7.01261 9.84331 6.66757 9.73174C6.31453 9.61771 6.02829 9.49162 5.81745 9.35705C5.57278 9.2007 5.35136 9.05801 5.15935 8.93291C4.85219 8.73277 4.69301 8.66524 4.52843 8.66524C4.10921 8.66524 3.71755 8.73622 3.36414 8.8762C3.00962 9.01656 2.70271 9.20931 2.4519 9.4493C2.21227 9.6786 1.99873 9.95697 1.81716 10.2767C1.64212 10.5848 1.50041 10.9062 1.3961 11.2321C1.29536 11.5471 1.21109 11.8917 1.14565 12.2563C1.0807 12.6177 1.03679 12.9605 1.01502 13.2754C0.993613 13.5833 0.982788 13.9037 0.982788 14.2275C0.982788 15.0691 1.25033 15.7505 1.77792 16.253C2.29899 16.7488 2.98834 17.0003 3.8269 17.0003H11.5903C12.4286 17.0003 13.118 16.7488 13.6392 16.253C14.1669 15.7509 14.4344 15.0693 14.4344 14.2274C14.4343 13.9025 14.4233 13.5821 14.4018 13.275ZM12.9877 15.5684C12.6434 15.8961 12.1863 16.0554 11.5902 16.0554H3.8269C3.23067 16.0554 2.77357 15.8961 2.42939 15.5686C2.09172 15.2471 1.92763 14.8084 1.92763 14.2275C1.92763 13.9254 1.93759 13.6271 1.95752 13.3407C1.97695 13.0598 2.01669 12.7511 2.07561 12.4232C2.13379 12.0993 2.20784 11.7954 2.29592 11.5202C2.38043 11.2563 2.49569 10.995 2.63863 10.7434C2.77504 10.5035 2.932 10.2977 3.1052 10.1319C3.26721 9.97677 3.4714 9.84983 3.71201 9.75462C3.93454 9.66654 4.18461 9.61832 4.4561 9.61106C4.48919 9.62865 4.54811 9.66223 4.64356 9.72448C4.8378 9.85106 5.06168 9.99547 5.30917 10.1535C5.58816 10.3314 5.94759 10.4921 6.37702 10.6307C6.81604 10.7726 7.2638 10.8447 7.70824 10.8447C8.15267 10.8447 8.60055 10.7726 9.03933 10.6308C9.46912 10.4919 9.82843 10.3314 10.1078 10.1533C10.3611 9.99141 10.5787 9.85118 10.7729 9.72448C10.8684 9.66236 10.9273 9.62865 10.9604 9.61106C11.232 9.61832 11.4821 9.66654 11.7047 9.75462C11.9452 9.84983 12.1494 9.9769 12.3114 10.1319C12.4846 10.2976 12.6416 10.5034 12.778 10.7435C12.921 10.995 13.0364 11.2564 13.1208 11.5201C13.209 11.7956 13.2832 12.0994 13.3412 12.4231C13.4 12.7516 13.4399 13.0604 13.4593 13.3408C13.4794 13.6261 13.4895 13.9245 13.4896 14.2275C13.4895 14.8085 13.3254 15.2471 12.9877 15.5684Z"/>
-                                                        </svg>
-                                                        <a href="javascript:;">{{ $single_blog->admin->name }}</a>
-                                                    </li>
-                                                </ul>
-                                                <h3 class="homec-blog__title"><a href="{{ route('blog', $single_blog->slug) }}">{{ $single_blog->title }}</a></h3>
-                                                <div class="home-blog__button homec-border-top">
-                                                    <a href="{{ route('blog', $single_blog->slug) }}" class="homec-blog__btn">{{__('user.Read More')}}
-                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M12 8L16 12M16 12L12 16M16 12H2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        <path d="M9 18.2454C10.3696 19.3433 12.1081 20 14 20C18.4183 20 22 16.4183 22 12C22 7.58172 18.4183 4 14 4C12.1081 4 10.3696 4.65672 9 5.75462" stroke-width="1.5" stroke-linecap="round"/>
-                                                        </svg>
-                                                    </a>
-                                                </div>
-                                            </div>
+                    </div>
+                    <div class="row">
+                        @foreach ($blog->blogs as $blog_index => $single_blog)
+                            @php
+                                $b_thumb = ($single_blog->image && file_exists(public_path($single_blog->image))) 
+                                    ? asset($single_blog->image) 
+                                    : asset('uploads/custom-images/blog--2023-05-07-10-36-45-7664.jpg');
+                            @endphp
+                            <div class="col-lg-4 col-md-6 col-12 mg-top-30" data-aos="fade-up" data-aos-delay="{{ 300 + $blog_index * 100 }}">
+                                <div class="homec-blog-card">
+                                    <div class="homec-blog-card__img">
+                                        <img src="{{ $b_thumb }}" alt="Indore Blog" onerror="this.onerror=null; this.src='{{ asset('uploads/custom-images/blog--2023-05-07-10-36-45-7664.jpg') }}';">
+                                        <span class="homec-blog-card__badge">Indore Real Estate</span>
+                                    </div>
+                                    <div class="homec-blog-card__body">
+                                        <h4 class="homec-blog-card__title">
+                                            <a href="{{ route('blog', $single_blog->slug) }}">{{ $single_blog->title }}</a>
+                                        </h4>
+                                        <p class="homec-blog-card__desc">{{ !empty($single_blog->description) ? Str::limit(strip_tags($single_blog->description), 110) : 'Explore latest property rates, investment hotspots, and legal documentation guides for buying and renting properties in Indore MP.' }}</p>
+                                        <div class="homec-blog-card__footer">
+                                            <a href="{{ route('blog', $single_blog->slug) }}" class="homec-blog-card__readmore">
+                                                Read Article
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                                </svg>
+                                            </a>
                                         </div>
                                     </div>
-                                    <!-- End Single Blog -->
                                 </div>
-                            @endforeach
-                        </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             </section>
-            <!-- End Blog Area -->
         @endif
 @endsection

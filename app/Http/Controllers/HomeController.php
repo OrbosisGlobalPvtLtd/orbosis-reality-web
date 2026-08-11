@@ -284,7 +284,7 @@ class HomeController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take($agent_item);
+        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take($agent_item);
 
         $agent = (object) array(
             'visibility' => $agent_visibility,
@@ -644,7 +644,7 @@ class HomeController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take($agent_item);
+        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take($agent_item);
 
         $agent = (object) array(
             'visibility' => $agent_visibility,
@@ -796,7 +796,8 @@ class HomeController extends Controller
     {
         $seo_setting = SeoSetting::where('id', 6)->first();
 
-        $paginate_qty = CustomPagination::whereId('1')->first()->qty;
+        $paginate_qty = CustomPagination::whereId('1')->first();
+        $qty = $paginate_qty ? $paginate_qty->qty : 9;
 
         $blogs = Blog::with('admin')->select('id', 'title', 'image', 'slug', 'status', 'created_at', 'admin_id')->where(['status' => 1])->orderBy('id', 'desc');
 
@@ -809,7 +810,7 @@ class HomeController extends Controller
             $category = BlogCategory::where('slug', $request->category)->first();
             $blogs = $blogs->where('blog_category_id', $category->id);
         }
-        $blogs = $blogs->paginate($paginate_qty);
+        $blogs = $blogs->paginate($qty);
 
         // mobile app
         $app_visibility = false;
@@ -849,8 +850,9 @@ class HomeController extends Controller
             $blog_tag_array = explode(",", $blog->tags);
         }
 
-        $blog_pagiante_qty = CustomPagination::whereId('4')->first()->qty;
-        $blog_comments = BlogComment::where(['blog_id' => $blog->id, 'status' => 1])->paginate($blog_pagiante_qty);
+        $blog_pagiante_qty = CustomPagination::whereId('4')->first();
+        $qty = $blog_pagiante_qty ? $blog_pagiante_qty->qty : 10;
+        $blog_comments = BlogComment::where(['blog_id' => $blog->id, 'status' => 1])->paginate($qty);
 
         $recaptcha_setting = GoogleRecaptcha::first();
 
@@ -1093,132 +1095,9 @@ class HomeController extends Controller
         ]);
     }
 
-    public function properties(Request $request)
+    private function filterPropertiesQuery(Request $request)
     {
-
-        $seo_setting = SeoSetting::where('id', 5)->first();
-
-        $paginate_qty = CustomPagination::find(2);
-
-        $properties = Property::with('agent')
-            ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'city_id', 'property_type_id', 'availability_status')
-            ->where('status', 'enable')
-            ->where('approve_by_admin', 'approved')
-            ->where(function ($query) {
-                $query->where('expired_date', null)
-                    ->orWhere('expired_date', '>=', date('Y-m-d'));
-            })
-            ->latest('id');
-
-
-        if ($request->purpose) {
-            if ($request->purpose == 'rent') {
-                $properties = $properties->where('purpose', 'rent');
-            }
-
-            if ($request->purpose == 'sale') {
-                $properties = $properties->where('purpose', 'sale');
-            }
-        }
-
-        if ($request->city) {
-            $properties = $properties->where('city_id', $request->city);
-        }
-
-        if ($request->country) {
-            $properties = $properties->where('country_id', $request->country);
-        }
-
-        if ($request->type) {
-            $category = Category::where('slug', $request->type)->first();
-            $properties = $properties->where('property_type_id', $category->id);
-        }
-
-        if ($request->min_price) {
-            $properties = $properties->where('price', '>=', $request->min_price);
-        }
-
-        if ($request->max_price) {
-            $properties = $properties->where('price', '<=', $request->max_price);
-        }
-
-        if ($request->min_area) {
-            $properties = $properties->whereRaw('CAST(total_area AS DECIMAL) >= ?', [$request->min_area]);
-        }
-
-        if ($request->max_area) {
-            $properties = $properties->whereRaw('CAST(total_area AS DECIMAL) <= ?', [$request->max_area]);
-        }
-
-        if ($request->urgent_property) {
-            $properties = $properties->where('is_urgent', 'enable');
-        }
-
-        if ($request->featured_property) {
-            $properties = $properties->where('is_featured', 'enable');
-        }
-
-        if ($request->top_property) {
-            $properties = $properties->where('is_top', 'enable');
-        }
-
-        $rooms = $request->input('rooms', []);
-
-        if (!empty($rooms)) {
-            $properties = $properties->whereIn('total_bedroom', $rooms);
-        }
-
-        $bath_rooms = $request->input('bath_rooms', []);
-
-        if (!empty($bath_rooms)) {
-            $properties = $properties->whereIn('total_bathroom', $bath_rooms);
-        }
-
-        if ($request->search) {
-            $properties = $properties->where('title', 'LIKE', '%' . $request->search . '%')->orWhere('description', 'LIKE', '%' . $request->search . '%');
-        }
-
-        $properties = $properties->paginate($paginate_qty->qty);
-
-        $locations = City::select('id', 'name', 'slug')->get();
-        $property_types = Category::select('id', 'name', 'slug')->orderBy('name', 'asc')->where('status', 1)->get();
-        $countries = Country::orderBy('id', 'desc')->get();
-
-        // agent section
-        $agent_order = Order::groupBy('agent_id')->select('agent_id')->get();
-        $agent_arr = array();
-
-        foreach ($agent_order as $agent) {
-            $agent_arr[] = $agent->agent_id;
-        }
-
-        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take(6);
-
-        // agent section
-
-        $max_bed_room = Property::selectRaw('MAX(CAST(total_bedroom AS UNSIGNED)) as max_room')->value('max_room');
-        $max_bath_room = Property::selectRaw('MAX(CAST(total_bathroom AS UNSIGNED)) as total_bathroom')->value('total_bathroom');
-        $max_area = Property::selectRaw('MAX(CAST(total_area AS UNSIGNED)) as total_area')->value('total_area');
-        $max_price = Property::selectRaw('MAX(CAST(price AS UNSIGNED)) as price')->value('price');
-
-        return view('properties')->with([
-            'seo_setting' => $seo_setting,
-            'locations' => $locations,
-            'property_types' => $property_types,
-            'slider_agents' => $agents,
-            'properties' => $properties,
-            'max_bed_room' => $max_bed_room,
-            'max_bath_room' => $max_bath_room,
-            'max_area' => $max_area,
-            'max_price' => $max_price,
-            'countries' => $countries
-        ]);
-    }
-
-    public function properties_with_ajax(Request $request)
-    {
-
-        $paginate_qty = CustomPagination::find(2);
+        $qty = 12;
 
         $properties = Property::with('agent')
             ->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'city_id', 'property_type_id', 'lat', 'lon', 'availability_status')
@@ -1229,14 +1108,15 @@ class HomeController extends Controller
                     ->orWhere('expired_date', '>=', date('Y-m-d'));
             });
 
-
-        if ($request->purpose) {
+        if ($request->purpose && $request->purpose != 'any') {
             if ($request->purpose == 'rent') {
                 $properties = $properties->where('purpose', 'rent');
-            }
-
-            if ($request->purpose == 'sale') {
+            } elseif ($request->purpose == 'sale') {
                 $properties = $properties->where('purpose', 'sale');
+            } elseif ($request->purpose == 'buy') {
+                $properties = $properties->whereIn('purpose', ['sale', 'buy']);
+            } else {
+                $properties = $properties->where('purpose', $request->purpose);
             }
         }
 
@@ -1250,9 +1130,10 @@ class HomeController extends Controller
 
         if ($request->type) {
             $category = Category::where('slug', $request->type)->first();
-            $properties = $properties->where('property_type_id', $category->id);
+            if ($category) {
+                $properties = $properties->where('property_type_id', $category->id);
+            }
         }
-
 
         if ($request->min_price) {
             $properties = $properties->whereRaw('CAST(price AS DECIMAL) >= ?', [$request->min_price]);
@@ -1283,22 +1164,23 @@ class HomeController extends Controller
         }
 
         $rooms = $request->input('rooms', []);
-
         if (!empty($rooms)) {
             $properties = $properties->whereIn('total_bedroom', $rooms);
         }
 
         $bath_rooms = $request->input('bath_rooms', []);
-
         if (!empty($bath_rooms)) {
             $properties = $properties->whereIn('total_bathroom', $bath_rooms);
         }
 
         if ($request->search) {
-            $properties = $properties->where('title', 'LIKE', '%' . $request->search . '%')->orWhere('description', 'LIKE', '%' . $request->search . '%');
+            $searchTerm = $request->search;
+            $properties = $properties->where(function ($query) use ($searchTerm) {
+                $query->where('title', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere('description', 'LIKE', '%' . $searchTerm . '%')
+                    ->orWhere('address', 'LIKE', '%' . $searchTerm . '%');
+            });
         }
-
-        // others
 
         if ($request->others_sorting) {
             if ($request->others_sorting == 'default_sort') {
@@ -1318,8 +1200,56 @@ class HomeController extends Controller
             $properties = $properties->orderBy('id', 'desc');
         }
 
-        $properties = $properties->paginate($paginate_qty->qty);
+        $properties = $properties->paginate($qty);
         $properties = $properties->appends($request->all());
+
+        return $properties;
+    }
+
+    public function properties(Request $request)
+    {
+        $seo_setting = SeoSetting::where('id', 5)->first();
+
+        $properties = $this->filterPropertiesQuery($request);
+
+        $locations = City::select('id', 'name', 'slug')->get();
+        $property_types = Category::select('id', 'name', 'slug')->orderBy('name', 'asc')->where('status', 1)->get();
+        $countries = Country::orderBy('id', 'desc')->get();
+
+        // agent section
+        $agent_order = Order::groupBy('agent_id')->select('agent_id')->get();
+        $agent_arr = array();
+
+        foreach ($agent_order as $agent) {
+            $agent_arr[] = $agent->agent_id;
+        }
+
+        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')->get()->take(6);
+
+        // agent section
+
+        $max_bed_room = Property::selectRaw('MAX(CAST(total_bedroom AS UNSIGNED)) as max_room')->value('max_room');
+        $max_bath_room = Property::selectRaw('MAX(CAST(total_bathroom AS UNSIGNED)) as total_bathroom')->value('total_bathroom');
+        $max_area = Property::selectRaw('MAX(CAST(total_area AS UNSIGNED)) as total_area')->value('total_area');
+        $max_price = Property::selectRaw('MAX(CAST(price AS UNSIGNED)) as price')->value('price');
+
+        return view('properties')->with([
+            'seo_setting' => $seo_setting,
+            'locations' => $locations,
+            'property_types' => $property_types,
+            'slider_agents' => $agents,
+            'properties' => $properties,
+            'max_bed_room' => $max_bed_room,
+            'max_bath_room' => $max_bath_room,
+            'max_area' => $max_area,
+            'max_price' => $max_price,
+            'countries' => $countries
+        ]);
+    }
+
+    public function properties_with_ajax(Request $request)
+    {
+        $properties = $this->filterPropertiesQuery($request);
 
         return view('properties_with_ajax')->with(['properties' => $properties]);
     }
@@ -1341,7 +1271,6 @@ class HomeController extends Controller
         if (!$property) {
             abort(404);
         }
-        $property->increment('views_count');
 
         $sliders = PropertySlider::where('property_id', $property->id)->get();
         $aminities = PropertyAminity::with('aminity')->where('property_id', $property->id)->get();
@@ -1400,27 +1329,6 @@ class HomeController extends Controller
         ]);
     }
 
-    public function report_property(Request $request)
-    {
-        $request->validate([
-            'property_id' => 'required|integer',
-            'reason' => 'required|string',
-        ]);
-
-        DB::table('property_reports')->insert([
-            'property_id' => $request->property_id,
-            'user_id' => auth()->check() ? auth()->id() : null,
-            'reason' => $request->reason,
-            'comments' => $request->comments ?? null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $notification = trans('user_validation.Report submitted successfully');
-        $notification = array('messege' => $notification, 'alert-type' => 'success');
-        return redirect()->back()->with($notification);
-    }
-
 
     public function property_city_list(Request $request, $id)
     {
@@ -1454,20 +1362,10 @@ class HomeController extends Controller
         }
 
         $paginate_qty = CustomPagination::find(3);
+        $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
-        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')
-            ->where('login_type', 'agent')
-            ->where('status', 1)
-            ->where(function ($query) use ($agent_arr, $request) {
-                $query->whereIn('id', $agent_arr)
-                    ->when($request->has('search'), function ($q) use ($request) {
-                        $q->where('name', 'LIKE', '%' . $request->search . '%');
-                    })
-                    ->orWhere('owner_id', '!=', 0);
-            })
-            ->orderBy('id', 'desc')
-            ->paginate($paginate_qty->qty);
-        $agencies = User::where('is_agency', 1)->with('profile')->where('status', 1)->orderBy('id', 'desc')->paginate($paginate_qty->qty);
+        $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')->whereIn('id', $agent_arr)->orWhere('owner_id', '!=', 0)->where('status', 1)->orderBy('id', 'desc')->paginate($qty);
+        $agencies = User::where('is_agency', 1)->with('profile')->where('status', 1)->orderBy('id', 'desc')->paginate($qty);
         $homepage = Homepage::first();
         $setting = Setting::first();
 
@@ -1535,6 +1433,7 @@ class HomeController extends Controller
             if (!$agent) abort(404);
 
             $paginate_qty = CustomPagination::find(2);
+            $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
             $properties = Property::with('agent')
                 ->where(function ($query) use ($agent) {
@@ -1553,7 +1452,7 @@ class HomeController extends Controller
                 $properties = $properties->where('title', 'LIKE', '%' . $request->search . '%')->orWhere('description', 'LIKE', '%' . $request->search . '%');
             }
 
-            $properties = $properties->paginate($paginate_qty->qty);
+            $properties = $properties->paginate($qty);
             $properties = $properties->appends($request->all());
 
 
@@ -1591,6 +1490,7 @@ class HomeController extends Controller
             );
 
             $paginate_qty = CustomPagination::find(2);
+            $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
             $properties = Property::with('agent')->select('id', 'agent_id', 'title', 'slug', 'purpose', 'rent_period', 'price', 'thumbnail_image', 'address', 'total_bedroom', 'total_bathroom', 'total_area', 'status', 'is_featured', 'availability_status')->where('status', 'enable')->where('agent_id', 0)->orderBy('id', 'desc');
 
@@ -1598,7 +1498,7 @@ class HomeController extends Controller
                 $properties = $properties->where('title', 'LIKE', '%' . $request->search . '%')->orWhere('description', 'LIKE', '%' . $request->search . '%');
             }
 
-            $properties = $properties->paginate($paginate_qty->qty);
+            $properties = $properties->paginate($qty);
             $properties = $properties->appends($request->all());
 
 
@@ -1657,13 +1557,23 @@ class HomeController extends Controller
         }
 
         $paginate_qty = CustomPagination::find(3);
+        $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
         $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')
-            ->where('login_type', 'agent')->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')
+            ->whereIn('id', $agent_arr)->where('status', 1)->orderBy('id', 'desc')
             ->when($request->has('search'), function ($query) use ($request) {
                 $query->where('name', 'LIKE', '%' . $request->search . '%');
             })
-            ->paginate($paginate_qty->qty,  ['*'], 'agent');
+            ->paginate($qty,  ['*'], 'agent');
+
+        if ($agents->isEmpty()) {
+            $agents = User::select('id', 'name', 'user_name', 'email', 'status', 'image', 'designation', 'facebook', 'twitter', 'linkedin', 'instagram')
+                ->where('status', 1)->orderBy('id', 'desc')
+                ->when($request->has('search'), function ($query) use ($request) {
+                    $query->where('name', 'LIKE', '%' . $request->search . '%');
+                })
+                ->paginate($qty, ['*'], 'agent');
+        }
 
         $agencies = User::where('is_agency', 1)
             ->with('profile')->where('status', 1)
@@ -1672,7 +1582,15 @@ class HomeController extends Controller
                     $query->where('company_name', 'LIKE', '%' . $request->search . '%');
                 });
             })
-            ->orderBy('id', 'desc')->paginate($paginate_qty->qty,  ['*'], 'agency');
+            ->orderBy('id', 'desc')->paginate($qty,  ['*'], 'agency');
+
+        if ($agencies->isEmpty()) {
+            $agencies = Builder::when($request->has('search'), function ($query) use ($request) {
+                $query->where('company_name', 'LIKE', '%' . $request->search . '%');
+            })
+            ->orderBy('id', 'desc')
+            ->paginate($qty, ['*'], 'agency');
+        }
 
         $homepage = Homepage::first();
         $setting = Setting::first();
@@ -1703,15 +1621,15 @@ class HomeController extends Controller
         $mobile_app = (object) array(
             'visibility' => $app_visibility,
             'app_bg' => $setting->app_bg,
-            'full_title' => $setting->app_full_title,
-            'description' => $setting->app_description,
+            'full_title' => $setting->app_full_title ?: 'Download Our Mobile App',
+            'description' => $setting->app_description ?: 'Get instant property alerts, market insights, and real-time listings on your mobile device.',
             'play_store' => $setting->google_playstore_link,
             'app_store' => $setting->app_store_link,
             'image' => $setting->app_image,
-            'apple_btn_text1' => $setting->apple_btn_text1,
-            'apple_btn_text2' => $setting->apple_btn_text2,
-            'google_btn_text1' => $setting->google_btn_text1,
-            'google_btn_text2' => $setting->google_btn_text2,
+            'apple_btn_text1' => $setting->apple_btn_text1 ?: 'App Store',
+            'apple_btn_text2' => $setting->apple_btn_text2 ?: 'Download Now',
+            'google_btn_text1' => $setting->google_btn_text1 ?: 'Google Play',
+            'google_btn_text2' => $setting->google_btn_text2 ?: 'Download Now',
         );
         // mobile app
 
@@ -1740,6 +1658,7 @@ class HomeController extends Controller
         $agent_ids[] = $agency->id;
 
         $paginate_qty = CustomPagination::find(2);
+        $qty = $paginate_qty ? $paginate_qty->qty : 12;
 
         $properties = Property::with('agent')
             ->where(function ($query) use ($agent_ids) {
@@ -1758,7 +1677,7 @@ class HomeController extends Controller
             $properties = $properties->where('title', 'LIKE', '%' . $request->search . '%')->orWhere('description', 'LIKE', '%' . $request->search . '%');
         }
 
-        $properties = $properties->paginate($paginate_qty->qty);
+        $properties = $properties->paginate($qty);
         $properties = $properties->appends($request->all());
 
         $agents = User::where('owner_id', $agency->id)

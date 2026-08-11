@@ -1,7 +1,7 @@
 
 @php
-    $primary_color = $setting->theme_one_color;
-    $secondary_color = $setting->theme_two_color;
+    $primary_color = !empty($setting->theme_one_color) ? $setting->theme_one_color : '#6366f1';
+    $secondary_color = !empty($setting->theme_two_color) ? $setting->theme_two_color : '#0f172a';
 @endphp
 <style>
 
@@ -66,7 +66,6 @@
     }
 
     .homec-listing__inner:hover .homec-listing__title,
-    .breadcrumb__menu li a,
     .homec-property__card .homec-property__price {
         color: {{ $secondary_color }};
     }

@@ -81,14 +81,16 @@ class RegisterController extends Controller
         $user->user_name = Str::slug($request->name).'-'.date('Ymdhis');
         $user->name = $request->name;
         $user->email = $request->email;
+        if ($request->filled('phone')) {
+            $user->phone = $request->phone;
+        }
         $user->password = Hash::make($request->password);
         $user->verify_token = Str::random(100);
-        $user->login_type = 'user';
-        $user->status = 1;
-        $user->email_verified = 1;
-        $user->email_verified_at = now();
+        $user->login_type = ($request->filled('user_type') && $request->user_type == 'agent') ? 'agent' : 'user';
+        $user->status = 0;
+        $user->email_verified = 0;
+        $user->email_verified_at = null;
         $user->save();
-
 
         MailHelper::setMailConfig();
 

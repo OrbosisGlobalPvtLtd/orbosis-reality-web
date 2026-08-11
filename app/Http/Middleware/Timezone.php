@@ -19,7 +19,7 @@ class Timezone
 
 	
     $setting = Setting::first();
-    $timezone = $setting->timezone ?? config('app.timezone'); // Fallback to app timezone if not set
+    $timezone = $setting?->timezone ?? config('app.timezone'); // Fallback to app timezone if not set
     config(['app.timezone' => $timezone]);
     date_default_timezone_set($timezone);
 

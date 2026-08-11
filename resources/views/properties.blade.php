@@ -13,7 +13,7 @@
 @section('frontend-content')
     <!-- Breadcrumbs -->
     <section class="breadcrumbs__content" style="background-image: url({{ asset($breadcrumb) }});">
-        <!-- <div class="homec-overlay"></div> -->
+        <div class="homec-overlay"></div>
         <div class="container">
             <div class="row">
                 <!-- Breadcrumb-Content -->
@@ -335,7 +335,7 @@
                 <div class="homec-results-bar">
                     <div class="homec-results-count">
                         <span id="results_count_text">
-                            {{-- Placeholder: Will be updated by AJAX --}}
+                            Showing {{ $properties->firstItem() ?? 0 }}-{{ $properties->lastItem() ?? 0 }} of {{ $properties->total() ?? 0 }} properties
                         </span>
                     </div>
                     <div class="homec-results-actions">
@@ -407,7 +407,7 @@
                         </div>
 
                         <div class="tab-content" id="nav-tabContent">
-                            <!-- Dynamic Content loaded via AJAX -->
+                            @include('properties_with_ajax')
                         </div>
                     </div>
                 </div>
@@ -432,8 +432,6 @@
         (function($) {
             "use strict";
             $(document).ready(function() {
-
-                loadPropertyWithAjax();
 
                 // Debounce function to limit automatic AJAX requests while typing
                 function debounce(func, wait) {
@@ -560,9 +558,15 @@
         function ajax_pagination(link) {
             let spinner_box = jQuery(".spinner_hidden_box").html();
             jQuery('#nav-tabContent').html(spinner_box);
+
+            let ajaxUrl = link;
+            if (ajaxUrl.indexOf('/properties-with-ajax') === -1) {
+                ajaxUrl = ajaxUrl.replace('/properties', '/properties-with-ajax');
+            }
+
             jQuery.ajax({
                 type: 'get',
-                url: link,
+                url: ajaxUrl,
                 success: function(response) {
                     jQuery('#nav-tabContent').html(response);
                     updateCountTextAndPreserveView();

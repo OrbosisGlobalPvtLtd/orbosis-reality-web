@@ -100,7 +100,7 @@ class PropertyController extends Controller
             $agent_arr[] = $agent->agent_id;
         }
 
-        $agents = User::where('login_type', 'agent')->whereIn('id', $agent_arr)->select('id','name','email','phone')->get();
+        $agents = User::whereIn('id', $agent_arr)->select('id','name','email','phone')->get();
 
         return view('admin.property_create')->with([
             'types' => $types,

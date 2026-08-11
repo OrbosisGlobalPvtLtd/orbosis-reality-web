@@ -42,8 +42,13 @@
                             </ul>
                         </div>
                         <div class="homec-blog-content">
-                            <div>
-                                <img src="{{ ($blog->image)? asset($blog->image) : asset($setting->default_placeholder)}}" alt="">
+                            @php
+                                $detail_img = ($blog->image && file_exists(public_path($blog->image))) 
+                                    ? asset($blog->image) 
+                                    : asset('uploads/custom-images/blog--2023-05-07-10-36-45-7664.jpg');
+                            @endphp
+                            <div class="mg-btm-30">
+                                <img src="{{ $detail_img }}" alt="{{ $blog->title }}" class="img-fluid w-100" style="max-height: 480px; object-fit: cover; border-radius: 16px; width: 100%; display: block;" onerror="this.onerror=null; this.src='{{ asset('uploads/custom-images/blog--2023-05-07-10-36-45-7664.jpg') }}';">
                             </div>
                             <h1 class="homec-blog-content__title">{{ $blog->title }}</h1>
 

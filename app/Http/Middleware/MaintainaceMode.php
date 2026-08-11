@@ -17,7 +17,7 @@ class MaintainaceMode
     public function handle(Request $request, Closure $next)
     {
         $maintainance = MaintainanceText::first();
-        if($maintainance->status == 1){
+        if($maintainance && isset($maintainance->status) && $maintainance->status == 1){
             return response()->view('maintainace_mode');
         }
         return $next($request);

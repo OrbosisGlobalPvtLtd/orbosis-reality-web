@@ -8,13 +8,13 @@
 		<!-- Meta Tags -->
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="keywords" content="{{__('user.HomeCo || Reset Password')}}">
-		<meta name="title" content="{{__('user.HomeCo || Reset Password')}}">
-		<meta name="description" content="{{__('user.HomeCo || Reset Password')}}">
+		<meta name="keywords" content="{{__('user.Orbosis Reality || Reset Password')}}">
+		<meta name="title" content="{{__('user.Orbosis Reality || Reset Password')}}">
+		<meta name="description" content="{{__('user.Orbosis Reality || Reset Password')}}">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 		<!-- Site Title -->
-		<title>{{__('user.HomeCo || Reset Password')}}</title>
+		<title>{{__('user.Orbosis Reality || Reset Password')}}</title>
 
 		<!-- Fav Icon -->
         <link rel="icon" type="image/png" href="{{ asset($setting->favicon) }}">
@@ -111,7 +111,7 @@
 
                                     </div>
 
-                                    @if($recaptcha_setting->status==1)
+                                    @if(!empty($recaptcha_setting) && $recaptcha_setting->status==1)
                                         <div class="form-group homec-form-input">
                                             <div class="g-recaptcha" data-sitekey="{{ $recaptcha_setting->site_key }}"></div>
                                         </div>
@@ -122,7 +122,7 @@
                                         <div class="ecom-wc__button ecom-wc__button--bottom">
                                             <button class="homec-btn homec-btn__second" type="submit"><span>{{__('user.Reset Password')}}</span></button>
 
-                                            @if ($social_login->is_gmail == 1)
+                                            @if (!empty($social_login) && $social_login->is_gmail == 1)
                                                 <button id="googleLoginBtn" class="homec-btn homec-btn__second homec-btn__social" type="button"><div class="ntfmax-wc__btn-icon"><img src="{{ asset('frontend/img/google.svg') }}"></div><span>{{__('user.Sign in with Google')}}</span></button>
                                             @endif
 

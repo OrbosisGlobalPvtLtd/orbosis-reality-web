@@ -12,11 +12,6 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        'razorpay-create-token',
-        'api/create-order',
-        'api/verify-payment',
-        'create-order',
-        'verify-payment',
+        'razorpay-create-token'
     ];
-
 }

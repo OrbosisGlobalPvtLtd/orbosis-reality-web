@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="{{ asset('frontend/css/aos.min.css') }}">
     <!-- Fontawesome -->
     <link rel="stylesheet" href="{{ asset('frontend/css/font-awesome-all.min.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Swiper Slider CSS -->
     <link rel="stylesheet" href="{{ asset('frontend/css/swiper-slider.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/flex-slider.css') }}">
@@ -111,16 +112,182 @@
     @endif
 
     <style>
+        html {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            margin: 0 !important;
+        }
+
+        body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding-top: 125px !important;
+        }
+
+        [data-aos] {
+            opacity: 1 !important;
+            transform: none !important;
+            visibility: visible !important;
+        }
+
+        /* Permanent Fixed Header Block */
+        .homec-header {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            z-index: 999999 !important;
+            background: #ffffff !important;
+            box-shadow: 0 4px 25px rgba(15, 23, 42, 0.08) !important;
+        }
+
+        .homec-header__top {
+            background: #0f172a !important;
+            padding: 8px 0 !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            position: relative !important;
+            z-index: 100 !important;
+            display: block !important;
+            visibility: visible !important;
+        }
+
+        .homec-header__list {
+            display: flex !important;
+            align-items: center !important;
+            gap: 24px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            list-style: none !important;
+        }
+
+        .homec-header__list li a {
+            color: #cbd5e1 !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            text-decoration: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+
+        .homec-header__list li a span {
+            color: #cbd5e1 !important;
+        }
+
+        .homec-header__list li a:hover,
+        .homec-header__list li a:hover span {
+            color: #ffffff !important;
+        }
+
+        .homec-header__middle {
+            background: #ffffff !important;
+            padding: 12px 0 !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            position: relative !important;
+            top: 0 !important;
+        }
+
+        .homec-header__inside {
+            background: #ffffff !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+        }
+
+        /* Mobile adjustments for header padding offset */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 80px !important;
+            }
+            .homec-header__top {
+                display: none !important;
+            }
+            .footer-about-widget,
+            .single-widget {
+                text-align: center !important;
+                margin-bottom: 30px !important;
+            }
+            .footer-logo {
+                display: flex !important;
+                justify-content: center !important;
+            }
+            .footer-about-widget .homec-social {
+                justify-content: center !important;
+            }
+            .footer-about-text {
+                text-align: left !important;
+                display: inline-block !important;
+                margin: 0 auto !important;
+            }
+            .f-useful-links-inner, 
+            .f-need-helps-inner {
+                display: inline-block !important;
+                text-align: left !important;
+                padding-left: 0 !important;
+                margin: 0 auto !important;
+            }
+            .f-contact__form-top {
+                text-align: center !important;
+            }
+            .f-contact-list {
+                display: inline-flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                text-align: left !important;
+                padding-left: 0 !important;
+                margin: 0 auto !important;
+            }
+            .f-useful-links-inner li, .f-need-helps-inner li {
+                margin-bottom: 12px !important;
+                padding-bottom: 0 !important;
+                line-height: 1.2 !important;
+                text-align: left !important;
+            }
+            .f-contact-list li {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                text-align: left !important;
+                margin-bottom: 12px !important;
+                gap: 10px !important;
+            }
+            .f-contact-list li p,
+            .f-contact-list li a {
+                margin: 0 !important;
+                text-align: left !important;
+            }
+            .f-useful-links-inner li a, .f-need-helps-inner li a {
+                padding: 4px 0 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                margin: 0 !important;
+            }
+            .copyright-text {
+                text-align: center !important;
+            }
+
+
+        }
+
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
         .homec-header li.menu-item-has-children a::after {
             margin-left: 7px;
             font-size: 14px;
             font-family: "Font Awesome 6 Free";
             font-weight: 600;
-            /* content: "\f107"; */
         }
         
-      
-
         .fade.in {
             opacity: 1 !important;
         }
@@ -128,6 +295,219 @@
         .tox .tox-promotion,
         .tox-statusbar__branding {
             display: none !important;
+        }
+
+        /* Responsive Header & Logo Fixes */
+        .homec-header__logo img,
+        .footer-logo img,
+        .offcanvas-logo img {
+            max-height: 52px;
+            max-width: 180px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .homec-header__inside {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Breadcrumb Visibility & High Contrast Styling */
+        .breadcrumbs__content {
+            position: relative !important;
+            background-color: #0f172a !important;
+            height: auto !important;
+            min-height: 220px !important;
+            padding-top: 110px !important;
+            padding-bottom: 45px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        @media (max-width: 768px) {
+            .breadcrumbs__content {
+                min-height: 150px !important;
+                padding-top: 35px !important;
+                padding-bottom: 25px !important;
+            }
+            .breadcrumb__title {
+                font-size: 28px !important;
+            }
+            .breadcrumb__menu li,
+            .breadcrumb__menu li a {
+                font-size: 14px !important;
+            }
+        }
+
+        .homec-overlay {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: rgba(15, 23, 42, 0.55) !important;
+            z-index: 1 !important;
+        }
+
+        .breadcrumbs__content .container,
+        .breadcrumb-content {
+            position: relative !important;
+            z-index: 2 !important;
+        }
+
+        .breadcrumb__menu {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            margin-bottom: 8px !important;
+            padding: 0 !important;
+            list-style: none !important;
+        }
+
+        .breadcrumb__menu li,
+        .breadcrumb__menu li a {
+            color: #ffffff !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            text-decoration: none !important;
+            transition: all 0.2s ease !important;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7) !important;
+        }
+
+        .breadcrumb__menu li a:hover {
+            color: #fbbf24 !important;
+            text-decoration: underline !important;
+        }
+
+        .breadcrumb__menu li.active a {
+            color: #fbbf24 !important;
+            font-weight: 700 !important;
+        }
+
+        .breadcrumb__menu li::after,
+        .breadcrumb__menu li:after {
+            color: #fbbf24 !important;
+            font-weight: 800 !important;
+            margin-left: 8px !important;
+            margin-right: 4px !important;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7) !important;
+        }
+
+        .breadcrumb__title {
+            color: #ffffff !important;
+            font-size: 38px !important;
+            font-weight: 800 !important;
+            text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7) !important;
+            letter-spacing: -0.5px !important;
+        }
+
+
+        /* Comprehensive Responsive Location Grid & Container Fixes */
+        .homec-listing {
+            display: flex !important;
+            gap: 24px !important;
+            flex-wrap: wrap !important;
+            justify-content: flex-start !important;
+            width: 100% !important;
+        }
+
+        .homec-listing__single {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 24px !important;
+            flex: 1 1 270px !important;
+            max-width: 360px !important;
+            min-width: 240px !important;
+            width: auto !important;
+        }
+
+        .homec-listing__inner img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 8px !important;
+        }
+
+        /* Search Form Responsive Fixes */
+        .homec-search-form__form {
+            max-width: 760px !important;
+            width: 100% !important;
+            min-width: unset !important;
+        }
+
+        @media (max-width: 991px) {
+            .homec-header__logo img {
+                max-height: 44px;
+                max-width: 150px;
+            }
+            .homec-header__inside {
+                padding: 10px 0;
+            }
+            .homec-listing__single {
+                flex: 1 1 45% !important;
+                max-width: 50% !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .homec-header__logo img {
+                max-height: 38px;
+                max-width: 130px;
+            }
+            .offcanvas-logo img {
+                max-height: 40px;
+                max-width: 140px;
+            }
+            .homec-listing__single {
+                flex: 1 1 100% !important;
+                max-width: 100% !important;
+                min-width: 100% !important;
+                width: 100% !important;
+            }
+            .homec-search-form__form {
+                flex-direction: column !important;
+                padding: 15px !important;
+            }
+            .homec-search-form__group {
+                width: 100% !important;
+            }
+            .homec-search-form__form button {
+                width: 100% !important;
+                margin-top: 10px;
+            }
+        }
+
+        .scrollToTop {
+            position: fixed !important;
+            bottom: 30px !important;
+            right: 30px !important;
+            z-index: 9999 !important;
+            background: #6366f1 !important;
+            color: #ffffff !important;
+            width: 48px !important;
+            height: 48px !important;
+            border-radius: 50% !important;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.3s ease !important;
+            text-decoration: none !important;
+            border: 2px solid #ffffff !important;
+            writing-mode: horizontal-tb !important;
+            transform: none !important;
+        }
+        .scrollToTop:hover {
+            background: #4f46e5 !important;
+            transform: translateY(-4px) !important;
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.6) !important;
+            color: #ffffff !important;
         }
     </style>
 
@@ -151,16 +531,12 @@
     <div class="modal offcanvas-modal fade" id="offcanvas-modal">
         <div class="modal-dialog offcanvas-dialog">
             <div class="modal-content">
-                <div class="modal-header offcanvas-header">
+                <div class="modal-header offcanvas-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #fff; border-bottom: 1px solid #eee;">
+                    <div class="offcanvas-logo">
+                        <a href="{{ route('home') }}"><img src="{{ asset($setting->logo) }}" alt="logo" style="max-height: 40px; width: auto; object-fit: contain;"></a>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <!-- offcanvas-logo-start -->
-                <div class="offcanvas-logo">
-                    <div class="homec-header__logo">
-                        <a href="{{ route('home') }}"><img src="{{ asset($setting->logo) }}" alt="logo"></a>
-                    </div>
-                </div>
-                <!-- offcanvas-logo-end -->
                 <!-- offcanvas-menu start -->
                 <nav id="offcanvas-menu" class="offcanvas-menu">
 
@@ -311,104 +687,22 @@
                                         <div class="nav-item">
                                             <!-- Main Menu -->
                                             <ul class="nav-menu menu navigation list-none">
+                                                <li><a href="{{ route('home') }}" class="{{ Route::is('home') ? 'active' : '' }}">{{ __('user.Home') }}</a></li>
 
-                                                @if ($setting->selected_theme == 0)
-                                                    {{-- <li class="menu-item-has-children"><a
-                                                            href="javascript:;">{{ __('Homepage') }}</a> --}}
-                                                    {{-- <ul class="sub-menu">
-                                                            <li><a
-                                                                    href="{{ route('home', ['theme' => 1]) }}">{{ __('user.Homepage 01') }}</a>
-                                                            </li>
-                                                            <li><a
-                                                                    href="{{ route('home', ['theme' => 2]) }}">{{ __('user.Homepage 02') }}</a>
-                                                            </li>
-                                                            <li><a
-                                                                    href="{{ route('home', ['theme' => 3]) }}">{{ __('user.Homepage 03') }}</a>
-                                                            </li>
-                                                        </ul> --}}
-                                                    {{-- </li> --}}
-                                                @else
-                                                    <li><a href="{{ route('home') }}">{{ __('user.Home') }}</a></li>
-                                                @endif
-                                                <li><a href="{{ route('home') }}">{{ __('user.Home') }}</a></li>
-
-                                                <li><a
-                                                        href="{{ route('properties') }}">{{ __('user.Properties') }}</a>
+                                                <li><a href="{{ route('properties') }}" class="{{ Route::is('properties') || Route::is('property') ? 'active' : '' }}">{{ __('user.Properties') }}</a>
                                                 </li>
 
-                                                {{-- <li class="menu-item-has-children"><a
-                                                        href="javascript:;">{{ __('user.Properties') }}</a>
-                                                    <ul class="sub-menu">
-                                                        <li><a
-                                                                href="{{ route('properties', ['purpose' => 'any']) }}">{{ __('user.Properties') }}</a>
-                                                        </li>
-
-                                                        <li><a
-                                                                href="{{ route('properties', ['purpose' => 'any', 'featured_property' => 'enable']) }}">{{ __('user.Featured Properties') }}</a>
-                                                        </li>
-
-                                                        <li><a
-                                                                href="{{ route('properties', ['purpose' => 'any', 'urgent_property' => 'enable']) }}">{{ __('user.Urgent Properties') }}</a>
-                                                        </li>
-
-                                                        <li><a
-                                                                href="{{ route('properties', ['purpose' => 'any', 'top_property' => 'enable']) }}">{{ __('user.Top Properties') }}</a>
-                                                        </li>
-
-                                                    </ul>
-                                                </li> --}}
-
-                                                <li><a href="{{ route('agencies') }}">{{ __('Channel-Partner') }}</a>
+                                                <li><a href="{{ route('agencies') }}" class="{{ Route::is('agencies') ? 'active' : '' }}">{{ __('Channel-Partner') }}</a>
                                                 </li>
 
-                                                {{-- <li class="menu-item-has-children"><a
-                                                        href="{{ route('blogs') }}">{{ __('user.Blogs') }}</a> --}}
+                                                <li><a href="{{ route('blogs') }}" class="{{ Route::is('blogs') || Route::is('blog') ? 'active' : '' }}">{{ __('user.Blogs') }}</a></li>
 
-
-                                                <li><a href="{{ route('blogs') }}">{{ __('user.Blogs') }}</a></li>
-
-                                                {{-- <ul class="sub-menu">
-
-                                                    @if ($setting->agent_can_add_property)
-                                                        @if ($setting->agent_can_add_property == 'enable')
-                                                            <li><a
-                                                                    href="{{ route('pricing-plan') }}">{{ __('user.Pricing Plan') }}</a>
-                                                            </li>
-                                                        @endif
-                                                    @endif
-
-                                                    <li>
-                                                        <a href="{{ route('about-us') }}">{{ __('user.About Us') }}</a>
-                                                    </li>
-
-                                                    <li><a
-                                                            href="{{ route('blogs') }}">{{ __('user.Blogs') }}</a>
-                                                    </li>
-                                                    <li><a href="{{ route('faq') }}">{{ __('user.FAQ') }}</a>
-                                                    </li>
-
-                                                    <li><a
-                                                            href="{{ route('terms-and-conditions') }}">{{ __('user.Terms and Conditions') }}</a>
-                                                    </li>
-
-                                                    <li><a
-                                                            href="{{ route('privacy-policy') }}">{{ __('user.Privacy Policy') }}</a>
-                                                    </li>
-
-                                                    @foreach ($custom_pages as $custom_page)
-                                                        <li><a
-                                                                href="{{ route('page', $custom_page->slug) }}">{{ $custom_page->page_name }}</a>
-                                                        </li>
-                                                    @endforeach
-                                                </ul> --}}
-                                                {{-- </li> --}}
-
-                                                <li><a href="{{ route('contact-us') }}">{{ __('user.Contact') }}</a>
+                                                <li><a href="{{ route('contact-us') }}" class="{{ Route::is('contact-us') ? 'active' : '' }}">{{ __('user.Contact') }}</a>
                                                 </li>
 
                                                 <li>
                                                     <a href="{{ route('builder.login') }}"
-                                                        class="nav-link fw-semibold">
+                                                        class="nav-link fw-semibold {{ Route::is('builder.login') ? 'active' : '' }}">
                                                         <i class="fas fa-user-helmet-safety me-2 text-primary"></i>
                                                         Builder Login
                                                     </a>
@@ -473,25 +767,185 @@
     @yield('frontend-content')
 
     <!-- Footer -->
+    <style>
+        .footer-area {
+            background: #0f172a !important;
+            color: #94a3b8;
+            padding-top: 50px;
+        }
+        .homec-form {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 30px 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+        .homec-form__content h4 {
+            color: #0f172a;
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0;
+        }
+        .homec-form__content p {
+            color: #64748b;
+            font-size: 14px;
+            margin: 4px 0 0 0;
+        }
+        .homec-form__form {
+            display: flex !important;
+            align-items: center !important;
+            background: #ffffff !important;
+            padding: 6px 6px 6px 20px !important;
+            border-radius: 14px !important;
+            border: 1.5px solid #e2e8f0 !important;
+            width: 100% !important;
+            max-width: 500px !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+            box-sizing: border-box !important;
+        }
+        .homec-form__form input {
+            border: none !important;
+            background: transparent !important;
+            outline: none !important;
+            font-size: 15px !important;
+            color: #0f172a !important;
+            flex: 1 1 auto !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            height: 44px !important;
+            line-height: 44px !important;
+            box-shadow: none !important;
+        }
+        .homec-form__form input::placeholder {
+            color: #94a3b8 !important;
+        }
+        .homec-form__form button {
+            background: #6366f1 !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            font-size: 15px !important;
+            padding: 0 28px !important;
+            height: 44px !important;
+            line-height: 44px !important;
+            border-radius: 10px !important;
+            border: none !important;
+            white-space: nowrap !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+            transition: all 0.2s ease !important;
+            margin: 0 !important;
+            flex-shrink: 0 !important;
+        }
+        .homec-form__form button:hover {
+            background: #4f46e5 !important;
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45) !important;
+        }
+        .footer-about-text {
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 16px;
+        }
+        .widget-title {
+            color: #ffffff !important;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 22px;
+        }
+        .footer-useful-links ul li a, 
+        .footer-need-helps ul li a {
+            color: #94a3b8;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 0;
+            transition: color 0.2s ease, transform 0.2s ease;
+            text-decoration: none;
+        }
+        .footer-useful-links ul li a:hover, 
+        .footer-need-helps ul li a:hover {
+            color: #ffffff;
+            transform: translateX(4px);
+        }
+        .f-contact-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: #94a3b8;
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+        .f-contact-list li a, .f-contact-list li p {
+            color: #94a3b8;
+            text-decoration: none;
+            margin: 0;
+            transition: color 0.2s ease;
+        }
+        .f-contact-list li a:hover {
+            color: #ffffff;
+        }
+        .f-contact-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(99, 102, 241, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .copyright {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 24px 0;
+            margin-top: 60px;
+        }
+        .copyright-text {
+            color: #64748b;
+            font-size: 14px;
+            margin: 0;
+        }
+        .footer-pages li a {
+            color: #64748b;
+            font-size: 14px;
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.2s ease;
+        }
+        .footer-pages li a:hover {
+            color: #ffffff;
+        }
+        @media (max-width: 768px) {
+            .homec-form {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 24px;
+            }
+            .homec-form__form {
+                max-width: 100%;
+            }
+        }
+    </style>
     <footer class="footer-area p-relative">
-        <div class="homec-shape">
-            <div class="homec-shape-single homec-shape-10"><img src="{{ asset($footer->background_image) }}"
-                    alt="#"></div>
-        </div>
         <div class="container">
             <div class="row">
                 <div class="col-12">
                     <!-- Subscribe Form -->
-                    <div class="homec-form mg-top-100">
+                    <div class="homec-form">
                         <div class="homec-form__content">
-                            <span class="homec-form__label">{{ __('user.For Rent house offer') }}</span>
-                            {{-- <h3 class="homec-form__title">{{ __('user.Join Orbosis Reality  Community') }}</h3> --}}
+                            <h4>Subscribe To Exclusive Indore Property Updates</h4>
+                            <p>Get prime property alerts, price drops & market insights delivered to your inbox.</p>
                         </div>
                         <form id="subscriberForm" class="homec-form__form">
                             @csrf
-                            <input type="email" placeholder="{{ __('user.Your Email') }}" name="email">
-                            <button id="subscribe_btn" type="submit" class="homec-btn"><span
-                                    id="subscribe_btn_text">{{ __('user.Subscribe Now') }}</span></button>
+                            <input type="email" placeholder="Enter your email address" name="email" required>
+                            <button id="subscribe_btn" type="submit">
+                                <span id="subscribe_btn_text">Subscribe Now</span>
+                            </button>
                         </form>
                     </div>
                     <!-- End Subscribe Form -->
@@ -499,87 +953,106 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <div class="footer-top-inner pd-top-30 pd-btm-100">
+                    <div class="footer-top-inner pd-top-10 pd-btm-40">
                         <div class="row">
-                            <div class="col-lg-4 col-md-3 col-12">
+                            <div class="col-lg-4 col-md-4 col-12 mg-top-30">
                                 <!-- Footer Widget -->
                                 <div class="footer-about-widget">
                                     <div class="footer-logo homec-header__logo">
-                                        <a class="logo" href="{{ route('home') }}"><img
-                                                src="{{ asset($setting->footer_logo) }}" alt="logo"></a>
+                                        @php
+                                            $foot_logo = ($setting->footer_logo && file_exists(public_path($setting->footer_logo))) 
+                                                ? asset($setting->footer_logo) 
+                                                : asset('uploads/website-images/logo-2026-01-10-05-02-59-8516.png');
+                                        @endphp
+                                        <a class="logo" href="{{ route('home') }}"><img src="{{ $foot_logo }}" alt="Orbosis Reality Logo" style="max-height: 48px;"></a>
                                     </div>
-                                    <p class="footer-about-text">{{ $footer->about_us }}</p>
+                                    <p class="footer-about-text">Indore's leading real estate platform for residential homes, commercial spaces, plots, and premium luxury properties.</p>
                                     <!-- Social -->
-                                    <ul class="homec-social homec-social__v2">
-
+                                    <ul class="homec-social homec-social__v2 mt-3">
                                         @foreach ($social_links as $social_link)
-                                            <li><a href="{{ $social_link->link }}"><i
-                                                        class="{{ $social_link->icon }}"></i></a></li>
+                                            <li><a href="{{ $social_link->link }}"><i class="{{ $social_link->icon }}"></i></a></li>
                                         @endforeach
-
                                     </ul>
                                     <!-- End Social -->
                                 </div>
                                 <!-- End Footer Widget -->
                             </div>
-                            <div class="col-lg-8 col-md-9">
+                            <div class="col-lg-8 col-md-8 col-12">
                                 <div class="row">
-                                    <div class="col-lg-4 col-md-4 col-12">
+                                    <div class="col-lg-4 col-md-4 col-12 mg-top-30">
                                         <!-- Footer Widget -->
                                         <div class="single-widget footer-useful-links">
                                             <h3 class="widget-title">{{ __('user.Property Type') }}</h3>
                                             <ul class="f-useful-links-inner list-none">
                                                 @foreach ($footer_categories as $footer_category)
-                                                    <li><a
-                                                            href="{{ route('properties', ['property_type' => $footer_category->slug]) }}"><i
-                                                                class="fa-solid fa-minus"></i>{{ $footer_category->translate(front_lang(), 'name') }}</a>
+                                                    <li>
+                                                        <a href="{{ route('properties', ['property_type' => $footer_category->slug]) }}">
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; flex-shrink: 0;">
+                                                                <polyline points="9 18 15 12 9 6"></polyline>
+                                                            </svg>
+                                                            {{ $footer_category->translate(front_lang(), 'name') }}
+                                                        </a>
                                                     </li>
                                                 @endforeach
-
                                             </ul>
                                         </div>
                                         <!-- End Footer Widget -->
                                     </div>
-                                    <div class="col-lg-4 col-md-4 col-12">
+                                    <div class="col-lg-4 col-md-4 col-12 mg-top-30">
                                         <!-- Footer Widget -->
                                         <div class="single-widget footer-need-helps">
                                             <h3 class="widget-title">{{ __('user.Important Link') }}</h3>
                                             <ul class="f-need-helps-inner list-none">
-                                                <!--<li><a href="{{ route('user.dashboard') }}"><i-->
-                                                <!--            class="fa-solid fa-minus"></i>{{ __('user.Dashboard') }}</a>-->
-                                                <!--</li>-->
-                                                <!--<li><a href="{{ route('user.wishlist') }}"><i-->
-                                                <!--            class="fa-solid fa-minus"></i>{{ __('user.Wishlist') }}</a>-->
-                                                <!--</li>-->
-                                                <!--<li><a href="{{ route('user.change-password') }}"><i-->
-                                                <!--            class="fa-solid fa-minus"></i>{{ __('user.Change Password') }}</a>-->
-                                                <!--</li>-->
-                                                <li><a href="{{ route('about-us') }}"><i
-                                                            class="fa-solid fa-minus"></i>{{ __('user.About Us') }}</a>
+                                                <li>
+                                                    <a href="{{ route('about-us') }}">
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; flex-shrink: 0;">
+                                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                                        </svg>
+                                                        {{ __('user.About Us') }}
+                                                    </a>
                                                 </li>
-                                                <li><a href="{{ route('contact-us') }}"><i
-                                                            class="fa-solid fa-minus"></i>{{ __('user.Contact Us') }}</a>
+                                                <li>
+                                                    <a href="{{ route('contact-us') }}">
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; flex-shrink: 0;">
+                                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                                        </svg>
+                                                        {{ __('user.Contact Us') }}
+                                                    </a>
                                                 </li>
                                             </ul>
                                         </div>
                                         <!-- End Footer Widget -->
                                     </div>
-                                    <div class="col-lg-4 col-md-4 col-12">
+                                    <div class="col-lg-4 col-md-4 col-12 mg-top-30">
                                         <!-- Footer Widget -->
                                         <div class="single-widget footer-contact">
                                             <h3 class="widget-title">{{ __('user.Contact Us') }}</h3>
                                             <div class="f-contact__form-top">
                                                 <ul class="f-contact-list list-none">
-                                                    <li><img src="{{ asset('frontend/img/footer-phone.svg') }}"
-                                                            alt="phone"><a
-                                                            href="tel:{{ $footer->phone }}">{{ $footer->phone }}</a>
+                                                    <li>
+                                                        <div class="f-contact-icon">
+                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                                            </svg>
+                                                        </div>
+                                                        <a href="tel:{{ $footer->phone }}">{{ $footer->phone }}</a>
                                                     </li>
-                                                    <li><img src="{{ asset('frontend/img/footer-message.png') }}"
-                                                            alt="email"><a
-                                                            href="mailto:{{ $footer->email }}">{{ $footer->email }}</a>
+                                                    <li>
+                                                        <div class="f-contact-icon">
+                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                                <polyline points="22,6 12,13 2,6"></polyline>
+                                                            </svg>
+                                                        </div>
+                                                        <a href="mailto:{{ $footer->email }}">{{ $footer->email }}</a>
                                                     </li>
-                                                    <li><img src="{{ asset('frontend/img/footer-location.png') }}"
-                                                            alt="address">
+                                                    <li>
+                                                        <div class="f-contact-icon">
+                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                                                <circle cx="12" cy="10" r="3"></circle>
+                                                            </svg>
+                                                        </div>
                                                         <p>{{ $footer->address }}</p>
                                                     </li>
                                                 </ul>
@@ -597,29 +1070,28 @@
         <!-- Copyright -->
         <div class="copyright">
             <div class="container">
-                <div class="row">
+                <div class="row align-items-center">
                     <div class="col-lg-6 col-12">
-                        <!-- Copyright Text -->
-                        <p class="copyright-text">{{ $footer->copyright }}</a></p>
+                        <p class="copyright-text">{{ $footer->copyright }}</p>
                     </div>
                     <div class="col-lg-6 col-12">
-                        <!-- Footer Page List -->
-                        <ul class="footer-pages list-none">
+                        <ul class="footer-pages list-none d-flex justify-content-lg-end justify-content-start mt-lg-0 mt-2">
                             <li><a href="{{ route('privacy-policy') }}">{{ __('user.Privacy Policy') }}</a></li>
-                            <li><a
-                                    href="{{ route('terms-and-conditions') }}">{{ __('user.Terms & Conditions') }}</a>
-                            </li>
+                            <li><a href="{{ route('terms-and-conditions') }}">{{ __('user.Terms & Conditions') }}</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- End Copyright -->
     </footer>
     <!-- End Footer -->
 
-    <!-- Scrool Top -->
-    <a href="#" class="scrollToTop">{{ __('user.Go Top') }}<i class="fa-solid fa-angle-right"></i></a>
+    <!-- Scroll Top -->
+    <a href="#" class="scrollToTop" title="{{ __('user.Go Top') }}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </a>
 
 
 
