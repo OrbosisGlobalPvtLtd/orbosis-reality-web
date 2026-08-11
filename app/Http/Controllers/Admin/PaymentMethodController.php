@@ -24,13 +24,14 @@ class PaymentMethodController extends Controller
     }
 
     public function index(){
-        $paypal = PaypalPayment::first();
-        $stripe = StripePayment::first();
-        $razorpay = RazorpayPayment::first();
-        $flutterwave = Flutterwave::first();
-        $bank = BankPayment::first();
-        $paystackAndMollie = PaystackAndMollie::first();
-        $instamojo = InstamojoPayment::first();
+        $paypal = PaypalPayment::firstOrCreate(['id' => 1], ['status' => 0]);
+        $stripe = StripePayment::firstOrCreate(['id' => 1], ['status' => 0]);
+        $razorpay = RazorpayPayment::firstOrCreate(['id' => 1], ['status' => 1, 'name' => 'Orbosis Realty', 'key' => env('RAZORPAY_KEY_ID'), 'secret_key' => env('RAZORPAY_KEY_SECRET')]);
+        $flutterwave = Flutterwave::firstOrCreate(['id' => 1], ['status' => 0]);
+        $bank = BankPayment::firstOrCreate(['id' => 1], ['status' => 0]);
+        $paystackAndMollie = PaystackAndMollie::firstOrCreate(['id' => 1], ['paystack_status' => 0, 'mollie_status' => 0]);
+        $instamojo = InstamojoPayment::firstOrCreate(['id' => 1], ['status' => 0]);
+
 
         $countires = CurrencyCountry::orderBy('name','asc')->get();
         $currencies = Currency::orderBy('name','asc')->get();
