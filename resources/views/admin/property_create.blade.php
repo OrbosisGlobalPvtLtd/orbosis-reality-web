@@ -190,7 +190,7 @@
 
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="">{{ __('admin.Total Area(m2)') }} <span
+                                                <label for="">{{ __('admin.Total Area (Sq. Ft.)') }} <span
                                                         class="text-danger">*</span></label>
                                                 <input type="text" name="total_area" class="form-control"
                                                     value="{{ old('total_area') }}">

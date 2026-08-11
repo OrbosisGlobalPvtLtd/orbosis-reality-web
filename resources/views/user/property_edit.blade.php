@@ -266,7 +266,7 @@
                                         <div class="col-lg-6 col-md-6 col-12">
                                             <!-- Single Form Element -->
                                             <div class="mg-top-20">
-                                                <h4 class="homec-submit-form__heading">{{ __('user.Total Area(m2)') }}
+                                                <h4 class="homec-submit-form__heading">{{ __('user.Total Area (Sq. Ft.)') }}
                                                 </h4>
                                                 <div class="form-group homec-form-input">
                                                     <input type="text" name="total_area"

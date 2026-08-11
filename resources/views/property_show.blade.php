@@ -99,7 +99,7 @@
                                 <img src="{{ asset('frontend/img/pd-icon-1.svg') }}">
                             </div>
                             <h4 class="pd-features__title">{{__('user.Area')}}</h4>
-                            <p class="pd-features__text">{{ html_decode($property->total_area) }}{{__('user.m2')}}</p>
+                            <p class="pd-features__text">{{ html_decode($property->total_area) }} {{__('user.m2')}}</p>
                         </div>
                         <!-- End Pd Features -->
                         <!-- Pd Features -->
