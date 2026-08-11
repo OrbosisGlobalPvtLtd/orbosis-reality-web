@@ -50,8 +50,7 @@
 										@endif
 										<h3 class="homec-dashboard__heading m-0">{{__('user.My Dashboard')}}</h3>
 										<div class="row">
-                                            @if ($setting->agent_can_add_property && $setting->agent_can_add_property == 'enable')
-
+                                            @if (auth()->user()->login_type === 'agent' && $setting->agent_can_add_property && $setting->agent_can_add_property == 'enable')
                                                     <div class="col-lg-4 col-md-6 col-12">
                                                         <!-- Homec Dashboard Single -->
                                                         <div class="homec-dashboard__single">
