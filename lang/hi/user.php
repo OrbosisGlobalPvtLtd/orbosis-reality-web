@@ -346,6 +346,10 @@
   'Book Now' => 'Book Now',
   'Confirm Booking' => 'Confirm Booking',
   'Booking Request' => 'Booking Request',
-  'Agency Profile' => 'Agency Profile'
+  'Agency Profile' => 'Agency Profile',
+  'Select Amenities' => 'Select Amenities',
+  'Selected Amenities' => 'Selected Amenities',
+  'Select Country' => 'Select Country',
+  'Select City' => 'Select City',
 );
  ?>

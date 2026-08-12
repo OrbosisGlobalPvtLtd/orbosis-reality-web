@@ -262,7 +262,7 @@ class LoginController extends Controller
     }
 
     function createUser($getInfo,$provider){
-        $user = User::where('provider_id', $getInfo->id)->first();
+        $user = User::where('provider_id', $getInfo->id)->orWhere('email', $getInfo->email)->first();
         if (!$user) {
             $user = User::create([
                 'name'     => $getInfo->name,
@@ -273,6 +273,14 @@ class LoginController extends Controller
                 'status' => 1,
                 'email_verified' => 1,
             ]);
+        } else {
+            if (!$user->provider_id) {
+                $user->provider = $provider;
+                $user->provider_id = $getInfo->id;
+                $user->provider_avatar = $getInfo->avatar;
+                $user->email_verified = 1;
+                $user->save();
+            }
         }
         return $user;
     }

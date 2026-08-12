@@ -477,5 +477,9 @@
     'Next' => 'Next',
     'Allow Location' => 'Allow Location',
     'Skip for Now' => 'Skip for Now',
+    'Select Amenities' => 'Select Amenities',
+    'Selected Amenities' => 'Selected Amenities',
+    'Select Country' => 'Select Country',
+    'Select City' => 'Select City',
 );
  ?>

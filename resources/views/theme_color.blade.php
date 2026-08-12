@@ -259,4 +259,38 @@
         background-color: {{ $primary_color }} !important;
         color: #fff !important;
     }
+
+    .homec-header-create-btn {
+        background: #42a5d5 !important;
+        color: #ffffff !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        padding: 0 28px !important;
+        height: 60px !important;
+        border-radius: 4px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        text-decoration: none !important;
+        box-shadow: none !important;
+        transition: all 0.3s ease !important;
+        border: none !important;
+        white-space: nowrap !important;
+    }
+
+    .homec-header-create-btn span {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+
+    .homec-header-create-btn:hover {
+        background: #3494c4 !important;
+        color: #ffffff !important;
+        text-decoration: none !important;
+    }
+
+    .homec-header-create-btn:hover span {
+        color: #ffffff !important;
+    }
 </style>

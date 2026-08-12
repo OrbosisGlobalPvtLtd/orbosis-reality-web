@@ -221,6 +221,50 @@
     .property-submit-btn:hover span {
         color: #ffffff !important;
     }
+    .homec-btn--upload,
+    #slider_image_hideden_btn {
+        background: linear-gradient(135deg, #48aadf 0%, #008cc7 100%) !important;
+        color: #ffffff !important;
+        font-size: 14px !important;
+        font-weight: 700 !important;
+        padding: 10px 24px !important;
+        border-radius: 30px !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(0, 140, 199, 0.25) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        transition: all 0.25s ease !important;
+        cursor: pointer !important;
+    }
+    .homec-btn--upload span,
+    #slider_image_hideden_btn span {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+    }
+    .homec-btn--upload:hover,
+    #slider_image_hideden_btn:hover {
+        background: linear-gradient(135deg, #008cc7 0%, #006699 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 6px 18px rgba(0, 140, 199, 0.4) !important;
+        transform: translateY(-2px) !important;
+    }
+    .homec-btn--upload:hover span,
+    #slider_image_hideden_btn:hover span {
+        color: #ffffff !important;
+    }
+    .homec-image-video-upload__title,
+    .homec-image-video-upload__title span {
+        transition: color 0.2s ease !important;
+    }
+    .homec-image-video-upload:hover .homec-image-video-upload__title {
+        color: #0f172a !important;
+    }
+    .homec-image-video-upload:hover .homec-image-video-upload__title .homec-primary-color {
+        color: #008cc7 !important;
+    }
 </style>
     <!-- Breadcrumbs -->
     <section class="breadcrumbs__content" style="background-image: url({{ asset($breadcrumb) }});">
@@ -693,9 +737,9 @@
                                 <div class="mg-top-20">
                                     <h4 class="homec-submit-form__heading">{{ __('user.Country') }} *</h4>
                                     <div class="form-group homec-form-input">
-                                        <select name="country_id" class="homec-form-select homec-border select2"
-                                            id="country_id">
-                                            <option value="">{{ __('user.Select') }}</option>
+                                        <select name="country_id" class="homec-form-select homec-border"
+                                            id="country_id" required>
+                                            <option value="">-- {{ __('user.Select Country') }} --</option>
                                             @foreach ($countries as $country)
                                                 <option value="{{ $country->id }}"
                                                     {{ $property->country_id == $country->id ? 'selected' : '' }}>
@@ -712,8 +756,8 @@
                                 <div class="mg-top-20">
                                     <h4 class="homec-submit-form__heading">{{ __('user.City') }} *</h4>
                                     <div class="form-group homec-form-input" id="country_selector">
-                                        <select name="city_id" class="homec-form-select homec-border select2">
-                                            <option value="">{{ __('user.Select') }}</option>
+                                        <select name="city_id" class="homec-form-select homec-border" required>
+                                            <option value="">-- {{ __('user.Select City') }} --</option>
                                         </select>
                                     </div>
                                 </div>
