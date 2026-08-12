@@ -11,16 +11,21 @@ class PropertySlider extends Model
 
     protected $appends = ['image_url'];
 
+    public function getImageAttribute($value)
+    {
+        if (!$value) {
+            $setting = \App\Models\Setting::first();
+            return $setting && $setting->default_placeholder ? url($setting->default_placeholder) : '';
+        }
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+        return url($value);
+    }
+
     public function getImageUrlAttribute()
     {
-        if (!$this->image) {
-            $setting = \App\Models\Setting::first();
-            return $setting->default_placeholder ? url($setting->default_placeholder) : null;
-        }
-        if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
-            return $this->image;
-        }
-        return url($this->image);
+        return $this->image;
     }
 
     protected $casts =  [

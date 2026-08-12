@@ -27,6 +27,7 @@ use App\Models\PropertyAminity;
 use App\Http\Controllers\Controller;
 use App\Models\AdditionalInformation;
 use App\Models\PropertyNearestLocation;
+use App\Helpers\ImageHelper;
 
 class PropertyController extends Controller
 {
@@ -208,6 +209,18 @@ class PropertyController extends Controller
             ], 403);
         }
 
+        $agent_id = $user->id;
+
+        $agent_order = Order::where(function($q) use ($user) {
+            $q->where('user_id', $user->id)->orWhere('agent_id', $user->id);
+        })->where('order_status', 'active')->where('payment_status', 'success')->orderBy('id', 'desc')->first();
+
+        $plan_expired_date = null;
+        if ($agent_order) {
+            if ($agent_order->expiration_date != 'lifetime') {
+                $plan_expired_date = $agent_order->expiration_date;
+            }
+        }
 
         $live_map = Setting::first()->live_map;
 
@@ -275,38 +288,25 @@ class PropertyController extends Controller
         $property->total_bathroom = $request->total_bathroom;
         $property->total_garage = $request->total_garage;
         $property->total_kitchen = $request->total_kitchen;
-        $property->total_bathroom = $request->total_bathroom;
 
-        $property->city_id = $request->city_id;
-        $property->country_id = $request->country_id;
+        $fallback_country = ($request->country_id && $request->country_id != 'null' && $request->country_id != '') 
+            ? $request->country_id 
+            : (Country::first()->id ?? 1);
+
+        $fallback_city = ($request->city_id && $request->city_id != 'null' && $request->city_id != '') 
+            ? $request->city_id 
+            : (City::first()->id ?? 1);
+
+        $property->city_id = $fallback_city;
+        $property->country_id = $fallback_country;
         $property->address = $request->address;
-        $property->address_description = $request->address_description;
-        $property->google_map = $request->google_map;
-        $property->lat = $request->lat;
-        $property->lon = $request->lng;
+        $property->address_description = $request->address_description ?? '';
+        $property->google_map = $request->google_map ?? '';
+        $property->lat = $request->lat ?? '';
+        $property->lon = $request->lng ?? '';
 
-        $property->video_id = $request->video_id;
-        $property->video_description = $request->video_description;
-
-        if($request->thumbnail_image){
-            $extention = $request->thumbnail_image->getClientOriginalExtension();
-            $image_name = 'property-thumb'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-            $image_name = 'uploads/custom-images/'.$image_name;
-            Image::make($request->thumbnail_image)
-                ->encode('webp', 80)
-                ->save(public_path().'/'.$image_name);
-            $property->thumbnail_image = $image_name;
-        }
-
-        if($request->video_thumbnail){
-            $extention = $request->video_thumbnail->getClientOriginalExtension();
-            $image_name = 'video-thumb'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-            $image_name = 'uploads/custom-images/'.$image_name;
-            Image::make($request->video_thumbnail)
-                ->encode('webp', 80)
-                ->save(public_path().'/'.$image_name);
-            $property->video_thumbnail = $image_name;
-        }
+        $property->video_id = $request->video_id ?? '';
+        $property->video_description = $request->video_description ?? '';
 
         $property->seo_title = $request->seo_title ? $request->seo_title : $request->title;
         $property->seo_meta_description = $request->seo_meta_description ? $request->seo_meta_description : $request->title;
@@ -317,12 +317,22 @@ class PropertyController extends Controller
             $property->approve_by_admin = 'approved';
         }
 
-        if($agent_order->expiration_date == 'lifetime'){
+        if($agent_order && $agent_order->expiration_date == 'lifetime'){
             $property->expired_date = null;
         }else{
-            $property->expired_date = $agent_order->expiration_date;
+            $property->expired_date = $plan_expired_date ?? date('Y-m-d', strtotime('+30 days'));
         }
         $property->save();
+
+        if($request->thumbnail_image){
+            $property->thumbnail_image = ImageHelper::savePropertyMedia($request->thumbnail_image, $property->id, 'thumbnail');
+            $property->save();
+        }
+
+        if($request->video_thumbnail){
+            $property->video_thumbnail = ImageHelper::savePropertyMedia($request->video_thumbnail, $property->id, 'video-thumb');
+            $property->save();
+        }
 
         if($request->aminities){
             foreach($request->aminities as $aminity){
@@ -335,17 +345,13 @@ class PropertyController extends Controller
 
         if($request->slider_images){
             foreach($request->slider_images as $index => $image){
-                $extention = $image->getClientOriginalExtension();
-                $image_name = 'Property-slider'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-                $image_name = 'uploads/custom-images/'.$image_name;
-                Image::make($image)
-                    ->encode('webp', 80)
-                    ->save(public_path().'/'.$image_name);
-
-                $slider = new PropertySlider();
-                $slider->property_id = $property->id;
-                $slider->image = $image_name;
-                $slider->save();
+                $image_name = ImageHelper::savePropertyMedia($image, $property->id, 'sliders');
+                if ($image_name) {
+                    $slider = new PropertySlider();
+                    $slider->property_id = $property->id;
+                    $slider->image = $image_name;
+                    $slider->save();
+                }
             }
         }
 
@@ -610,32 +616,21 @@ class PropertyController extends Controller
 
         if($request->thumbnail_image){
             $old_thumbnail_image = $property->thumbnail_image;
-            $extention = $request->thumbnail_image->getClientOriginalExtension();
-            $image_name = 'property-thumb'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-            $image_name = 'uploads/custom-images/'.$image_name;
-            Image::make($request->thumbnail_image)
-                ->encode('webp', 80)
-                ->save(public_path().'/'.$image_name);
-            $property->thumbnail_image = $image_name;
+            $property->thumbnail_image = ImageHelper::savePropertyMedia($request->thumbnail_image, $property->id, 'thumbnail');
             $property->save();
 
-            if($old_thumbnail_image){
-                if(File::exists(public_path().'/'.$old_thumbnail_image))unlink(public_path().'/'.$old_thumbnail_image);
+            if($old_thumbnail_image && File::exists(public_path($old_thumbnail_image))){
+                @unlink(public_path($old_thumbnail_image));
             }
         }
 
         if($request->video_thumbnail){
             $old_video_thumbnail = $property->video_thumbnail;
-            $extention = $request->video_thumbnail->getClientOriginalExtension();
-            $image_name = 'video-thumb'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-            $image_name = 'uploads/custom-images/'.$image_name;
-            Image::make($request->video_thumbnail)
-                ->encode('webp', 80)
-                ->save(public_path().'/'.$image_name);
-            $property->video_thumbnail = $image_name;
+            $property->video_thumbnail = ImageHelper::savePropertyMedia($request->video_thumbnail, $property->id, 'video-thumb');
+            $property->save();
 
-            if($old_video_thumbnail){
-                if(File::exists(public_path().'/'.$old_video_thumbnail))unlink(public_path().'/'.$old_video_thumbnail);
+            if($old_video_thumbnail && File::exists(public_path($old_video_thumbnail))){
+                @unlink(public_path($old_video_thumbnail));
             }
         }
 
@@ -660,17 +655,13 @@ class PropertyController extends Controller
 
         if($request->slider_images){
             foreach($request->slider_images as $index => $image){
-                $extention = $image->getClientOriginalExtension();
-                $image_name = 'Property-slider'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-                $image_name = 'uploads/custom-images/'.$image_name;
-                Image::make($image)
-                    ->encode('webp', 80)
-                    ->save(public_path().'/'.$image_name);
-
-                $slider = new PropertySlider();
-                $slider->property_id = $property->id;
-                $slider->image = $image_name;
-                $slider->save();
+                $image_name = ImageHelper::saveImageSafely($image, 'Property-slider');
+                if ($image_name) {
+                    $slider = new PropertySlider();
+                    $slider->property_id = $property->id;
+                    $slider->image = $image_name;
+                    $slider->save();
+                }
             }
         }
 
@@ -864,6 +855,7 @@ class PropertyController extends Controller
         }
 
         $property->delete();
+        ImageHelper::deletePropertyDirectory($id);
 
         $notification = trans('user_validation.Deleted successfully');
         return response()->json(['message' => $notification]);

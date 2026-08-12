@@ -292,6 +292,12 @@ if (!in_array($request->purpose, $validPurposes)) {
     public function store(Request $request){
 
         $user = Auth::guard('web')->user();
+        $agent_id = $user->id;
+        if ($user->owner_id != 0) {
+            $target_user = User::find($user->owner_id) ?? $user;
+            $agent_id = $target_user->id;
+        }
+
         $entitlement = $this->checkUserPropertyEntitlement($user);
 
         if (!$entitlement['allowed']) {
@@ -391,16 +397,6 @@ if (!in_array($request->purpose, $validPurposes)) {
         $property->video_id = $request->video_id;
         $property->video_description = $request->video_description;
 
-        if($request->thumbnail_image){
-            $property->thumbnail_image = ImageHelper::saveImageSafely($request->thumbnail_image, 'property-thumb');
-        } else {
-            $property->thumbnail_image = 'uploads/website-images/default-avatar-2026-08-11-05-20-33-2858.jpg';
-        }
-
-        if($request->video_thumbnail){
-            $property->video_thumbnail = ImageHelper::saveImageSafely($request->video_thumbnail, 'video-thumb');
-        }
-
         $property->seo_title = $request->seo_title ? $request->seo_title : $request->title;
         $property->seo_meta_description = $request->seo_meta_description ? $request->seo_meta_description : $request->title;
         $property->status = 'enable';
@@ -410,16 +406,32 @@ if (!in_array($request->purpose, $validPurposes)) {
             $property->approve_by_admin = 'approved';
         }
 
-        if($agent_order->expiration_date == 'lifetime'){
+        $agent_order = $entitlement['order'] ?? null;
+        if($agent_order && $agent_order->expiration_date == 'lifetime'){
             $property->expired_date = null;
-        }else{
+        }elseif($agent_order && !empty($agent_order->expiration_date)){
             $property->expired_date = $agent_order->expiration_date;
+        }else{
+            $property->expired_date = null;
         }
         $property->date_from = $request->date_form;
         $property->date_to = $request->date_to;
         $property->time_from = $request->time_form;
         $property->time_to = $request->time_to;
         $property->save();
+
+        if($request->thumbnail_image){
+            $property->thumbnail_image = ImageHelper::savePropertyMedia($request->thumbnail_image, $property->id, 'thumbnail');
+            $property->save();
+        } else {
+            $property->thumbnail_image = 'uploads/website-images/default-avatar-2026-08-11-05-20-33-2858.jpg';
+            $property->save();
+        }
+
+        if($request->video_thumbnail){
+            $property->video_thumbnail = ImageHelper::savePropertyMedia($request->video_thumbnail, $property->id, 'video-thumb');
+            $property->save();
+        }
 
         if($request->aminities){
             foreach($request->aminities as $aminity){
@@ -432,7 +444,7 @@ if (!in_array($request->purpose, $validPurposes)) {
 
         if($request->slider_images){
             foreach($request->slider_images as $index => $image){
-                $image_name = ImageHelper::saveImageSafely($image, 'Property-slider');
+                $image_name = ImageHelper::savePropertyMedia($image, $property->id, 'sliders');
                 if ($image_name) {
                     $slider = new PropertySlider();
                     $slider->property_id = $property->id;
@@ -711,22 +723,22 @@ if (!in_array($request->purpose, $validPurposes)) {
         $property->video_id = $request->video_id;
         $property->video_description = $request->video_description;
 
-        if($request->thumbnail_image && $request->lang_code === 'en'){
+        if($request->thumbnail_image){
             $old_thumbnail_image = $property->thumbnail_image;
             $property->thumbnail_image = ImageHelper::saveImageSafely($request->thumbnail_image, 'property-thumb');
             $property->save();
 
             if($old_thumbnail_image && File::exists(public_path().'/'.$old_thumbnail_image)){
-                unlink(public_path().'/'.$old_thumbnail_image);
+                @unlink(public_path().'/'.$old_thumbnail_image);
             }
         }
 
-        if($request->video_thumbnail && $request->lang_code === 'en'){
+        if($request->video_thumbnail){
             $old_video_thumbnail = $property->video_thumbnail;
             $property->video_thumbnail = ImageHelper::saveImageSafely($request->video_thumbnail, 'video-thumb');
 
             if($old_video_thumbnail && File::exists(public_path().'/'.$old_video_thumbnail)){
-                unlink(public_path().'/'.$old_video_thumbnail);
+                @unlink(public_path().'/'.$old_video_thumbnail);
             }
         }
 
@@ -740,13 +752,11 @@ if (!in_array($request->purpose, $validPurposes)) {
         $property->date_to = $request->date_to;
         $property->time_from = $request->time_form;
         $property->time_to = $request->time_to;
-        if ($request->lang_code === 'en') {
-            $property->save();
-        }
+        $property->save();
 
         PropertyAminity::where('property_id', $id)->delete();
 
-        if($request->aminities && $request->lang_code === 'en'){
+        if($request->aminities){
             foreach($request->aminities as $aminity){
                 $item = new PropertyAminity();
                 $item->aminity_id = $aminity;
@@ -755,7 +765,7 @@ if (!in_array($request->purpose, $validPurposes)) {
             }
         }
 
-        if($request->slider_images && $request->lang_code === 'en'){
+        if($request->slider_images){
             foreach($request->slider_images as $index => $image){
                 $image_name = ImageHelper::saveImageSafely($image, 'Property-slider');
                 if ($image_name) {
@@ -768,18 +778,20 @@ if (!in_array($request->purpose, $validPurposes)) {
         }
 
 
-        if($request->existing_nearest_locations && $request->existing_distances && ($request->lang_code === 'en')){
+        if($request->existing_nearest_locations && $request->existing_distances){
             foreach($request->existing_nearest_locations as $index => $nearest_location){
-                if($request->existing_nearest_locations[$index] != '' && $request->existing_distances[$index] != '' && $request->existing_nearest_ids[$index] != ''){
+                if($request->existing_nearest_locations[$index] != '' && $request->existing_distances[$index] != '' && isset($request->existing_nearest_ids[$index])){
                     $new_loc = PropertyNearestLocation::find($request->existing_nearest_ids[$index]);
-                    $new_loc->nearest_location_id = $request->existing_nearest_locations[$index];
-                    $new_loc->distance = $request->existing_distances[$index];
-                    $new_loc->save();
+                    if ($new_loc) {
+                        $new_loc->nearest_location_id = $request->existing_nearest_locations[$index];
+                        $new_loc->distance = $request->existing_distances[$index];
+                        $new_loc->save();
+                    }
                 }
             }
         }
 
-        if($request->nearest_locations && $request->distances && ($request->lang_code === 'en')){
+        if($request->nearest_locations && $request->distances){
             foreach($request->nearest_locations as $index => $nearest_location){
                 if($request->nearest_locations[$index] != '' && $request->distances[$index] != ''){
                     $new_loc = new PropertyNearestLocation();
@@ -793,14 +805,9 @@ if (!in_array($request->purpose, $validPurposes)) {
 
         if($request->existing_add_keys && $request->existing_add_values){
             foreach($request->existing_add_keys as $index => $add_key){
-                if($request->existing_add_keys[$index] != '' && $request->existing_add_values[$index] != '' && $request->existing_add_ids[$index] != ''){
+                if($request->existing_add_keys[$index] != '' && $request->existing_add_values[$index] != '' && isset($request->existing_add_ids[$index])){
                     $new_loc = AdditionalInformation::find($request->existing_add_ids[$index]);
-
-                    if ($request->lang_code !== 'en') {
-                        $new_loc->updateOrCreateTranslation($request->lang_code, 'add_key', $request->existing_add_keys[$index]);
-
-                        $new_loc->updateOrCreateTranslation($request->lang_code, 'add_value', $request->existing_add_values[$index]);
-                    } else {
+                    if ($new_loc) {
                         $new_loc->add_key = $request->existing_add_keys[$index];
                         $new_loc->add_value = $request->existing_add_values[$index];
                         $new_loc->save();
@@ -815,83 +822,49 @@ if (!in_array($request->purpose, $validPurposes)) {
                 if($request->add_keys[$index] != '' && $request->add_values[$index] != ''){
                     $new_loc = new AdditionalInformation();
                     $new_loc->property_id = $property->id;
-
-
-                    if ($request->lang_code !== 'en') {
-                        $new_loc->updateOrCreateTranslation($request->lang_code, 'add_key', $request->add_keys[$index]);
-
-                        $new_loc->updateOrCreateTranslation($request->lang_code, 'add_value', $request->add_values[$index]);
-                    } else {
-                        $new_loc->add_key = $request->add_keys[$index];
-                        $new_loc->add_value = $request->add_values[$index];
-                        $new_loc->save();
-                    }
+                    $new_loc->add_key = $request->add_keys[$index];
+                    $new_loc->add_value = $request->add_values[$index];
+                    $new_loc->save();
                 }
             }
         }
 
         if($request->existing_plan_ids && $request->existing_plan_titles && $request->existing_plan_descriptions){
             foreach($request->existing_plan_ids as $index => $plan_id){
-
-                if($request->existing_plan_ids[$index] && $request->existing_plan_titles[$index] && $request->existing_plan_descriptions[$index]){
-
+                if(isset($request->existing_plan_ids[$index]) && isset($request->existing_plan_titles[$index]) && isset($request->existing_plan_descriptions[$index])){
                     $plan = PropertyPlan::find($request->existing_plan_ids[$index]);
-
-                    if ($request->lang_code !== 'en') {
-
-                        $plan->updateOrCreateTranslation($request->lang_code, 'title', $request->existing_plan_titles[$index]);
-
-                        $plan->updateOrCreateTranslation($request->lang_code, 'description', $request->existing_plan_descriptions[$index]);
-                    } else {
+                    if ($plan) {
                         $plan->title = $request->existing_plan_titles[$index];
                         $plan->description = $request->existing_plan_descriptions[$index];
                         $plan->save();
-                    }
 
-                    $ex_name = 'existing_plan_image_'.$plan_id;
-                    $request_exist_image = $request->$ex_name;
+                        $ex_name = 'existing_plan_image_'.$plan_id;
+                        $request_exist_image = $request->$ex_name;
 
-                    if($request_exist_image && ($request->lang_code === 'en')){
-                        $exist_image = $plan->image;
-                        $extention = $request_exist_image->getClientOriginalExtension();
-                        $image_name = 'Property-plan'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-                        $image_name = 'uploads/custom-images/'.$image_name;
-                        Image::make($request_exist_image)
-                            ->encode('webp', 80)
-                            ->save(public_path().'/'.$image_name);
-
-                        $plan->image = $image_name;
-                        $plan->save();
-                        if($exist_image){
-                            if(File::exists(public_path().'/'.$exist_image))unlink(public_path().'/'.$exist_image);
+                        if($request_exist_image){
+                            $image_name = ImageHelper::saveImageSafely($request_exist_image, 'Property-plan');
+                            if ($image_name) {
+                                $exist_image = $plan->image;
+                                $plan->image = $image_name;
+                                $plan->save();
+                                if($exist_image && File::exists(public_path().'/'.$exist_image)){
+                                    @unlink(public_path().'/'.$exist_image);
+                                }
+                            }
                         }
                     }
-
                 }
             }
         }
 
         if($request->plan_images && $request->plan_titles && $request->plan_descriptions){
             foreach($request->plan_images as $index => $image){
-                if($request->plan_images[$index] && $request->plan_titles[$index] && $request->plan_descriptions[$index]){
-                    $extention = $image->getClientOriginalExtension();
-                    $image_name = 'Property-plan'.date('-Y-m-d-h-i-s-').rand(999,9999).'.webp';
-                    $image_name = 'uploads/custom-images/'.$image_name;
-                    if ($request->lang_code === 'en') {
-                        Image::make($image)
-                            ->encode('webp', 80)
-                            ->save(public_path().'/'.$image_name);
-                    }
-                    $plan = new PropertyPlan();
-                    $plan->property_id = $property->id;
-                    $plan->image = $image_name;
-
-                    if ($request->lang_code !== 'en') {
-
-                        $plan->updateOrCreateTranslation($request->lang_code, 'title', $request->plan_titles[$index]);
-
-                        $plan->updateOrCreateTranslation($request->lang_code, 'description', $request->plan_descriptions[$index]);
-                    } else {
+                if(isset($request->plan_images[$index]) && isset($request->plan_titles[$index]) && isset($request->plan_descriptions[$index])){
+                    $image_name = ImageHelper::saveImageSafely($image, 'Property-plan');
+                    if ($image_name) {
+                        $plan = new PropertyPlan();
+                        $plan->property_id = $property->id;
+                        $plan->image = $image_name;
                         $plan->title = $request->plan_titles[$index];
                         $plan->description = $request->plan_descriptions[$index];
                         $plan->save();
@@ -902,7 +875,7 @@ if (!in_array($request->purpose, $validPurposes)) {
 
         $notification = trans('user_validation.Update succssfully');
         $notification = array('messege'=>$notification,'alert-type'=>'success');
-        return redirect()->back()->with($notification);
+        return redirect()->route('user.property.index')->with($notification);
 
     }
 

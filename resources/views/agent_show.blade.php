@@ -63,7 +63,7 @@
                                        <p>{{ html_decode($agent->designation) }}</p>
                                     </div>
                                     <ul class="homec-agent-detail__list mg-top-30">
-                                        <li><img src="{{ asset('frontend/img/agent-phone.svg') }}"> <a href="tel:{{ $agent->phone }}">{{ $agent->phone }}</a></li>
+                                        <li><img src="{{ asset('frontend/img/agent-phone.svg') }}"> Protected (Contact via App / Inquiry)</li>
                                         <li><img src="{{ asset('frontend/img/agent-email.svg') }}"> <a href="mailto:{{ html_decode($agent->email) }}">{{ html_decode($agent->email) }}</a></li>
                                         <li><img src="{{ asset('frontend/img/agent-location.svg') }}"> {{ html_decode($agent->address) }} </li>
                                     </ul>

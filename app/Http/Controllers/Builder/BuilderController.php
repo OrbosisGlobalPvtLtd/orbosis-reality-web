@@ -504,23 +504,12 @@ class BuilderController extends Controller
         $property->lon = $request->lng ?? '';
         $property->status = 'enable';
 
-        if ($request->hasFile('thumbnail_image')) {
-            $folder = public_path('uploads/property');
-            if (!file_exists($folder)) {
-                mkdir($folder, 0777, true);
-            }
-            $image = $request->file('thumbnail_image');
-            $fileName = 'property-' . time() . '.webp';
-            $filePath = 'uploads/property/' . $fileName;
-
-            Image::make($image)
-                ->encode('webp', 80)
-                ->save(public_path($filePath));
-
-            $property->thumbnail_image = $filePath;
-        }
-
         $property->save();
+
+        if ($request->hasFile('thumbnail_image')) {
+            $property->thumbnail_image = ImageHelper::savePropertyMedia($request->file('thumbnail_image'), $property->id, 'thumbnail');
+            $property->save();
+        }
 
         return redirect()->route('builder.my-properties')
             ->with('success', 'Property Added Successfully');
@@ -563,24 +552,10 @@ class BuilderController extends Controller
         $property->status = $request->status ?? 'enable';
 
         if ($request->hasFile('thumbnail_image')) {
-            if ($property->thumbnail_image &&
-                file_exists(public_path($property->thumbnail_image))) {
-                unlink(public_path($property->thumbnail_image));
+            if ($property->thumbnail_image && file_exists(public_path($property->thumbnail_image))) {
+                @unlink(public_path($property->thumbnail_image));
             }
-
-            $folder = public_path('uploads/property');
-            if (!file_exists($folder)) {
-                mkdir($folder, 0777, true);
-            }
-            $image = $request->file('thumbnail_image');
-            $fileName = 'property-' . time() . '.webp';
-            $filePath = 'uploads/property/' . $fileName;
-
-            Image::make($image)
-                ->encode('webp', 80)
-                ->save(public_path($filePath));
-
-            $property->thumbnail_image = $filePath;
+            $property->thumbnail_image = ImageHelper::savePropertyMedia($request->file('thumbnail_image'), $property->id, 'thumbnail');
         }
 
         $property->save();

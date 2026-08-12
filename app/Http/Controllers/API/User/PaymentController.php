@@ -81,12 +81,15 @@ class PaymentController extends Controller
 
         $pricing_plan = PricingPlan::where(['plan_slug' => $slug])->first();
 
-        if($pricing_plan->expired_time == 'monthly'){
+        $expired_type = strtolower($pricing_plan->expired_time ?? $pricing_plan->plan_type ?? '');
+        if ($expired_type == 'monthly' || ($pricing_plan->plan_type ?? '') == 'monthly') {
             $plan_expired_date = date('Y-m-d', strtotime('30 days'));
-        }elseif($pricing_plan->expired_time == 'yearly'){
+        } elseif ($expired_type == 'yearly' || ($pricing_plan->plan_type ?? '') == 'yearly') {
             $plan_expired_date = date('Y-m-d', strtotime('365 days'));
-        }elseif($pricing_plan->expired_time == 'lifetime'){
+        } elseif ($expired_type == 'lifetime' || ($pricing_plan->plan_type ?? '') == 'lifetime') {
             $plan_expired_date = 'lifetime';
+        } else {
+            $plan_expired_date = date('Y-m-d', strtotime('30 days'));
         }
 
         $bankPayment = BankPayment::select('id','status','account_info','image')->first();

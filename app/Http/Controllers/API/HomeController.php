@@ -1190,6 +1190,27 @@ class HomeController extends Controller
         }
 
         $sliders = $property->sliders;
+        if ($property->thumbnail_image) {
+            $hasThumb = false;
+            foreach ($sliders as $s) {
+                if ($s->image === $property->thumbnail_image || $s->image_url === $property->thumbnail_image) {
+                    $hasThumb = true;
+                    break;
+                }
+            }
+            if (!$hasThumb) {
+                $thumbSlider = (object) [
+                    'id' => 0,
+                    'property_id' => $property->id,
+                    'image' => $property->thumbnail_image,
+                    'image_url' => $property->thumbnail_image,
+                    'thumbnail_image' => $property->thumbnail_image,
+                    'thumbnail_image_url' => $property->thumbnail_image,
+                ];
+                $sliders = collect([$thumbSlider])->concat($sliders);
+            }
+        }
+
         $aminities = $property->aminities;
         $nearest_locations = $property->nearest_locations;
         $additional_informations = $property->additional_informations;
@@ -1198,28 +1219,30 @@ class HomeController extends Controller
 
         if($property->agent_id == 0){
             $admin = Admin::find(1);
+            $agent_img = $admin ? $admin->agent_image : null;
             $property_agent = (object) array(
                 'agent_type'  => 'admin',
-                'id' => $admin->id,
-                'name' => $admin->agent_name,
-                'user_name' => $admin->user_name,
-                'designation' => $admin->designation,
-                'email' => $admin->agent_email,
-                'image' => $admin->agent_image,
+                'id' => $admin->id ?? 1,
+                'name' => $admin->agent_name ?? 'Admin',
+                'user_name' => $admin->user_name ?? 'admin',
+                'designation' => $admin->designation ?? 'Property Agent',
+                'email' => $admin->agent_email ?? '',
+                'image' => $agent_img ? (str_starts_with($agent_img, 'http') ? $agent_img : url($agent_img)) : url('uploads/website-images/default-avatar.png'),
                 'kyc_status' => 1,
             );
         }else{
             $agent = User::find($property->agent_id);
+            $agent_img = $agent ? $agent->image : null;
 
             $property_agent = (object) array(
                 'agent_type'  => 'agent',
-                'id' => $agent->id,
-                'name' => $agent->name,
-                'user_name' => $agent->user_name,
-                'designation' => $agent->designation,
-                'email' => $agent->email,
-                'image' => $agent->image,
-                'kyc_status' => $agent->kyc_status,
+                'id' => $agent->id ?? 0,
+                'name' => $agent->name ?? 'Agent',
+                'user_name' => $agent->user_name ?? '',
+                'designation' => $agent->designation ?? 'Property Agent',
+                'email' => $agent->email ?? '',
+                'image' => $agent_img ? (str_starts_with($agent_img, 'http') ? $agent_img : url($agent_img)) : url('uploads/website-images/default-avatar.png'),
+                'kyc_status' => $agent->kyc_status ?? 0,
             );
         }
 

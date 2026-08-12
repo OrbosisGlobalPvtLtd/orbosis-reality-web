@@ -99,7 +99,7 @@ Route::middleware(['auth:web'])->prefix('builder')->name('builder.')->group(func
     Route::get('/property/edit/{id}', [BuilderController::class, 'edit'])->name('edit');
     Route::post('/property/update/{id}', [BuilderController::class, 'update'])->name('update');
     Route::delete('/property/delete/{id}', [BuilderController::class, 'delete'])->name('delete');
-    
+
     Route::post('/property/approve/{id}', [BuilderController::class, 'updateApprovalStatus'])->name('status');
     Route::get('/purchase-history', [BuilderController::class, 'purchaseHistory'])->name('purchase-history');
     Route::get('/booking-request', [BuilderController::class, 'bookingRequest'])->name('booking-request');
@@ -223,7 +223,7 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
             Route::get('/agent/dashboard', [UserProfileController::class, 'dashboard'])->middleware(['auth:web', 'agent'])->name('agent.dashboard');
 
             Route::group(['as' => 'user.', 'prefix' => 'user'], function () {
-                Route::get('dashboard', function() {
+                Route::get('dashboard', function () {
                     if (auth()->check()) {
                         if (auth()->user()->login_type === 'agent') {
                             return redirect()->route('agent.dashboard');
@@ -260,7 +260,7 @@ Route::group(['middleware' => ['demo', 'XSS']], function () {
                 Route::post('become-agent', [CompanyController::class, 'becomeAgentSubmit'])->name('become-agent.submit');
 
                 // Agent Only Routes
-                Route::middleware(['agent'])->group(function() {
+                Route::middleware(['agent'])->group(function () {
                     Route::get('orders', [UserProfileController::class, 'orders'])->name('orders');
                     Route::resource('property', UserPropertyController::class);
                     Route::get('choose-property-type', [UserPropertyController::class, 'choose_property_type'])->name('choose-property-type');

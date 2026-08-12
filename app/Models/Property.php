@@ -50,6 +50,8 @@ class Property extends Model
         'totalRating',
         'ratingAvarage',
         'thumbnail_image_url',
+        'image',
+        'image_url',
         'availability_label',
         'can_book',
         'formatted_price',
@@ -65,6 +67,16 @@ class Property extends Model
         'share_count',
         'last_updated'
     ];
+
+    public function getImageAttribute()
+    {
+        return $this->thumbnail_image;
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return $this->thumbnail_image;
+    }
 
     public function getTotalRatingAttribute()
     {
@@ -84,16 +96,21 @@ class Property extends Model
         }
     }
 
+    public function getThumbnailImageAttribute($value)
+    {
+        if (!$value) {
+            $setting = \App\Models\Setting::first();
+            return $setting && $setting->default_placeholder ? url($setting->default_placeholder) : '';
+        }
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+        return url($value);
+    }
+
     public function getThumbnailImageUrlAttribute()
     {
-        if (!$this->thumbnail_image) {
-            $setting = \App\Models\Setting::first();
-            return $setting->default_placeholder ? url($setting->default_placeholder) : null;
-        }
-        if (str_starts_with($this->thumbnail_image, 'http://') || str_starts_with($this->thumbnail_image, 'https://')) {
-            return $this->thumbnail_image;
-        }
-        return url($this->thumbnail_image);
+        return $this->thumbnail_image;
     }
 
     public function getDynamicStatusAttribute()
@@ -161,6 +178,25 @@ class Property extends Model
     public function getCanBookAttribute()
     {
         return ($this->availability_status ?? 'available') === 'available';
+    }
+
+    public function getPriceAttribute($value)
+    {
+        if (is_null($value) || $value === '') {
+            return '0';
+        }
+        $cleaned = preg_replace('/[^\d.]/', '', (string) $value);
+        return $cleaned !== '' ? $cleaned : '0';
+    }
+
+    public function setPriceAttribute($value)
+    {
+        if (is_null($value) || $value === '') {
+            $this->attributes['price'] = '0';
+        } else {
+            $cleaned = preg_replace('/[^\d.]/', '', (string) $value);
+            $this->attributes['price'] = $cleaned !== '' ? $cleaned : '0';
+        }
     }
 
     public function getFormattedPriceAttribute()

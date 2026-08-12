@@ -417,7 +417,6 @@
                                         </div>
                                     </div>
 
-                                    @if (front_lang() === 'en')
                                         <div class="col-12">
                                             <!-- Single Form Element -->
                                             <div class="mg-top-20">
@@ -584,7 +583,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    @endif
                                 </div>
                                 <!-- Single Form Element -->
                                 <div class="mg-top-20">
@@ -596,8 +594,7 @@
                             </div>
                         </div>
 
-                        @if (front_lang() === 'en')
-                            <div class="homec-submit-form mg-top-40">
+                        <div class="homec-submit-form mg-top-40">
                                 <h4 class="homec-submit-form__title">{{ __('user.Property Image') }}</h4>
                                 <div class="homec-submit-form__inner">
 
@@ -617,22 +614,22 @@
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <!-- Image Input -->
-                                                <div class="homec-upload-images">
-                                                    <div class="row">
-                                                        @foreach ($existing_sliders as $existing_slider)
-                                                            <div class="col-lg-4 col-md-4 col-12 image-box">
-                                                                <div class="homec-upload-images__single">
-                                                                    <img src="{{ asset($existing_slider->image) }}">
-                                                                    <button data-id="{{ $existing_slider->id }}"
-                                                                        class="homec-upload-images__single--edit remove_existing_image"><img
-                                                                            src="{{ asset('frontend/img/delete-icon.svg') }}"></button>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-
-                                                </div>
+                                                 <!-- Image Input -->
+                                                 <div class="homec-upload-images">
+                                                     <div class="row mg-btm-10">
+                                                         @foreach ($existing_sliders as $existing_slider)
+                                                             <div class="col-lg-4 col-md-4 col-12 image-box mg-btm-15">
+                                                                 <div class="homec-upload-images__single">
+                                                                     <img src="{{ asset($existing_slider->image) }}">
+                                                                     <button data-id="{{ $existing_slider->id }}" type="button"
+                                                                         class="homec-upload-images__single--edit remove_existing_image"><img
+                                                                             src="{{ asset('frontend/img/delete-icon.svg') }}"></button>
+                                                                 </div>
+                                                             </div>
+                                                         @endforeach
+                                                     </div>
+                                                     <div class="row" id="new_slider_image_preview_row"></div>
+                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-lg-6 col-md-6 col-12">
@@ -661,14 +658,12 @@
 
                                 </div>
                             </div>
-                        @endif
 
                         <div class="homec-submit-form mg-top-40">
                             <h4 class="homec-submit-form__title">{{ __('user.Property Video') }}</h4>
                             <div class="homec-submit-form__inner">
 
                                 <div class="row">
-                                    @if (front_lang() === 'en')
                                         <div class="col-lg-6 col-md-6 col-12">
                                             <div class="mg-top-20">
                                                 <p class="homec-img-video-label mg-btm-10">
@@ -690,7 +685,6 @@
                                                     </label>
                                                 </div>
                                             </div>
-                                    @endif
                                     <!-- Single Form Element -->
                                     <div class="mg-top-20">
                                         <h4 class="homec-submit-form__heading">{{ __('user.Video description') }}</h4>
@@ -699,7 +693,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                @if (front_lang() === 'en')
                                     <div class="col-lg-6 col-md-6 col-12">
                                         <div class="mg-top-20">
                                             <p class="homec-img-video-label mg-btm-10">{{ __('user.Existing Video') }}</p>
@@ -718,7 +711,6 @@
                                                     value="{{ html_decode($property->video_id) }}">
                                             </div>
                                         </div>
-                                @endif
                             </div>
                         </div>
 
@@ -729,9 +721,6 @@
                 <h4 class="homec-submit-form__title">{{ __('user.Property Location') }}</h4>
                 <div class="homec-submit-form__inner">
                     <div class="row">
-
-
-                        @if (front_lang() === 'en')
                             <div class="col-lg-6 col-md-6">
                                 <!-- Single Form Element -->
                                 <div class="mg-top-20">
@@ -762,7 +751,6 @@
                                     </div>
                                 </div>
                             </div>
-                        @endif
                         <div class="col-12">
                             <!-- Single Form Element -->
                             <div class="mg-top-20">
@@ -774,8 +762,7 @@
                                 </div>
                             </div>
                         </div>
-                        @if (front_lang() === 'en')
-                            @if ($setting->live_map == 'yes')
+                        @if ($setting->live_map == 'yes')
                                 <div class="col-12">
                                     <!-- Single Form Element -->
                                     <div class="mg-top-20">
@@ -798,7 +785,6 @@
                                     </div>
                                 </div>
                             @endif
-                        @endif
                         <div class="{{ $setting->live_map == 'yes' ? 'col-12' : 'col-lg-6 col-md-6 col-12' }}">
                             <!-- Single Form Element -->
                             <div class="mg-top-20">
@@ -812,7 +798,6 @@
                     </div>
                 </div>
             </div>
-            @if (front_lang() === 'en')
                 <div class="homec-submit-form mg-top-40">
                     <h4 class="homec-submit-form__title">{{ __('user.Aminities') }}</h4>
                     <div class="homec-submit-form__inner">
@@ -915,7 +900,6 @@
                         </div>
                     </div>
                 </div>
-            @endif
             <div class="homec-submit-form mg-top-40">
                 <h4 class="homec-submit-form__title">{{ __('user.Additional Information') }}</h4>
                 <div class="homec-submit-form__inner" id="additional-box">
@@ -944,18 +928,15 @@
                                         <div class="form-group homec-form-input homec-form-add">
                                             <input type="text" name="existing_add_values[]" autocomplete="off"
                                                 value="{{ html_decode($existing_add_information->add_value) }}">
-                                            @if (front_lang() === 'en')
                                                 <button data-id="{{ $existing_add_information->id }}" type="button"
                                                     class="homec-form-add__button homec-form-add__button--delete existingRemoveAdditioanRow"><img
                                                         src="{{ asset('frontend/img/delete-icon.svg') }}"></button>
-                                            @endif
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @endforeach
-                    @if (front_lang() === 'en')
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-12">
                                 <!-- Single Form Element -->
@@ -978,7 +959,6 @@
                                 </div>
                             </div>
                         </div>
-                    @endif
 
                 </div>
             </div>
@@ -989,7 +969,6 @@
 
                     @foreach ($existing_plans as $existing_plan)
                         <div class="row">
-                            @if (front_lang() === 'en')
                                 <div class="col-lg-6 col-md-6 col-12">
                                     <div class="mg-top-20">
                                         <p class="homec-img-video-label mg-btm-10">{{ __('user.Existing Image') }}</p>
@@ -1011,7 +990,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            @endif
 
                             <div class="col-lg-6 col-md-6 col-12">
                                 <!-- Single Form Element -->
@@ -1031,18 +1009,15 @@
                                     <h4 class="homec-submit-form__heading">{{ __('user.Description') }}</h4>
                                     <div class="form-group homec-form-input homec-form-add">
                                         <textarea name="existing_plan_descriptions[]">{{ html_decode($existing_plan->description) }}</textarea>
-                                        @if (front_lang() === 'en')
-                                            <button type="button" data-id="{{ $existing_plan->id }}"
-                                                class="homec-form-add__button homec-form-add__button--delete existingRemovePlanRow"><img
-                                                    src="{{ asset('frontend/img/delete-icon.svg') }}"></button>
-                                        @endif
+                                        <button type="button" data-id="{{ $existing_plan->id }}"
+                                            class="homec-form-add__button homec-form-add__button--delete existingRemovePlanRow"><img
+                                                src="{{ asset('frontend/img/delete-icon.svg') }}"></button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     @endforeach
 
-                    @if (front_lang() === 'en')
                         <div class="row">
                             <div class="col-lg-6 col-md-6 col-12">
                                 <div class="mg-top-30">
@@ -1079,7 +1054,6 @@
                                 </div>
                             </div>
                         </div>
-                    @endif
                 </div>
             </div>
 
@@ -1106,8 +1080,7 @@
                                 </div>
                             </div>
                         </div>
-                        @if (front_lang() === 'en')
-                            <div class="col-lg-6 col-md-6 col-12">
+                        <div class="col-lg-6 col-md-6 col-12">
                                 <div class="homeco-switcher-group mg-top-20">
                                     <div class="homeco-switcher-group__single">
                                         <!-- Single Switcher-->
@@ -1255,7 +1228,6 @@
                                     </div>
                                 </div>
                             </div>
-                        @endif
                     </div>
 
                 </div>
@@ -1337,9 +1309,71 @@
 
                 // slider box load
 
+                var sliderDataTransfer = new DataTransfer();
+
                 $("#slider_image_hideden_btn").on("click", function() {
                     $('#slider_image_hideden_id').click();
-                })
+                });
+
+                $("#slider_image_hideden_id").on("change", function() {
+                    var input = this;
+                    if (input.files && input.files.length > 0) {
+                        Array.from(input.files).forEach(function(file) {
+                            sliderDataTransfer.items.add(file);
+                        });
+                        input.files = sliderDataTransfer.files;
+                        renderSliderPreviews();
+                    }
+                });
+
+                function renderSliderPreviews() {
+                    var newPreviewContainer = $("#new_slider_image_preview_row");
+                    newPreviewContainer.empty();
+
+                    var count = sliderDataTransfer.files.length;
+                    if (count > 0) {
+                        $("#slider_image_hideden_btn span").text(count + " Image(s) Selected");
+                        $("#slider_image_hideden_btn").css({"background": "#16a34a", "color": "#ffffff"});
+
+                        Array.from(sliderDataTransfer.files).forEach(function(file, index) {
+                            if (file && file.type.startsWith('image/')) {
+                                var reader = new FileReader();
+                                reader.onload = function(e) {
+                                    var html = `
+                                        <div class="col-lg-4 col-md-4 col-6 image-box mg-btm-15">
+                                            <div class="homec-upload-images__single" style="border: 2px solid #16a34a; border-radius: 8px; overflow: hidden; position: relative; height: 110px;">
+                                                <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                <button type="button" class="remove-new-preview-btn" data-index="${index}" style="position: absolute; top: 4px; right: 4px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">&times;</button>
+                                                <span class="badge" style="position: absolute; bottom: 4px; right: 4px; font-size: 10px; background-color: #16a34a; color: #fff; padding: 2px 6px; border-radius: 4px;">Selected</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                    newPreviewContainer.append(html);
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        });
+                    } else {
+                        $("#slider_image_hideden_btn span").text("{{ __('user.Upload New Image') }}");
+                        $("#slider_image_hideden_btn").css({"background": "", "color": ""});
+                    }
+                }
+
+                $(document).on('click', '.remove-new-preview-btn', function() {
+                    var indexToRemove = parseInt($(this).data('index'));
+                    var newDt = new DataTransfer();
+                    Array.from(sliderDataTransfer.files).forEach(function(file, idx) {
+                        if (idx !== indexToRemove) {
+                            newDt.items.add(file);
+                        }
+                    });
+                    sliderDataTransfer = newDt;
+                    var input = document.getElementById('slider_image_hideden_id');
+                    if (input) {
+                        input.files = sliderDataTransfer.files;
+                    }
+                    renderSliderPreviews();
+                });
 
 
                 $.get({

@@ -548,7 +548,7 @@
                                                 </div>
                                                 <!-- Image Input -->
                                                 <div class="homec-upload-images">
-                                                    <div class="row">
+                                                    <div class="row" id="new_slider_image_preview_row">
                                                         
                                                     </div>
 
@@ -1145,8 +1145,70 @@
 
 
 
+            var sliderDataTransferCreate = new DataTransfer();
+
             $("#slider_image_hideden_btn").on("click", function() {
                 $('#slider_image_hideden_id').click();
+            });
+
+            $("#slider_image_hideden_id").on("change", function() {
+                var input = this;
+                if (input.files && input.files.length > 0) {
+                    Array.from(input.files).forEach(function(file) {
+                        sliderDataTransferCreate.items.add(file);
+                    });
+                    input.files = sliderDataTransferCreate.files;
+                    renderCreateSliderPreviews();
+                }
+            });
+
+            function renderCreateSliderPreviews() {
+                var newPreviewContainer = $("#new_slider_image_preview_row");
+                newPreviewContainer.empty();
+
+                var count = sliderDataTransferCreate.files.length;
+                if (count > 0) {
+                    $("#slider_image_hideden_btn span").text(count + " Image(s) Selected");
+                    $("#slider_image_hideden_btn").css({"background": "#16a34a", "color": "#ffffff"});
+
+                    Array.from(sliderDataTransferCreate.files).forEach(function(file, index) {
+                        if (file && file.type.startsWith('image/')) {
+                            var reader = new FileReader();
+                            reader.onload = function(e) {
+                                var html = `
+                                    <div class="col-lg-4 col-md-4 col-6 image-box mg-btm-15">
+                                        <div class="homec-upload-images__single" style="border: 2px solid #16a34a; border-radius: 8px; overflow: hidden; position: relative; height: 110px;">
+                                            <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            <button type="button" class="remove-create-preview-btn" data-index="${index}" style="position: absolute; top: 4px; right: 4px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1;">&times;</button>
+                                            <span class="badge" style="position: absolute; bottom: 4px; right: 4px; font-size: 10px; background-color: #16a34a; color: #fff; padding: 2px 6px; border-radius: 4px;">Selected</span>
+                                        </div>
+                                    </div>
+                                `;
+                                newPreviewContainer.append(html);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                } else {
+                    $("#slider_image_hideden_btn span").text("{{ __('user.Upload New Image') }}");
+                    $("#slider_image_hideden_btn").css({"background": "", "color": ""});
+                }
+            }
+
+            $(document).on('click', '.remove-create-preview-btn', function() {
+                var indexToRemove = parseInt($(this).data('index'));
+                var newDt = new DataTransfer();
+                Array.from(sliderDataTransferCreate.files).forEach(function(file, idx) {
+                    if (idx !== indexToRemove) {
+                        newDt.items.add(file);
+                    }
+                });
+                sliderDataTransferCreate = newDt;
+                var input = document.getElementById('slider_image_hideden_id');
+                if (input) {
+                    input.files = sliderDataTransferCreate.files;
+                }
+                renderCreateSliderPreviews();
             });
 
             // Amenities dropdown multi-select tag picker

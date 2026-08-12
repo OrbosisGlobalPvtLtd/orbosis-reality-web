@@ -438,7 +438,7 @@
 
 
                                 </a>
-                                <span><a href="tel:{{ $property_agent->phone }}">{{__('user.Call')}} : {{ $property_agent->phone }}</a></span>
+                                <span><span class="badge" style="background:#42a5d5; color:#fff; padding:6px 12px; border-radius:4px; font-weight:500;"><i class="fa fa-comments"></i> Contact via Inquiry Form / App</span></span>
                                 </h4>
                             </div>
                         </div>
